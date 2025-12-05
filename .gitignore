@@ -57,6 +57,18 @@ project.xcworkspace/
 .vscode/
 .history/
 
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
 # MacOS
 .DS_Store
 
@@ -69,3 +81,6 @@ fastlane/test_output
 # Temporary
 tmp/
 temp/
+
+
+expo-env.d.ts
