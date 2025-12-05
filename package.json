@@ -10,7 +10,14 @@
         "web": "expo start --web",
         "lint": "expo lint",
         "lint:fix": "expo lint --fix",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx,json}": [
+            "prettier --write",
+            "eslint --fix"
+        ]
     },
     "dependencies": {
         "@expo/vector-icons": "^15.0.3",
@@ -45,6 +52,8 @@
         "eslint-config-expo": "~10.0.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
         "prettier": "^3.7.4",
         "typescript": "~5.9.2"
     },
