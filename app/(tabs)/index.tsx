@@ -1,11 +1,11 @@
 import { Image } from 'expo-image'
-import { Platform, StyleSheet } from 'react-native'
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Link, router } from 'expo-router'
 
 import { HelloWave } from '@/components/hello-wave'
 import ParallaxScrollView from '@/components/parallax-scroll-view'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { Link } from 'expo-router'
 
 export default function HomeScreen() {
     return (
@@ -56,6 +56,11 @@ export default function HomeScreen() {
                     <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
                     <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
                 </ThemedText>
+                <View style={styles.welcomeButtonContainer}>
+                    <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.welcomeButton} accessibilityRole="button">
+                        <Text style={styles.welcomeButtonText}>Open Welcome!</Text>
+                    </TouchableOpacity>
+                </View>
             </ThemedView>
         </ParallaxScrollView>
     )
@@ -77,5 +82,25 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         position: 'absolute',
+    },
+    btn: {
+        width: 80,
+        height: 30,
+        backgroundColor: 'white',
+    },
+    welcomeButtonContainer: {
+        marginTop: 8,
+        flexDirection: 'row',
+    },
+    welcomeButton: {
+        backgroundColor: '#0286FF',
+        borderRadius: 24,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+    },
+    welcomeButtonText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 16,
     },
 })
