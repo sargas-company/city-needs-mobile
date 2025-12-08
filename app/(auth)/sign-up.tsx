@@ -1,9 +1,9 @@
 import { Link } from 'expo-router'
-import { Text, View, ScrollView } from 'react-native'
+import { Text, View } from 'react-native'
 
 const SignUp = () => {
     return (
-        <ScrollView className="flex-1 items-center justify-center bg-white">
+        <View className="flex-1 items-center justify-center bg-white">
             <View className="items-center gap-4">
                 <Text className="text-2xl font-bold text-black">Sign Up</Text>
                 <Text className="text-base text-gray-600">TODO: connect registration form</Text>
@@ -11,7 +11,7 @@ const SignUp = () => {
                     Go to Sign In
                 </Link>
             </View>
-        </ScrollView>
+        </View>
     )
 }
 

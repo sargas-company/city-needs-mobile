@@ -1,35 +1,48 @@
 import { useRouter } from 'expo-router'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Swiper from 'react-native-swiper'
 
-import { onboardingSlides, selectLastOnboardingIndex } from '@/constants/onboarding'
+import { useOnboarding } from '@/hooks/useOnboarding'
 
 const DOT_CLASSNAME = 'w-[32px] h-[4px] mx-1 rounded-full'
 
 const Welcome = () => {
     const router = useRouter()
     const swiperRef = useRef<Swiper | null>(null)
-    const slides = useMemo(() => onboardingSlides, [])
-    const lastIndex = useMemo(() => selectLastOnboardingIndex(slides.length), [slides.length])
+    const { slides, lastIndex, isCompleted, isLoading } = useOnboarding()
     const [activeIndex, setActiveIndex] = useState(0)
+
+    const navigateToAuth = useCallback(() => {
+        router.replace('/(auth)/sign-in')
+    }, [router])
+
+    useEffect(() => {
+        if (isCompleted && !isLoading) {
+            navigateToAuth()
+        }
+    }, [isCompleted, isLoading, navigateToAuth])
 
     const isLastSlide = useMemo(() => activeIndex >= lastIndex, [activeIndex, lastIndex])
     const primaryCtaLabel = useMemo(() => (isLastSlide ? 'Get Started' : 'Next'), [isLastSlide])
 
-    const handleComplete = () => {
-        router.replace('/(auth)/sign-in')
-    }
+    const handleComplete = useCallback(() => {
+        navigateToAuth()
+    }, [navigateToAuth])
 
-    const handleNext = () => {
+    const handleNext = useCallback(() => {
         if (isLastSlide) {
             handleComplete()
             return
         }
 
         swiperRef.current?.scrollBy(1, true)
-    }
+    }, [handleComplete, isLastSlide])
+
+    // if (isLoading) {
+    //     return null
+    // }
 
     return (
         <SafeAreaView className="flex h-full items-center justify-between bg-white">
