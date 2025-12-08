@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store'
 
-import { AuthTokens } from '../api/types'
+import { AuthTokens } from './auth.types'
 
 type TokenKey = 'accessToken' | 'refreshToken'
 
@@ -51,24 +51,20 @@ const writeToken = async (key: TokenKey, value: string | null) => {
     await SecureStore.deleteItemAsync(TOKEN_KEYS[key])
 }
 
-export const getAccessToken = () => readToken('accessToken')
-
-export const getRefreshToken = () => readToken('refreshToken')
-
-export const persistTokens = async ({ accessToken, refreshToken }: AuthTokens) => {
-    await Promise.all([writeToken('accessToken', accessToken), writeToken('refreshToken', refreshToken)])
-}
-
-export const clearSession = async () => {
-    await Promise.all([writeToken('accessToken', null), writeToken('refreshToken', null)])
-}
-
-export const getSessionTokens = async (): Promise<AuthTokens | null> => {
-    const [accessToken, refreshToken] = await Promise.all([getAccessToken(), getRefreshToken()])
+export const getTokens = async (): Promise<AuthTokens | null> => {
+    const [accessToken, refreshToken] = await Promise.all([readToken('accessToken'), readToken('refreshToken')])
 
     if (!accessToken || !refreshToken) {
         return null
     }
 
-    return { accessToken, refreshToken }
+    return { accessToken, refreshToken, tokenType: 'Bearer' }
+}
+
+export const setTokens = async ({ accessToken, refreshToken }: AuthTokens) => {
+    await Promise.all([writeToken('accessToken', accessToken), writeToken('refreshToken', refreshToken)])
+}
+
+export const clearTokens = async () => {
+    await Promise.all([writeToken('accessToken', null), writeToken('refreshToken', null)])
 }
