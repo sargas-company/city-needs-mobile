@@ -9,7 +9,7 @@ export default function ProtectedLayout() {
     const router = useRouter()
     const status = useAppSelector(selectAuthStatus)
     const isAuth = useAppSelector(selectIsAuth)
-
+    console.log(isAuth)
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.replace('/(auth)/sign-in')
