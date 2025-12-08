@@ -1,25 +1,23 @@
 import { Redirect } from 'expo-router'
 
 import { useOnboarding } from '@/hooks/useOnboarding'
-
-const useAuth = () => {
-    // TODO: replace with real auth selector; kept synchronous for now.
-    return { isLoaded: true, isSignedIn: true }
-}
+import { useAppSelector } from '@/store'
+import { selectAuthStatus, selectIsAuth } from '@/store/auth/auth.slice'
 
 export default function Index() {
     const { isCompleted, isLoading } = useOnboarding()
-    const { isLoaded, isSignedIn } = useAuth()
+    const status = useAppSelector(selectAuthStatus)
+    const isAuth = useAppSelector(selectIsAuth)
 
-    // if (isLoading || !isLoaded) {
-    //     return null
-    // }
+    if (isLoading || status === 'loading' || status === 'idle') {
+        return null
+    }
 
     if (!isCompleted) {
         return <Redirect href="/(onboarding)/welcome" />
     }
 
-    if (!isSignedIn) {
+    if (!isAuth) {
         return <Redirect href="/(auth)/sign-in" />
     }
 
