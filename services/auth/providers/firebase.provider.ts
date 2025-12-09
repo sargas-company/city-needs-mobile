@@ -26,7 +26,7 @@ const buildTokens = async (user: User, forceRefresh = false): Promise<AuthTokens
 export const firebaseAuthProvider: AuthProvider = {
     async login(payload: LoginPayload): Promise<AuthTokens> {
         const { username, email, password } = payload
-        const identifier = email ?? username
+        const identifier = (email ?? username ?? '').trim()
         if (!identifier || !password) {
             throw new Error('Email/username and password are required')
         }
@@ -34,7 +34,8 @@ export const firebaseAuthProvider: AuthProvider = {
         return buildTokens(credential.user)
     },
     async signUp(payload: SignUpPayload): Promise<AuthTokens> {
-        const { email, password } = payload
+        const email = (payload.email ?? '').trim()
+        const password = payload.password
         if (!email || !password) {
             throw new Error('Email and password are required for sign up')
         }

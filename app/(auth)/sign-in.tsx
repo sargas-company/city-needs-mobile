@@ -10,13 +10,13 @@ import { selectAuthStatus } from '@/store/auth/auth.slice'
 const SignIn = () => {
     const dispatch = useAppDispatch()
     const status = useAppSelector(selectAuthStatus)
-    const [identifier, setIdentifier] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
 
     const onSubmit = async () => {
         setError(null)
-        const payload: LoginPayload = { username: identifier, password }
+        const payload: LoginPayload = { email: email.trim(), password }
         try {
             await performLogin(dispatch, payload)
         } catch (err) {
@@ -32,11 +32,11 @@ const SignIn = () => {
                 <Text className="text-2xl font-bold text-black">Sign In</Text>
 
                 <View className="gap-2">
-                    <Text className="text-sm text-gray-600">Email or Username</Text>
+                    <Text className="text-sm text-gray-600">Email</Text>
                     <TextInput
-                        value={identifier}
-                        onChangeText={setIdentifier}
-                        placeholder="Enter email or username"
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Enter email"
                         editable={!isLoading}
                         autoCapitalize="none"
                         className="w-full rounded-md border border-gray-300 px-4 py-3"
@@ -59,8 +59,8 @@ const SignIn = () => {
 
                 <Pressable
                     onPress={onSubmit}
-                    disabled={isLoading || !identifier || !password}
-                    className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !identifier || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
+                    disabled={isLoading || !email || !password}
+                    className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !email || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
                 >
                     <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in...' : 'Sign In'}</Text>
                 </Pressable>

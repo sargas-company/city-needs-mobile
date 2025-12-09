@@ -2,25 +2,25 @@ import { Link } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { LoginPayload } from '@/services/auth/auth.types'
-import { performLogin } from '@/services/auth/auth.actions'
+import { performSignUp } from '@/services/auth/auth.actions'
+import { SignUpPayload } from '@/services/auth/auth.types'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { selectAuthStatus } from '@/store/auth/auth.slice'
 
 const SignUp = () => {
     const dispatch = useAppDispatch()
     const status = useAppSelector(selectAuthStatus)
-    const [identifier, setIdentifier] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
 
     const onSubmit = async () => {
         setError(null)
-        const payload: LoginPayload = { username: identifier, password }
+        const payload: SignUpPayload = { email: email.trim(), password }
         try {
-            await performLogin(dispatch, payload)
+            await performSignUp(dispatch, payload)
         } catch (err) {
-            setError((err as Error)?.message ?? 'Sign up (login) failed')
+            setError((err as Error)?.message ?? 'Sign up failed')
         }
     }
 
@@ -30,14 +30,14 @@ const SignUp = () => {
         <View className="flex-1 items-center justify-center bg-white px-6">
             <View className="w-full max-w-md gap-4">
                 <Text className="text-2xl font-bold text-black">Sign Up</Text>
-                <Text className="text-base text-gray-600">DummyJSON has no sign-up; this will attempt login.</Text>
+                <Text className="text-base text-gray-600">Create an account with your email and password.</Text>
 
                 <View className="gap-2">
-                    <Text className="text-sm text-gray-600">Email or Username</Text>
+                    <Text className="text-sm text-gray-600">Email</Text>
                     <TextInput
-                        value={identifier}
-                        onChangeText={setIdentifier}
-                        placeholder="Enter email or username"
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Enter email"
                         editable={!isLoading}
                         autoCapitalize="none"
                         className="w-full rounded-md border border-gray-300 px-4 py-3"
@@ -60,10 +60,10 @@ const SignUp = () => {
 
                 <Pressable
                     onPress={onSubmit}
-                    disabled={isLoading || !identifier || !password}
-                    className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !identifier || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
+                    disabled={isLoading || !email || !password}
+                    className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !email || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
                 >
-                    <Text className="text-base font-semibold text-white">{isLoading ? 'Submitting...' : 'Sign Up (Login)'}</Text>
+                    <Text className="text-base font-semibold text-white">{isLoading ? 'Submitting...' : 'Sign Up'}</Text>
                 </Pressable>
 
                 <Link href="/(auth)/sign-in" className="text-center text-blue-500">
