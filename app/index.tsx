@@ -9,9 +9,9 @@ export default function Index() {
     const status = useAppSelector(selectAuthStatus)
     const isAuth = useAppSelector(selectIsAuth)
 
-    // if (isLoading || status === 'loading') {
-    //     return null
-    // }
+    if (isLoading || status === 'loading') {
+        return null
+    }
 
     if (!isCompleted) {
         return <Redirect href="/(onboarding)/welcome" />

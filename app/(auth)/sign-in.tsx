@@ -1,6 +1,7 @@
 import { Link } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { performLogin } from '@/services/auth/auth.actions'
 import { LoginPayload } from '@/services/auth/auth.types'
@@ -27,7 +28,7 @@ const SignIn = () => {
     const isLoading = status === 'loading'
 
     return (
-        <View className="flex-1 items-center justify-center bg-white px-6">
+        <SafeAreaView className="flex-1 items-center justify-center bg-white px-6">
             <View className="w-full max-w-md gap-4">
                 <Text className="text-2xl font-bold text-black">Sign In</Text>
 
@@ -69,7 +70,7 @@ const SignIn = () => {
                     Go to Sign Up
                 </Link>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 

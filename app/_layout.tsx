@@ -5,16 +5,12 @@ import { StatusBar } from 'expo-status-bar'
 import 'react-native-reanimated'
 import { useEffect } from 'react'
 import '../global.css'
+import '@dev-plugins/async-storage'
 
-// Ensure auth provider side-effect is registered once
 import '@/services/auth'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
 import { store, useAppDispatch } from '@/store'
-
-export const unstable_settings = {
-    anchor: '(protected)/(tabs)',
-}
 
 const RootNavigation = () => {
     const colorScheme = useColorScheme()
@@ -29,8 +25,9 @@ const RootNavigation = () => {
             <Stack>
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
                 <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(protected)" />
+                <Stack.Screen name="+not-found" />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>

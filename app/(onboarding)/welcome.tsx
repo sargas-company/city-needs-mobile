@@ -11,7 +11,7 @@ const DOT_CLASSNAME = 'w-[32px] h-[4px] mx-1 rounded-full'
 const Welcome = () => {
     const router = useRouter()
     const swiperRef = useRef<Swiper | null>(null)
-    const { slides, lastIndex, isCompleted, isLoading } = useOnboarding()
+    const { slides, lastIndex, isCompleted, isLoading, markCompleted } = useOnboarding()
     const [activeIndex, setActiveIndex] = useState(0)
 
     const navigateToAuth = useCallback(() => {
@@ -27,9 +27,10 @@ const Welcome = () => {
     const isLastSlide = useMemo(() => activeIndex >= lastIndex, [activeIndex, lastIndex])
     const primaryCtaLabel = useMemo(() => (isLastSlide ? 'Get Started' : 'Next'), [isLastSlide])
 
-    const handleComplete = useCallback(() => {
+    const handleComplete = useCallback(async () => {
+        await markCompleted()
         navigateToAuth()
-    }, [navigateToAuth])
+    }, [markCompleted, navigateToAuth])
 
     const handleNext = useCallback(() => {
         if (isLastSlide) {
@@ -40,9 +41,9 @@ const Welcome = () => {
         swiperRef.current?.scrollBy(1, true)
     }, [handleComplete, isLastSlide])
 
-    // if (isLoading) {
-    //     return null
-    // }
+    if (isLoading) {
+        return null
+    }
 
     return (
         <SafeAreaView className="flex h-full items-center justify-between bg-white">
