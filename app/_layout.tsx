@@ -12,6 +12,12 @@ import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
 import { store, useAppDispatch } from '@/store'
 
+if (__DEV__) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { initAsyncStorageDebug } = require('@/src/utils/asyncStorageDebug')
+    initAsyncStorageDebug()
+}
+
 const RootNavigation = () => {
     const colorScheme = useColorScheme()
     const dispatch = useAppDispatch()
