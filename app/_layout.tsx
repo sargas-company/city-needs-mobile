@@ -6,12 +6,14 @@ import 'react-native-reanimated'
 import { useEffect } from 'react'
 import '../global.css'
 
+// Ensure auth provider side-effect is registered once
+import '@/services/auth'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
 import { store, useAppDispatch } from '@/store'
 
 export const unstable_settings = {
-    anchor: '(tabs)',
+    anchor: '(protected)/(tabs)',
 }
 
 const RootNavigation = () => {
@@ -25,7 +27,6 @@ const RootNavigation = () => {
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
                 <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
                 <Stack.Screen name="(auth)" />

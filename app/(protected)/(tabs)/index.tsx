@@ -20,7 +20,7 @@ export default function HomeScreen() {
             <ThemedView style={styles.stepContainer}>
                 <ThemedText type="subtitle">Step 1: Try it</ThemedText>
                 <ThemedText>
-                    Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes. Press{' '}
+                    Edit <ThemedText type="defaultSemiBold">app/(protected)/(tabs)/index.tsx</ThemedText> to see changes. Press{' '}
                     <ThemedText type="defaultSemiBold">
                         {Platform.select({
                             ios: 'cmd + d',
@@ -57,8 +57,8 @@ export default function HomeScreen() {
                     <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
                 </ThemedText>
                 <View style={styles.welcomeButtonContainer}>
-                    <TouchableOpacity onPress={() => router.push('/(onboarding)/welcome')} style={styles.welcomeButton} accessibilityRole="button">
-                        <Text style={styles.welcomeButtonText}>Open Welcome!</Text>
+                    <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.welcomeButton} accessibilityRole="button">
+                        <Text style={styles.welcomeButtonText}>Open Welcome</Text>
                     </TouchableOpacity>
                 </View>
             </ThemedView>
@@ -82,11 +82,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         position: 'absolute',
-    },
-    btn: {
-        width: 80,
-        height: 30,
-        backgroundColor: 'white',
     },
     welcomeButtonContainer: {
         marginTop: 8,

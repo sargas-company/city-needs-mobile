@@ -13,7 +13,7 @@ export const performLogin = async (dispatch: AppDispatch, credentials: LoginPayl
     dispatch(api.util.invalidateTags(['Me']))
     await dispatch(api.endpoints.me.initiate(undefined, { forceRefetch: true }))
     dispatch(setAuthStatus('authenticated'))
-    router.replace('/(protected)/home')
+    router.replace('/(protected)/(tabs)')
 }
 
 export const performLogout = async (dispatch: AppDispatch) => {

@@ -6,7 +6,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 
-export default function TabLayout() {
+export default function ProtectedTabsLayout() {
     const colorScheme = useColorScheme()
 
     return (
