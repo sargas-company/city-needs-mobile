@@ -1,12 +1,12 @@
 import { setAuthProvider } from './auth.service'
-import { dummyJsonAuthProvider } from './providers/dummyjson.provider'
+import { firebaseAuthProvider } from './providers/firebase.provider'
 
-setAuthProvider(dummyJsonAuthProvider)
+setAuthProvider(firebaseAuthProvider)
 
 export * from './auth.types'
 export * from './auth.provider'
 export * from './auth.service'
 export * from './session'
-export * from './providers/dummyjson.provider'
+export * from './providers/firebase.provider'
 
 export const configureAuthProvider = setAuthProvider

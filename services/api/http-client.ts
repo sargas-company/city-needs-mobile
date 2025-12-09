@@ -18,7 +18,8 @@ const apiClient: AxiosInstance = axios.create({
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 })
 
-const isRefreshRequest = (config?: InternalAxiosRequestConfig) => config?.url?.includes('/auth/refresh')
+const isRefreshRequest = (config?: InternalAxiosRequestConfig) =>
+    config?.url?.includes('/auth/refresh') || config?.url?.includes('/auth/login') || config?.url?.includes('/auth/sign-up')
 
 const attachAuthHeader = (config: InternalAxiosRequestConfig, token: string | null): InternalAxiosRequestConfig => {
     if (!token) {

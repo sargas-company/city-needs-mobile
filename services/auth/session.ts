@@ -54,15 +54,15 @@ const writeToken = async (key: TokenKey, value: string | null) => {
 export const getTokens = async (): Promise<AuthTokens | null> => {
     const [accessToken, refreshToken] = await Promise.all([readToken('accessToken'), readToken('refreshToken')])
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
         return null
     }
 
-    return { accessToken, refreshToken, tokenType: 'Bearer' }
+    return { accessToken, refreshToken: refreshToken ?? '', tokenType: 'Bearer' }
 }
 
 export const setTokens = async ({ accessToken, refreshToken }: AuthTokens) => {
-    await Promise.all([writeToken('accessToken', accessToken), writeToken('refreshToken', refreshToken)])
+    await Promise.all([writeToken('accessToken', accessToken), writeToken('refreshToken', refreshToken ?? null)])
 }
 
 export const clearTokens = async () => {

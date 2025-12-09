@@ -16,7 +16,7 @@ export default function ProtectedLayout() {
         }
     }, [router, status])
 
-    if (status === 'loading' || status === 'idle') {
+    if (status === 'loading') {
         return (
             <View className="flex-1 items-center justify-center bg-white">
                 <Text>Loading session...</Text>
@@ -30,7 +30,6 @@ export default function ProtectedLayout() {
 
     return (
         <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
             <Stack.Screen name="(tabs)" />
         </Stack>
     )

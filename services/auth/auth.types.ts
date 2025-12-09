@@ -6,14 +6,15 @@ export type AuthTokens = {
 }
 
 export type LoginPayload = {
-    username: string
+    username?: string
+    email?: string
     password: string
 }
 
 export type SignUpPayload = {
-    username: string
-    password: string
+    username?: string
     email?: string
+    password: string
 }
 
 export type AuthUser = {
