@@ -16,7 +16,13 @@ const SignUp = () => {
 
     const onSubmit = async () => {
         setError(null)
-        const payload: SignUpPayload = { email: email.trim(), password }
+        const payload: SignUpPayload = {
+            email: email.trim(),
+            password,
+            username: 'Demo User',
+            avatar: 'https://example.com/avatar.png',
+            role: 'BUSINESS_OWNER',
+        }
         try {
             await performSignUp(dispatch, payload)
         } catch (err) {

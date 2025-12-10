@@ -11,10 +11,14 @@ export type LoginPayload = {
     password: string
 }
 
+export type UserRole = 'END_USER' | 'BUSINESS_OWNER'
+
 export type SignUpPayload = {
     username?: string
     email?: string
     password: string
+    avatar?: string
+    role?: UserRole
 }
 
 export type AuthUser = {

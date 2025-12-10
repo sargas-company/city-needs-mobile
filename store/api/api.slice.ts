@@ -34,11 +34,11 @@ const axiosBaseQuery =
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: axiosBaseQuery({ client: apiClient }),
-    tagTypes: ['Me', 'User', 'AnyFutureEntity'],
+    tagTypes: ['Me', 'User', 'AnyFutureEntity', 'Profile'],
     endpoints: (builder) => ({
         me: builder.query<AppUser, void>({
             query: () => ({ url: '/auth/me', method: 'GET' }),
-            providesTags: ['Me'],
+            providesTags: ['Me', 'Profile'],
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 dispatch(setProfileStatus('loading'))
                 try {
@@ -47,15 +47,21 @@ export const api = createApi({
                     dispatch(setAuthStatus('authenticated'))
                     dispatch(setProfileStatus('ready'))
                 } catch (error: unknown) {
-                    dispatch(setProfileError('Failed to load profile'))
-                    const status = (error as { error?: { status?: number } })?.error?.status
+                    const status = (error as { error?: { status?: number; data?: any } })?.error?.status
                     if (status === 401 || status === 403) {
                         dispatch(clearUser())
                         dispatch(setAuthStatus('unauthenticated'))
                         dispatch(setProfileStatus('idle'))
+                    } else {
+                        dispatch(setProfileError('Failed to load profile'))
+                        dispatch(setProfileStatus('error'))
                     }
                 }
             },
+        }),
+        authSync: builder.mutation<AppUser, Partial<AppUser>>({
+            query: (body) => ({ url: '/auth/sync', method: 'POST', data: body ?? {} }),
+            invalidatesTags: ['Profile', 'Me'],
         }),
     }),
 })
