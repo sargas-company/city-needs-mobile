@@ -42,10 +42,16 @@ const authSlice = createSlice({
         setAuthError: (state, action: PayloadAction<string | undefined>) => {
             state.error = action.payload
         },
+        logout: (state) => {
+            state.user = null
+            state.isAuth = false
+            state.status = 'unauthenticated'
+            state.error = undefined
+        },
     },
 })
 
-export const { setUser, clearUser, setAuthStatus, setAuthError } = authSlice.actions
+export const { setUser, clearUser, setAuthStatus, setAuthError, logout } = authSlice.actions
 export const authReducer = authSlice.reducer
 
 export const selectAuthState = (state: RootState) => state.auth

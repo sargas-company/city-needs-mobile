@@ -6,11 +6,12 @@ import 'react-native-reanimated'
 import { useEffect } from 'react'
 import '../global.css'
 import '@dev-plugins/async-storage'
+import { PersistGate } from 'redux-persist/integration/react'
 
 import '@/services/auth'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
-import { store, useAppDispatch } from '@/store'
+import { store, persistor, useAppDispatch } from '@/store'
 
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -43,7 +44,9 @@ const RootNavigation = () => {
 export default function RootLayout() {
     return (
         <Provider store={store}>
-            <RootNavigation />
+            <PersistGate loading={null} persistor={persistor}>
+                <RootNavigation />
+            </PersistGate>
         </Provider>
     )
 }

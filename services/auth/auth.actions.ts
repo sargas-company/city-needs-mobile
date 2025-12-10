@@ -2,7 +2,7 @@ import { router } from 'expo-router'
 
 import { AppDispatch } from '@/store'
 import { api } from '@/store/api/api.slice'
-import { clearUser, setAuthStatus } from '@/store/auth/auth.slice'
+import { setAuthStatus, logout as logoutAction } from '@/store/auth/auth.slice'
 
 import { login as loginService, logout as logoutService, signUp as signUpService } from './auth.service'
 import { LoginPayload, SignUpPayload } from './auth.types'
@@ -23,8 +23,7 @@ export const performLogin = async (dispatch: AppDispatch, credentials: LoginPayl
 
 export const performLogout = async (dispatch: AppDispatch) => {
     await logoutService()
-    dispatch(clearUser())
-    dispatch(setAuthStatus('unauthenticated'))
+    dispatch(logoutAction())
     router.replace('/(auth)/sign-in')
 }
 

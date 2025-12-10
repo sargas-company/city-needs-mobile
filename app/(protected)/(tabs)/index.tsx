@@ -1,13 +1,22 @@
 import { Image } from 'expo-image'
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Link, router } from 'expo-router'
+import { useCallback } from 'react'
 
 import { HelloWave } from '@/components/hello-wave'
 import ParallaxScrollView from '@/components/parallax-scroll-view'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { performLogout } from '@/services/auth/auth.actions'
+import { useAppDispatch } from '@/store'
 
 export default function HomeScreen() {
+    const dispatch = useAppDispatch()
+
+    const handleLogout = useCallback(async () => {
+        await performLogout(dispatch)
+    }, [dispatch])
+
     return (
         <ParallaxScrollView
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -60,6 +69,9 @@ export default function HomeScreen() {
                     <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.welcomeButton} accessibilityRole="button">
                         <Text style={styles.welcomeButtonText}>Open Welcome</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity onPress={handleLogout} style={[styles.welcomeButton, styles.logoutButton]} accessibilityRole="button">
+                        <Text style={styles.welcomeButtonText}>Logout</Text>
+                    </TouchableOpacity>
                 </View>
             </ThemedView>
         </ParallaxScrollView>
@@ -86,12 +98,16 @@ const styles = StyleSheet.create({
     welcomeButtonContainer: {
         marginTop: 8,
         flexDirection: 'row',
+        gap: 12,
     },
     welcomeButton: {
         backgroundColor: '#0286FF',
         borderRadius: 24,
         paddingHorizontal: 16,
         paddingVertical: 10,
+    },
+    logoutButton: {
+        backgroundColor: '#ef4444',
     },
     welcomeButtonText: {
         color: '#fff',

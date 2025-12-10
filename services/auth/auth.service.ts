@@ -1,6 +1,7 @@
 import { AuthProvider } from './auth.provider'
 import { AuthTokens, AuthUser, LoginPayload, SignUpPayload } from './auth.types'
 import { clearTokens, getTokens, setTokens } from './session'
+import { firebaseSignOut } from './firebase/logout'
 
 let provider: AuthProvider | null = null
 
@@ -51,6 +52,8 @@ export const logout = async (): Promise<void> => {
     const authProvider = requireProvider()
     if (authProvider.logout) {
         await authProvider.logout(refreshToken)
+    } else {
+        await firebaseSignOut()
     }
     await clearTokens()
 }
