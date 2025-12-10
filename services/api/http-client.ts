@@ -3,6 +3,8 @@ import axios, { AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestCon
 import { refresh } from '@/services/auth/auth.service'
 import { AuthTokens } from '@/services/auth/auth.types'
 import { clearTokens, getTokens, setTokens } from '@/services/auth/session'
+import { clearProfile } from '@/store/profile/profile.slice'
+import { store } from '@/store'
 
 import { apiConfig } from './config'
 import { ApiError, toApiError } from './errors'
@@ -48,6 +50,7 @@ apiClient.interceptors.response.use(
 
         if (isRefreshRequest(originalRequest) || originalRequest._retry) {
             await clearTokens()
+            store.dispatch(clearProfile())
             throw toApiError(error)
         }
 
@@ -58,6 +61,7 @@ apiClient.interceptors.response.use(
         const tokens = await getTokens()
         if (!tokens?.refreshToken) {
             await clearTokens()
+            store.dispatch(clearProfile())
             throw new ApiError({ message: 'Session expired', status: 401 })
         }
 
@@ -69,6 +73,7 @@ apiClient.interceptors.response.use(
                     return newTokens
                 } catch (refreshError) {
                     await clearTokens()
+                    store.dispatch(clearProfile())
                     throw refreshError
                 } finally {
                     refreshPromise = null

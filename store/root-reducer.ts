@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { api } from './api/api.slice'
 import { authReducer } from './auth/auth.slice'
+import { profileReducer } from './profile/profile.slice'
 
 const authPersistConfig = {
     key: 'auth',
@@ -13,6 +14,7 @@ const authPersistConfig = {
 
 const appReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
+    profile: profileReducer,
     [api.reducerPath]: api.reducer,
 })
 
