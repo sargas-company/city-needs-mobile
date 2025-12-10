@@ -9,6 +9,8 @@ import '@dev-plugins/async-storage'
 import { PersistGate } from 'redux-persist/integration/react'
 
 import '@/services/auth'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
+
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
 import { store, persistor, useAppDispatch } from '@/store'
@@ -43,10 +45,12 @@ const RootNavigation = () => {
 
 export default function RootLayout() {
     return (
-        <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-                <RootNavigation />
-            </PersistGate>
-        </Provider>
+        <KeyboardProvider>
+            <Provider store={store}>
+                <PersistGate loading={null} persistor={persistor}>
+                    <RootNavigation />
+                </PersistGate>
+            </Provider>
+        </KeyboardProvider>
     )
 }

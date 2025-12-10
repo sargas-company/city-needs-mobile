@@ -1,7 +1,8 @@
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { Pressable, Text, TextInput, View } from 'react-native'
+import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 import { performLogin } from '@/services/auth/auth.actions'
 import { LoginPayload } from '@/services/auth/auth.types'
@@ -28,49 +29,61 @@ const SignIn = () => {
     const isLoading = status === 'loading'
 
     return (
-        <SafeAreaView className="flex-1 items-center justify-center bg-white px-6">
-            <View className="w-full max-w-md gap-4">
-                <Text className="text-2xl font-bold text-black">Sign In</Text>
-
-                <View className="gap-2">
-                    <Text className="text-sm text-gray-600">Email</Text>
-                    <TextInput
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Enter email"
-                        editable={!isLoading}
-                        autoCapitalize="none"
-                        className="w-full rounded-md border border-gray-300 px-4 py-3"
-                    />
-                </View>
-
-                <View className="gap-2">
-                    <Text className="text-sm text-gray-600">Password</Text>
-                    <TextInput
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="Enter password"
-                        secureTextEntry
-                        editable={!isLoading}
-                        className="w-full rounded-md border border-gray-300 px-4 py-3"
-                    />
-                </View>
-
-                {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-
-                <Pressable
-                    onPress={onSubmit}
-                    disabled={isLoading || !email || !password}
-                    className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !email || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <SafeAreaView className="flex-1 bg-white">
+                <KeyboardAwareScrollView
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        justifyContent: 'center',
+                        paddingHorizontal: 24,
+                    }}
+                    keyboardShouldPersistTaps="handled"
+                    bottomOffset={24}
                 >
-                    <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in...' : 'Sign In'}</Text>
-                </Pressable>
+                    <View className="w-full max-w-md gap-4">
+                        <Text className="text-2xl font-bold text-black">Sign In</Text>
 
-                <Link href="/(auth)/sign-up" className="text-center text-blue-500">
-                    Go to Sign Up
-                </Link>
-            </View>
-        </SafeAreaView>
+                        <View className="gap-2">
+                            <Text className="text-sm text-gray-600">Email</Text>
+                            <TextInput
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder="Enter email"
+                                editable={!isLoading}
+                                autoCapitalize="none"
+                                className="w-full rounded-md border border-gray-300 px-4 py-3"
+                            />
+                        </View>
+
+                        <View className="gap-2">
+                            <Text className="text-sm text-gray-600">Password</Text>
+                            <TextInput
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="Enter password"
+                                secureTextEntry
+                                editable={!isLoading}
+                                className="w-full rounded-md border border-gray-300 px-4 py-3"
+                            />
+                        </View>
+
+                        {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+
+                        <Pressable
+                            onPress={onSubmit}
+                            disabled={isLoading || !email || !password}
+                            className={`w-full items-center rounded-md px-4 py-3 ${isLoading || !email || !password ? 'bg-gray-300' : 'bg-blue-600'}`}
+                        >
+                            <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in...' : 'Sign In'}</Text>
+                        </Pressable>
+
+                        <Link href="/(auth)/sign-up" className="text-center text-blue-500">
+                            Go to Sign Up
+                        </Link>
+                    </View>
+                </KeyboardAwareScrollView>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     )
 }
 
