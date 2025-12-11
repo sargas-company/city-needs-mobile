@@ -77,9 +77,14 @@ const SignIn = () => {
                             <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in...' : 'Sign In'}</Text>
                         </Pressable>
 
-                        <Link href="/(auth)/sign-up" className="text-center text-blue-500">
-                            Go to Sign Up
-                        </Link>
+                        <View className="items-center gap-2">
+                            <Link href="/(auth)/sign-up" className="text-center text-blue-500">
+                                Go to Sign Up
+                            </Link>
+                            <Link href="/(auth)/reset-password" className="text-center text-blue-500">
+                                Forgot password?
+                            </Link>
+                        </View>
                     </View>
                 </KeyboardAwareScrollView>
             </SafeAreaView>

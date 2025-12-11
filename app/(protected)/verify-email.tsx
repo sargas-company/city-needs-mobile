@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { refreshEmailVerificationStatusThunk } from '@/store/features/auth/auth.thunks'
+// import { setEmailVerificationSkipped } from '@/store/features/auth/auth.slice'
 import { selectProfileUser } from '@/store/features/profile/profile.selectors'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
@@ -39,6 +40,7 @@ const VerifyEmail = () => {
     }
 
     const handleSkip = () => {
+        // dispatch(setEmailVerificationSkipped(true))
         router.replace('/(protected)/gate')
     }
 
