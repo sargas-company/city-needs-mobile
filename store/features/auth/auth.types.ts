@@ -7,4 +7,5 @@ export type AuthState = {
     isAuth: boolean
     status: AuthStatus
     error?: string
+    emailVerificationSkipped: boolean
 }

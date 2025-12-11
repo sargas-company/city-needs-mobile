@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
@@ -9,7 +9,6 @@ import { signUpThunk } from '@/store/features/auth/auth.thunks'
 
 const SignUp = () => {
     const dispatch = useAppDispatch()
-    const router = useRouter()
     const status = useAppSelector(selectAuthStatus)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -26,7 +25,6 @@ const SignUp = () => {
         }
         try {
             await dispatch(signUpThunk(payload)).unwrap()
-            router.replace('/(auth)/verify-email')
         } catch (err) {
             setError((err as Error)?.message ?? 'Sign up failed')
         }

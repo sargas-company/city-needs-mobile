@@ -38,6 +38,7 @@ const authSlice = createSlice({
             state.isAuth = false
             state.status = 'unauthenticated'
             state.error = undefined
+            state.emailVerificationSkipped = false
         },
     },
 })

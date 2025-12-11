@@ -9,7 +9,7 @@ import { profileReducer } from './features/profile/profile.slice'
 const authPersistConfig = {
     key: 'auth',
     storage: AsyncStorage,
-    whitelist: ['user', 'isAuth', 'status'],
+    whitelist: ['user', 'isAuth', 'status', 'emailVerificationSkipped'],
 }
 
 const appReducer = combineReducers({

@@ -22,15 +22,13 @@ const VerifyEmail = () => {
         try {
             await dispatch(refreshEmailVerificationStatusThunk()).unwrap()
             setMessage('Email verified successfully.')
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/gate')
         } catch (err) {
             const code = (err as string) ?? ''
             if (code === 'NO_USER') {
                 setError('Session expired. Please sign in again.')
                 router.replace('/(auth)/sign-in')
-                return
-            }
-            if (code === 'NOT_VERIFIED') {
+            } else if (code === 'NOT_VERIFIED') {
                 setError("We still don't see your email as verified. Please tap the link in the email, then try again.")
             } else {
                 setError('Could not refresh verification status. Please try again.')
@@ -41,7 +39,7 @@ const VerifyEmail = () => {
     }
 
     const handleSkip = () => {
-        router.replace('/(protected)/(tabs)')
+        router.replace('/(protected)/gate')
     }
 
     return (
@@ -65,9 +63,9 @@ const VerifyEmail = () => {
                     >
                         <Text className="text-base font-semibold text-white">{loading ? 'Checking...' : 'I confirmed my email'}</Text>
                     </Pressable>
-                    <Pressable onPress={handleSkip} disabled={loading} className="w-full items-center rounded-md border border-gray-300 px-4 py-3">
-                        <Text className="text-base font-semibold text-gray-800">Skip – confirm later</Text>
-                    </Pressable>
+                    {/*<Pressable onPress={handleSkip} disabled={loading} className="w-full items-center rounded-md border border-gray-300 px-4 py-3">*/}
+                    {/*    <Text className="text-base font-semibold text-gray-800">Skip – confirm later</Text>*/}
+                    {/*</Pressable>*/}
                 </View>
             </View>
         </SafeAreaView>

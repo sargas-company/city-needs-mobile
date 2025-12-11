@@ -4,6 +4,7 @@ export type AppUser = {
     email?: string
     name?: string
     emailVerified?: boolean
+    onboardingStep?: number | null
     createdAt?: string
     updatedAt?: string
     [key: string]: unknown
