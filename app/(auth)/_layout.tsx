@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useRouter, useSegments } from 'expo-router'
 import { useEffect } from 'react'
 import { View, Text } from 'react-native'
 
@@ -7,14 +7,17 @@ import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selec
 
 export default function AuthLayout() {
     const router = useRouter()
+    const segments = useSegments()
     const status = useAppSelector(selectAuthStatus)
     const isAuth = useAppSelector(selectIsAuth)
+    const isVerifyEmailRoute = segments?.[1] === 'verify-email'
+    const isSignUpRoute = segments?.[1] === 'sign-up'
 
     useEffect(() => {
-        if (status === 'authenticated' && isAuth) {
+        if (status === 'authenticated' && isAuth && !isVerifyEmailRoute && !isSignUpRoute) {
             router.replace('/(protected)/(tabs)')
         }
-    }, [isAuth, router, status])
+    }, [isAuth, isSignUpRoute, isVerifyEmailRoute, router, status])
 
     if (status === 'loading' || status === 'idle') {
         return (
@@ -24,7 +27,7 @@ export default function AuthLayout() {
         )
     }
 
-    if (isAuth) {
+    if (isAuth && !isVerifyEmailRoute) {
         return null
     }
 
@@ -32,6 +35,7 @@ export default function AuthLayout() {
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="sign-in" />
             <Stack.Screen name="sign-up" />
+            <Stack.Screen name="verify-email" />
         </Stack>
     )
 }

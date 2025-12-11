@@ -11,7 +11,10 @@ export const authApi = baseApi.injectEndpoints({
             query: (body) => ({ url: '/auth/sync', method: 'POST', data: body ?? {} }),
             invalidatesTags: ['Profile', 'Me'],
         }),
+        sendVerificationEmail: builder.mutation<{ message?: string } | null, void>({
+            query: () => ({ url: '/auth/send-verification-email', method: 'POST' }),
+        }),
     }),
 })
 
-export const { useMeQuery, useAuthSyncMutation } = authApi
+export const { useMeQuery, useAuthSyncMutation, useSendVerificationEmailMutation } = authApi
