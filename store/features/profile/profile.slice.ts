@@ -1,6 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-import type { RootState } from '../index'
 import { AppUser } from './profile.types'
 
 export type ProfileStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -43,7 +42,3 @@ const profileSlice = createSlice({
 
 export const { setProfileUser, clearProfile, setProfileStatus, setProfileError } = profileSlice.actions
 export const profileReducer = profileSlice.reducer
-
-export const selectProfileState = (state: RootState) => state.profile
-export const selectProfileUser = (state: RootState) => state.profile.user
-export const selectProfileStatus = (state: RootState) => state.profile.status

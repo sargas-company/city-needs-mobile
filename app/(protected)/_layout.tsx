@@ -2,8 +2,8 @@ import { Stack, useRouter } from 'expo-router'
 import { useEffect } from 'react'
 import { Text, View } from 'react-native'
 
-import { useAppSelector } from '@/store'
-import { selectAuthStatus, selectIsAuth } from '@/store/auth/auth.slice'
+import { useAppSelector } from '@/store/hooks'
+import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 
 export default function ProtectedLayout() {
     const router = useRouter()

@@ -4,10 +4,10 @@ import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } 
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
-import { performLogin } from '@/services/auth/auth.actions'
 import { LoginPayload } from '@/services/auth/auth.types'
-import { useAppDispatch, useAppSelector } from '@/store'
-import { selectAuthStatus } from '@/store/auth/auth.slice'
+import { loginThunk } from '@/store/features/auth/auth.thunks'
+import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
 const SignIn = () => {
     const dispatch = useAppDispatch()
@@ -20,7 +20,7 @@ const SignIn = () => {
         setError(null)
         const payload: LoginPayload = { email: email.trim(), password }
         try {
-            await performLogin(dispatch, payload)
+            await dispatch(loginThunk(payload)).unwrap()
         } catch (err) {
             setError((err as Error)?.message ?? 'Login failed')
         }

@@ -2,16 +2,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 import { AuthUser } from '@/services/auth/auth.types'
 
-import type { RootState } from '../index'
-
-export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated'
-
-export interface AuthState {
-    user: AuthUser | null
-    isAuth: boolean
-    status: AuthStatus
-    error?: string
-}
+import { AuthState, AuthStatus } from './auth.types'
 
 const initialState: AuthState = {
     user: null,
@@ -53,8 +44,3 @@ const authSlice = createSlice({
 
 export const { setUser, clearUser, setAuthStatus, setAuthError, logout } = authSlice.actions
 export const authReducer = authSlice.reducer
-
-export const selectAuthState = (state: RootState) => state.auth
-export const selectUser = (state: RootState) => state.auth.user
-export const selectIsAuth = (state: RootState) => state.auth.isAuth
-export const selectAuthStatus = (state: RootState) => state.auth.status

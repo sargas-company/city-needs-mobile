@@ -1,8 +1,8 @@
 import { Redirect } from 'expo-router'
 
 import { useOnboarding } from '@/hooks/useOnboarding'
-import { useAppSelector } from '@/store'
-import { selectAuthStatus, selectIsAuth } from '@/store/auth/auth.slice'
+import { useAppSelector } from '@/store/hooks'
+import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 
 export default function Index() {
     const { isCompleted, isLoading } = useOnboarding()

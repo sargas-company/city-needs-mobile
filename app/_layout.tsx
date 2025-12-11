@@ -1,19 +1,19 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
-import { Stack } from 'expo-router'
+import '@dev-plugins/async-storage'
 import { Provider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
-import 'react-native-reanimated'
 import { useEffect } from 'react'
-import '../global.css'
-import '@dev-plugins/async-storage'
 import { PersistGate } from 'redux-persist/integration/react'
-
-import '@/services/auth'
+import { Stack } from 'expo-router'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import 'react-native-reanimated'
 
+import '../global.css'
+import '@/services/auth'
 import { useColorScheme } from '@/hooks/use-color-scheme'
-import { bootstrapAuth } from '@/services/auth/auth.bootstrap'
-import { store, persistor, useAppDispatch } from '@/store'
+import { bootstrapAuthThunk } from '@/store/features/auth/auth.thunks'
+import { store, persistor } from '@/store'
+import { useAppDispatch } from '@/store/hooks'
 
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -26,7 +26,7 @@ const RootNavigation = () => {
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        void bootstrapAuth(dispatch)
+        void dispatch(bootstrapAuthThunk())
     }, [dispatch])
 
     return (

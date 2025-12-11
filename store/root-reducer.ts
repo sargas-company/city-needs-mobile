@@ -2,9 +2,9 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { persistReducer } from 'redux-persist'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import { api } from './api/api.slice'
-import { authReducer } from './auth/auth.slice'
-import { profileReducer } from './profile/profile.slice'
+import { baseApi } from './api/baseApi'
+import { authReducer, logout } from './features/auth/auth.slice'
+import { profileReducer } from './features/profile/profile.slice'
 
 const authPersistConfig = {
     key: 'auth',
@@ -15,11 +15,11 @@ const authPersistConfig = {
 const appReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     profile: profileReducer,
-    [api.reducerPath]: api.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
 })
 
 export const rootReducer = (state: ReturnType<typeof appReducer> | undefined, action: { type: string }) => {
-    if (action.type === 'auth/logout') {
+    if (action.type === logout.type) {
         return appReducer(undefined, action)
     }
     return appReducer(state, action)

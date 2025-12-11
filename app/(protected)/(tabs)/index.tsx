@@ -7,14 +7,14 @@ import { HelloWave } from '@/components/hello-wave'
 import ParallaxScrollView from '@/components/parallax-scroll-view'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { performLogout } from '@/services/auth/auth.actions'
-import { useAppDispatch } from '@/store'
+import { logoutThunk } from '@/store/features/auth/auth.thunks'
+import { useAppDispatch } from '@/store/hooks'
 
 export default function HomeScreen() {
     const dispatch = useAppDispatch()
 
     const handleLogout = useCallback(async () => {
-        await performLogout(dispatch)
+        await dispatch(logoutThunk()).unwrap()
     }, [dispatch])
 
     return (

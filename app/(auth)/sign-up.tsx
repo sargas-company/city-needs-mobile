@@ -2,10 +2,10 @@ import { Link } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { performSignUp } from '@/services/auth/auth.actions'
 import { SignUpPayload } from '@/services/auth/auth.types'
-import { useAppDispatch, useAppSelector } from '@/store'
-import { selectAuthStatus } from '@/store/auth/auth.slice'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { signUpThunk } from '@/store/features/auth/auth.thunks'
 
 const SignUp = () => {
     const dispatch = useAppDispatch()
@@ -24,7 +24,7 @@ const SignUp = () => {
             role: 'BUSINESS_OWNER',
         }
         try {
-            await performSignUp(dispatch, payload)
+            await dispatch(signUpThunk(payload)).unwrap()
         } catch (err) {
             setError((err as Error)?.message ?? 'Sign up failed')
         }
