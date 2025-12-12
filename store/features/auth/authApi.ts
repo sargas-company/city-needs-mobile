@@ -19,6 +19,7 @@ export const authApi = baseApi.injectEndpoints({
                 url: '/auth/reset-password-request',
                 method: 'POST',
                 data: { email },
+                skipAuth: true,
             }),
         }),
     }),

@@ -12,11 +12,15 @@ export type AxiosBaseQueryArgs = {
     data?: unknown
     params?: Record<string, unknown>
     headers?: Record<string, string>
+    skipAuth?: boolean
 }
 
 let refreshPromise: Promise<AuthTokens> | null = null
 
-const attachAuthHeader = async (config: AxiosRequestConfig): Promise<AxiosRequestConfig> => {
+const attachAuthHeader = async (config: AxiosRequestConfig, skipAuth?: boolean): Promise<AxiosRequestConfig> => {
+    if (skipAuth) {
+        return config
+    }
     const tokens = await getTokens()
     const accessToken = tokens?.accessToken ?? null
     const mergedHeaders = {
@@ -28,14 +32,14 @@ const attachAuthHeader = async (config: AxiosRequestConfig): Promise<AxiosReques
 
 export const axiosBaseQuery =
     ({ client }: { client: AxiosInstance }): BaseQueryFn<AxiosBaseQueryArgs, unknown, unknown> =>
-    async ({ url, method = 'GET', data, params, headers }) => {
+    async ({ url, method = 'GET', data, params, headers, skipAuth }) => {
         try {
-            const config = await attachAuthHeader({ url, method, data, params, headers })
+            const config = await attachAuthHeader({ url, method, data, params, headers }, skipAuth)
             const result = await client(config)
             return { data: result.data }
         } catch (axiosError) {
             const err = axiosError as AxiosError
-            if (err.response?.status === 401) {
+            if (err.response?.status === 401 && !skipAuth) {
                 const tokens = await getTokens()
                 if (!tokens?.refreshToken) {
                     await clearTokens()
