@@ -16,6 +16,8 @@ type AppInputProps = TextInputProps & {
     inputWrapperClassName?: string
     inputClassName?: string
     errorClassName?: string
+
+    renderInput?: (props: TextInputProps) => React.ReactNode
 }
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(' ')
@@ -36,6 +38,7 @@ export const AppInput: React.FC<AppInputProps> = ({
     onFocus,
     onBlur,
     placeholderTextColor = '#CACACA',
+    renderInput,
     ...textInputProps
 }) => {
     const [isFocused, setIsFocused] = useState(false)
@@ -74,14 +77,25 @@ export const AppInput: React.FC<AppInputProps> = ({
             >
                 {leftIcon && <View className="mr-2">{leftIcon}</View>}
 
-                <TextInput
-                    className={cn('flex-1 text-[14px] text-[#171717]', inputClassName)}
-                    placeholderTextColor={placeholderTextColor}
-                    editable={editable}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    {...textInputProps}
-                />
+                {renderInput ? (
+                    renderInput({
+                        className: cn('flex-1 text-[14px] text-[#171717]', inputClassName),
+                        placeholderTextColor,
+                        editable,
+                        onFocus: handleFocus,
+                        onBlur: handleBlur,
+                        ...textInputProps,
+                    })
+                ) : (
+                    <TextInput
+                        className={cn('flex-1 text-[14px] text-[#171717]', inputClassName)}
+                        placeholderTextColor={placeholderTextColor}
+                        editable={editable}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        {...textInputProps}
+                    />
+                )}
 
                 {rightIcon && (
                     <Pressable hitSlop={8} onPress={onRightIconPress} disabled={!onRightIconPress}>

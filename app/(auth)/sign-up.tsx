@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import { FormInput } from '@/components/ui/FormInput'
+import { FormPhoneInput } from '@/components/ui/FormPhoneInput'
 import { SignUpPayload } from '@/services/auth/auth.types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
@@ -21,7 +22,7 @@ const signUpSchema = z
         phone: z
             .string()
             .optional()
-            .refine((val) => !val || /^[+]?[-0-9\s]+$/.test(val), 'Enter a valid phone number'),
+            .refine((val) => !val || val.replace(/\\D/g, '').length === 10, 'Enter a valid phone number'),
         email: z.string().min(1, 'Email is required').email('Enter a valid email'),
         password: z
             .string()
@@ -153,13 +154,12 @@ const SignUp = () => {
                             editable={!isLoading}
                         />
 
-                        <FormInput<SignUpFormValues>
+                        <FormPhoneInput<SignUpFormValues>
                             control={control}
                             name="phone"
                             label="Mobile Number"
-                            placeholder="+1"
-                            keyboardType="phone-pad"
-                            editable={!isLoading}
+                            placeholder="+1 (___) ___-____"
+                            leftIcon={<Text className="text-lg">🇨🇦</Text>}
                         />
 
                         <FormInput<SignUpFormValues>
