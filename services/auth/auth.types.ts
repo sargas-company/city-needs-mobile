@@ -15,10 +15,12 @@ export type UserRole = 'END_USER' | 'BUSINESS_OWNER'
 
 export type SignUpPayload = {
     username?: string
+    fullName?: string
     email?: string
     password: string
     avatar?: string
     role?: UserRole
+    phone?: string
 }
 
 export type AuthUser = {
