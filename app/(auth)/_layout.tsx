@@ -16,7 +16,7 @@ export default function AuthLayout() {
         }
     }, [isAuth, router, status])
 
-    if (status === 'loading' || status === 'idle') {
+    if (status === 'idle') {
         return (
             <View className="flex-1 items-center justify-center bg-white">
                 <Text>Loading...</Text>

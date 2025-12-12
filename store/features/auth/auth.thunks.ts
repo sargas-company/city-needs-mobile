@@ -8,6 +8,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
 import { setAuthSyncInProgress } from '@/services/auth/auth.bootstrap'
+import { getFirebaseLoginErrorMessage } from '@/services/auth/firebaseAuthError'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
 import { logout, setAuthError, setAuthStatus } from './auth.slice'
@@ -20,23 +21,29 @@ const isUserNotSyncedError = (error: unknown) => {
     return status === 404 || nestedStatus === 404 || message === 'User is not synced'
 }
 
-export const loginThunk = createAsyncThunk<void, LoginPayload, { dispatch: AppDispatch; state: RootState }>(
+export const loginThunk = createAsyncThunk<void, LoginPayload, { dispatch: AppDispatch; state: RootState; rejectValue: string }>(
     'auth/login',
     async (payload, { dispatch, rejectWithValue }) => {
         dispatch(setAuthStatus('loading'))
         dispatch(setProfileStatus('loading'))
+
         try {
             await login(payload)
+
             dispatch(authApi.util.invalidateTags(['Me']))
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+
             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
             dispatch(setProfileUser(resolvedUser as never))
             dispatch(setAuthStatus('authenticated'))
         } catch (error) {
+            const message = getFirebaseLoginErrorMessage(error)
+
             dispatch(setAuthStatus('unauthenticated'))
             dispatch(setProfileStatus('error'))
-            dispatch(setAuthError(isAxiosError(error) ? error.message : 'Login failed'))
-            return rejectWithValue(error)
+            dispatch(setAuthError(message))
+
+            return rejectWithValue(message)
         }
     }
 )
