@@ -54,11 +54,10 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
         dispatch(setProfileStatus('loading'))
         try {
             await signUp(payload)
-            const { username, avatar, role } = payload
+            const { username, avatar, role, phone } = payload
             const syncPayload = {
                 ...(username ? { username } : {}),
-                ...(avatar ? { avatar } : {}),
-                ...(role ? { role } : {}),
+                ...(phone ? { phone } : {}),
             }
             await dispatch(authApi.endpoints.authSync.initiate(syncPayload)).unwrap()
             dispatch(authApi.util.invalidateTags(['Me']))

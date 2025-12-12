@@ -13,8 +13,8 @@ const PasswordStrengthMeter: React.FC<IPropsPasswordStrengthMeter> = ({ password
         let score = 0
 
         // Length
-        if (pwd.length >= 6) score += 1
-        if (pwd.length >= 8) score += 1
+        if (pwd.length >= 3) score += 1
+        if (pwd.length >= 5) score += 1
 
         // Symbols
         if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score += 1

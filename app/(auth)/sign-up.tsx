@@ -1,6 +1,6 @@
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Pressable, Text, TouchableWithoutFeedback, View, Keyboard } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { Controller, useForm } from 'react-hook-form'
@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
 import { signUpThunk } from '@/store/features/auth/auth.thunks'
 import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter'
+import TermsModal from '@/components/modals/TermsModal'
 
 const signUpSchema = z
     .object({
@@ -27,8 +28,8 @@ const signUpSchema = z
             .min(8, 'Password must be at least 8 characters')
             .regex(/^(?=.*[A-Za-z])(?=.*\d).+$/, 'Password must contain at least 1 letter and 1 number'),
         confirmPassword: z.string(),
-        termsAccepted: z.literal(true, {
-            errorMap: () => ({ message: 'You must accept the Terms & Privacy Policy' }),
+        termsAccepted: z.boolean().refine((val) => val === true, {
+            message: 'You must accept the Terms & Privacy Policy',
         }),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -38,7 +39,13 @@ const signUpSchema = z
 
 type SignUpFormValues = z.infer<typeof signUpSchema>
 
-const CheckboxField = ({ value, onChange, error }: { value: boolean; onChange: (val: boolean) => void; error?: string }) => {
+type CheckboxFieldProps = {
+    value: boolean
+    onChange: (val: boolean) => void
+    error?: string
+    onPressTerms: () => void
+}
+const CheckboxField = ({ value, onChange, error, onPressTerms }: CheckboxFieldProps) => {
     return (
         <View className="mt-3 w-full">
             <Pressable
@@ -49,13 +56,15 @@ const CheckboxField = ({ value, onChange, error }: { value: boolean; onChange: (
                 accessibilityState={{ checked: value }}
             >
                 <View
-                    className={`h-5 w-5 items-center justify-center rounded border ${value ? 'border-blue-600 bg-blue-600' : 'border-gray-400 bg-white'}`}
+                    className={`h-5 w-5 items-center justify-center rounded border ${
+                        value ? 'border-blue-600 bg-blue-600' : 'border-gray-400 bg-white'
+                    }`}
                 >
                     {value ? <Text className="text-xs font-semibold text-white">✓</Text> : null}
                 </View>
                 <Text className="flex-1 text-sm text-gray-700">
                     By continuing, you agree to our{' '}
-                    <Text className="text-blue-600 underline" onPress={() => console.log('Open terms')}>
+                    <Text className="text-blue-600 underline" onPress={onPressTerms}>
                         Terms & Privacy Policy
                     </Text>
                 </Text>
@@ -69,6 +78,7 @@ const SignUp = () => {
     const dispatch = useAppDispatch()
     const status = useAppSelector(selectAuthStatus)
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const [isTermsVisible, setIsTermsVisible] = useState(false)
 
     const {
         control,
@@ -97,7 +107,6 @@ const SignUp = () => {
         setSubmitError(null)
         const payload: SignUpPayload = {
             username: values.fullName.trim(),
-            fullName: values.fullName.trim(),
             email: values.email.trim(),
             password: values.password,
             phone: values.phone ? values.phone : undefined,
@@ -131,7 +140,6 @@ const SignUp = () => {
                         <View className="mb-2">
                             <View className="flex-row items-center justify-between">
                                 <Text className="text-2xl font-bold text-[#0C2A63]">Create Your Account</Text>
-                                <Text className="text-sm font-semibold text-[#0C2A63]">1/3</Text>
                             </View>
                             <Text className="mt-2 text-sm text-gray-600">Sign up to find trusted services and real local talent in minutes.</Text>
                         </View>
@@ -195,7 +203,12 @@ const SignUp = () => {
                             control={control}
                             name="termsAccepted"
                             render={({ field: { value, onChange }, fieldState: { error } }) => (
-                                <CheckboxField value={value} onChange={onChange} error={error?.message} />
+                                <CheckboxField
+                                    value={value}
+                                    onChange={onChange}
+                                    error={error?.message}
+                                    onPressTerms={() => setIsTermsVisible(true)}
+                                />
                             )}
                         />
 
@@ -219,6 +232,7 @@ const SignUp = () => {
                         </View>
                     </View>
                 </KeyboardAwareScrollView>
+                <TermsModal visible={isTermsVisible} onClose={() => setIsTermsVisible(false)} />
             </SafeAreaView>
         </TouchableWithoutFeedback>
     )
