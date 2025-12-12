@@ -29,7 +29,7 @@ const SignIn = () => {
     const {
         control,
         handleSubmit,
-        formState: { isSubmitting, isValid },
+        formState: { isSubmitting },
     } = useForm<SignInFormValues>({
         resolver: zodResolver(signInSchema),
         defaultValues: {

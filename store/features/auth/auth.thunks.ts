@@ -7,7 +7,6 @@ import { LoginPayload, SignUpPayload } from '@/services/auth/auth.types'
 import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
-import { setAuthSyncInProgress } from '@/services/auth/auth.bootstrap'
 import { getFirebaseLoginErrorMessage } from '@/services/auth/firebaseAuthError'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
@@ -53,7 +52,6 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
     async (payload, { dispatch, rejectWithValue }) => {
         dispatch(setAuthStatus('loading'))
         dispatch(setProfileStatus('loading'))
-        setAuthSyncInProgress(true)
         try {
             await signUp(payload)
             const { username, avatar, role } = payload
@@ -62,14 +60,14 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
                 ...(avatar ? { avatar } : {}),
                 ...(role ? { role } : {}),
             }
-            await dispatch(authApi.endpoints.authSync.initiate(syncPayload, { forceRefetch: true })).unwrap()
+            await dispatch(authApi.endpoints.authSync.initiate(syncPayload)).unwrap()
             dispatch(authApi.util.invalidateTags(['Me']))
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
             dispatch(setProfileUser(resolvedUser as never))
             dispatch(setAuthStatus('authenticated'))
             try {
-                await dispatch(authApi.endpoints.sendVerificationEmail.initiate(undefined, { forceRefetch: true })).unwrap()
+                await dispatch(authApi.endpoints.sendVerificationEmail.initiate(undefined)).unwrap()
             } catch (verificationError) {
                 // soft-fail, do not block sign-up
                 if (__DEV__) {
@@ -81,8 +79,6 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
             dispatch(setProfileStatus('error'))
             dispatch(setAuthError(isAxiosError(error) ? error.message : 'Sign up failed'))
             return rejectWithValue(error)
-        } finally {
-            setAuthSyncInProgress(false)
         }
     }
 )
@@ -104,8 +100,8 @@ export const refreshEmailVerificationStatusThunk = createAsyncThunk<void, void, 
         try {
             const idToken = await currentUser.getIdToken(true)
             await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
-            await dispatch(authApi.endpoints.authSync.initiate({}, { forceRefetch: true, subscribe: false })).unwrap()
-            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true, subscribe: false })).unwrap()
+            await dispatch(authApi.endpoints.authSync.initiate({})).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
             dispatch(setProfileUser(resolvedUser as never))
             if (!(resolvedUser as { emailVerified?: boolean }).emailVerified) {
@@ -130,7 +126,7 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
                 const idToken = await currentUser.getIdToken()
                 await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
                 try {
-                    const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true, subscribe: false })).unwrap()
+                    const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
                     const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
                     dispatch(setProfileUser(resolvedUser as never))
                     dispatch(setAuthStatus('authenticated'))
@@ -138,11 +134,8 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
                 } catch (error) {
                     if (isUserNotSyncedError(error)) {
                         try {
-                            // @ts-ignore
-                            await dispatch(authApi.endpoints.authSync.initiate({}, { forceRefetch: true, subscribe: false })).unwrap()
-                            const meResult = await dispatch(
-                                authApi.endpoints.me.initiate(undefined, { forceRefetch: true, subscribe: false })
-                            ).unwrap()
+                            await dispatch(authApi.endpoints.authSync.initiate({})).unwrap()
+                            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
                             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
                             dispatch(setProfileUser(resolvedUser as never))
                             dispatch(setAuthStatus('authenticated'))

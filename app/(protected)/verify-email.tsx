@@ -4,7 +4,6 @@ import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { refreshEmailVerificationStatusThunk } from '@/store/features/auth/auth.thunks'
-// import { setEmailVerificationSkipped } from '@/store/features/auth/auth.slice'
 import { selectProfileUser } from '@/store/features/profile/profile.selectors'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
@@ -39,11 +38,6 @@ const VerifyEmail = () => {
         }
     }
 
-    const handleSkip = () => {
-        // dispatch(setEmailVerificationSkipped(true))
-        router.replace('/(protected)/gate')
-    }
-
     return (
         <SafeAreaView className="flex-1 bg-white px-6">
             <View className="flex-1 items-center justify-center gap-4">
@@ -65,9 +59,6 @@ const VerifyEmail = () => {
                     >
                         <Text className="text-base font-semibold text-white">{loading ? 'Checking...' : 'I confirmed my email'}</Text>
                     </Pressable>
-                    {/*<Pressable onPress={handleSkip} disabled={loading} className="w-full items-center rounded-md border border-gray-300 px-4 py-3">*/}
-                    {/*    <Text className="text-base font-semibold text-gray-800">Skip – confirm later</Text>*/}
-                    {/*</Pressable>*/}
                 </View>
             </View>
         </SafeAreaView>
