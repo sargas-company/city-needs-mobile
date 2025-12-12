@@ -6,6 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Feather } from '@expo/vector-icons'
 
 import { LoginPayload } from '@/services/auth/auth.types'
 import { loginThunk } from '@/store/features/auth/auth.thunks'
@@ -25,6 +26,7 @@ const SignIn = () => {
     const status = useAppSelector(selectAuthStatus)
 
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const [showPassword, setShowPassword] = useState(false)
 
     const {
         control,
@@ -91,8 +93,10 @@ const SignIn = () => {
                             label="Password"
                             required
                             placeholder="Enter password"
-                            secureTextEntry
+                            secureTextEntry={!showPassword}
                             editable={!isLoading}
+                            rightIcon={<Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#171717" />}
+                            onRightIconPress={() => setShowPassword((prev) => !prev)}
                         />
 
                         <Pressable
