@@ -7,7 +7,7 @@ import { LoginPayload, SignUpPayload } from '@/services/auth/auth.types'
 import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
-import { getFirebaseLoginErrorMessage } from '@/services/auth/firebaseAuthError'
+import { getFirebaseLoginErrorMessage } from '@/services/auth'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
 import { logout, setAuthError, setAuthStatus } from './auth.slice'
