@@ -22,7 +22,11 @@ const signUpSchema = z
         phone: z
             .string()
             .optional()
-            .refine((val) => !val || val.replace(/\\D/g, '').length === 10, 'Enter a valid phone number'),
+            .refine((val) => {
+                if (!val) return true
+                const digits = val.replace(/\D/g, '')
+                return digits.length >= 10 && digits.length <= 15
+            }, 'Enter a valid phone number'),
         email: z.string().min(1, 'Email is required').email('Enter a valid email'),
         password: z
             .string()
@@ -106,11 +110,13 @@ const SignUp = () => {
 
     const onSubmit = async (values: SignUpFormValues) => {
         setSubmitError(null)
+        const digitsPhone = values.phone ? values.phone.replace(/\D/g, '') : undefined
+
         const payload: SignUpPayload = {
             username: values.fullName.trim(),
             email: values.email.trim(),
             password: values.password,
-            phone: values.phone ? values.phone : undefined,
+            phone: digitsPhone,
         }
         try {
             await dispatch(signUpThunk(payload)).unwrap()

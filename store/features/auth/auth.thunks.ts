@@ -89,6 +89,24 @@ export const logoutThunk = createAsyncThunk<void, void, { dispatch: AppDispatch;
     dispatch(clearProfile())
 })
 
+export const selectRoleThunk = createAsyncThunk<void, 'END_USER' | 'BUSINESS_OWNER', { dispatch: AppDispatch; state: RootState }>(
+    'auth/selectRole',
+    async (role, { dispatch, rejectWithValue }) => {
+        dispatch(setProfileStatus('loading'))
+        try {
+            await dispatch(authApi.endpoints.authSync.initiate({ role })).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            dispatch(setProfileUser(resolvedUser as never))
+            dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
+        } catch (error) {
+            dispatch(setProfileStatus('error'))
+            return rejectWithValue(error)
+        }
+    }
+)
+
 export const refreshEmailVerificationStatusThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
     'auth/refreshEmailVerificationStatus',
     async (_, { dispatch, rejectWithValue }) => {

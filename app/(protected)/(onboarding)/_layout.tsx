@@ -3,9 +3,12 @@ import { Stack } from 'expo-router'
 const ProtectedOnboardingLayout = () => {
     return (
         <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="step-1" />
-            <Stack.Screen name="step-2" />
-            <Stack.Screen name="step-3" />
+            <Stack.Screen name="role" />
+            <Stack.Screen name="customer/address" />
+            <Stack.Screen name="customer/services" />
+            <Stack.Screen name="provider/business-info" />
+            <Stack.Screen name="provider/address" />
+            <Stack.Screen name="provider/branding" />
         </Stack>
     )
 }

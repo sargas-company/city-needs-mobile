@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
-import { selectIsEmailVerified, selectOnboardingStep } from '@/store/features/profile/profile.selectors'
+import { selectIsEmailVerified, selectOnboardingStep, selectProfileUser, selectUserRole } from '@/store/features/profile/profile.selectors'
 
 const Gate = () => {
     const router = useRouter()
@@ -12,6 +12,8 @@ const Gate = () => {
     const isAuth = useAppSelector(selectIsAuth)
     const emailVerified = useAppSelector(selectIsEmailVerified)
     const onboardingStep = useAppSelector(selectOnboardingStep)
+    const role = useAppSelector(selectUserRole)
+    const profileUser = useAppSelector(selectProfileUser)
 
     useEffect(() => {
         if (status === 'loading' || status === 'idle') {
@@ -28,28 +30,47 @@ const Gate = () => {
             return
         }
 
-        // const step = onboardingStep ?? 0
-        const step = 1
-
-        if (step && step > 0) {
-            switch (step) {
-                case 1:
-                    router.replace('/(protected)/(onboarding)/step-1')
-                    break
-                case 2:
-                    router.replace('/(protected)/(onboarding)/step-2')
-                    break
-                case 3:
-                    router.replace('/(protected)/(onboarding)/step-3')
-                    break
-                default:
-                    router.replace('/(protected)/(tabs)')
-            }
+        if (!role) {
+            router.replace('/(protected)/(onboarding)/role')
             return
         }
 
+        if (profileUser?.onboardingStep === null || profileUser?.onboardingStep === undefined) {
+            router.replace('/(protected)/(tabs)')
+            return
+        }
+
+        // const step = onboardingStep ?? 0
+        const step = onboardingStep ?? 0
+
+        if (role === 'END_USER') {
+            if (step === 1) {
+                router.replace('/(protected)/(onboarding)/customer/address')
+                return
+            }
+            if (step === 2) {
+                router.replace('/(protected)/(onboarding)/customer/services')
+                return
+            }
+        }
+
+        if (role === 'BUSINESS_OWNER') {
+            if (step === 1) {
+                router.replace('/(protected)/(onboarding)/provider/business-info')
+                return
+            }
+            if (step === 2) {
+                router.replace('/(protected)/(onboarding)/provider/address')
+                return
+            }
+            if (step === 3) {
+                router.replace('/(protected)/(onboarding)/provider/branding')
+                return
+            }
+        }
+
         router.replace('/(protected)/(tabs)')
-    }, [emailVerified, isAuth, onboardingStep, router, status])
+    }, [emailVerified, isAuth, onboardingStep, profileUser?.onboardingStep, role, router, status])
 
     return (
         <View className="flex-1 items-center justify-center bg-white">
