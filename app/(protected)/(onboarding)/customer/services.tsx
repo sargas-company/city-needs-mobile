@@ -12,7 +12,12 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitCustomerCategoriesThunk } from '@/store/features/onboarding/onboarding.thunks'
 
-const fallbackCategories = [
+export type CategoryOption = {
+    id: string
+    name: string
+}
+
+export const fallbackCategories: CategoryOption[] = [
     { id: 'a9a5e867-d30b-4b1e-a2cb-62142445e674', name: 'Beauty & Wellness' },
     { id: '4167790d-ccb1-4c39-8822-4a271a72be8a', name: 'Cleaning' },
     { id: '6072083f-de0a-4733-a01c-636115a4bba6', name: 'Pet Care' },

@@ -49,6 +49,7 @@
         "react-hook-form": "^7.68.0",
         "react-native": "0.81.5",
         "react-native-dotenv": "^3.4.11",
+        "react-native-element-dropdown": "^2.12.4",
         "react-native-gesture-handler": "~2.28.0",
         "react-native-keyboard-controller": "1.18.5",
         "react-native-mask-text": "^0.15.0",
