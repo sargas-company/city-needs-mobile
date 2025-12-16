@@ -2,8 +2,9 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { AppDispatch, RootState } from '@/store/store'
 import { authApi } from '@/store/features/auth/authApi'
-import { setProfileUser } from '@/store/features/profile/profile.slice'
+import { setProfileError, setProfileStatus, setProfileUser } from '@/store/features/profile/profile.slice'
 import { BusinessInfoFormValues } from '@/components/forms/businessInfoSchema'
+import { BusinessFilesPayload, buildBusinessFilesFormData } from '@/services/onboarding/business-files.service'
 
 import { onboardingApi, SubmitOnboardingRequest } from './onboardingApi'
 
@@ -48,6 +49,7 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
     'onboarding/submitBusinessProfile',
     async (values, { dispatch, rejectWithValue }) => {
         try {
+            dispatch(setProfileStatus('loading'))
             const payload = {
                 name: values.businessName.trim(),
                 description: `${values.description.trim()}\n\nOperating hours: ${values.operatingHours.trim()}`,
@@ -67,7 +69,50 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
             dispatch(setProfileUser(resolvedUser as never))
             dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
         } catch (error) {
+            dispatch(setProfileError('Failed to submit business profile'))
+            return rejectWithValue(error)
+        }
+    }
+)
+
+export const submitBusinessFilesThunk = createAsyncThunk<void, BusinessFilesPayload, { dispatch: AppDispatch; state: RootState }>(
+    'onboarding/submitBusinessFiles',
+    async (files, { dispatch, rejectWithValue }) => {
+        try {
+            dispatch(setProfileStatus('loading'))
+            const formData = buildBusinessFilesFormData(files)
+            await dispatch(onboardingApi.endpoints.submitOnboarding.initiate(formData as SubmitOnboardingRequest)).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            dispatch(setProfileUser(resolvedUser as never))
+            dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
+        } catch (error) {
+            dispatch(setProfileError('Failed to upload branding files'))
+            return rejectWithValue(error)
+        }
+    }
+)
+
+export const submitBusinessFilesSkipThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
+    'onboarding/submitBusinessFilesSkip',
+    async (_, { dispatch, rejectWithValue }) => {
+        try {
+            dispatch(setProfileStatus('loading'))
+            await dispatch(
+                onboardingApi.endpoints.submitOnboarding.initiate({
+                    action: 'BUSINESS_FILES_SKIP',
+                })
+            ).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            dispatch(setProfileUser(resolvedUser as never))
+            dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
+        } catch (error) {
+            dispatch(setProfileError('Failed to skip branding'))
             return rejectWithValue(error)
         }
     }

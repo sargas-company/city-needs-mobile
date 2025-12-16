@@ -8,10 +8,12 @@ export type OnboardingAction =
     | 'BUSINESS_FILES'
     | 'BUSINESS_FILES_SKIP'
 
-export type SubmitOnboardingRequest = {
-    action: OnboardingAction
-    payload?: unknown
-}
+export type SubmitOnboardingRequest =
+    | {
+          action: OnboardingAction
+          payload?: unknown
+      }
+    | FormData
 
 export type SubmitOnboardingResponse = {
     user: {
