@@ -5,6 +5,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { setProfileError, setProfileStatus, setProfileUser } from '@/store/features/profile/profile.slice'
 import { BusinessInfoFormValues } from '@/components/forms/businessInfoSchema'
 import { BusinessFilesPayload, buildBusinessFilesFormData } from '@/services/onboarding/business-files.service'
+import { ProviderVerifyPayload, buildProviderVerifyFormData } from '@/services/onboarding/provider-verification.service'
 
 import { onboardingApi, SubmitOnboardingRequest } from './onboardingApi'
 
@@ -113,6 +114,47 @@ export const submitBusinessFilesSkipThunk = createAsyncThunk<void, void, { dispa
             dispatch(setProfileStatus('ready'))
         } catch (error) {
             dispatch(setProfileError('Failed to skip branding'))
+            return rejectWithValue(error)
+        }
+    }
+)
+
+export const submitBusinessVerifyThunk = createAsyncThunk<void, ProviderVerifyPayload, { dispatch: AppDispatch; state: RootState }>(
+    'onboarding/submitBusinessVerify',
+    async (payload, { dispatch, rejectWithValue }) => {
+        try {
+            dispatch(setProfileStatus('loading'))
+            const formData = buildProviderVerifyFormData(payload)
+            await dispatch(onboardingApi.endpoints.submitOnboarding.initiate(formData as SubmitOnboardingRequest)).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            dispatch(setProfileUser(resolvedUser as never))
+            dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
+        } catch (error) {
+            dispatch(setProfileError('Failed to submit verification'))
+            return rejectWithValue(error)
+        }
+    }
+)
+
+export const skipBusinessVerifyThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
+    'onboarding/skipBusinessVerify',
+    async (_, { dispatch, rejectWithValue }) => {
+        try {
+            dispatch(setProfileStatus('loading'))
+            await dispatch(
+                onboardingApi.endpoints.submitOnboarding.initiate({
+                    action: 'BUSINESS_VERIFY_SKIP',
+                })
+            ).unwrap()
+            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
+            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            dispatch(setProfileUser(resolvedUser as never))
+            dispatch(authApi.util.invalidateTags(['Me']))
+            dispatch(setProfileStatus('ready'))
+        } catch (error) {
+            dispatch(setProfileError('Failed to skip verification'))
             return rejectWithValue(error)
         }
     }
