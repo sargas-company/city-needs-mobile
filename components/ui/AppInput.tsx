@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { TextInput, TextInputProps, Text, View, Pressable, NativeSyntheticEvent, TextInputFocusEventData } from 'react-native'
+import { Pressable, TextInput, TextInputProps, View } from 'react-native'
 
+import { AppText } from '@/components/ui/AppText'
 import { Design } from '@/constants/theme'
 
 type AppInputProps = TextInputProps & {
@@ -21,6 +22,8 @@ type AppInputProps = TextInputProps & {
 }
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(' ')
+type OnFocus = NonNullable<TextInputProps['onFocus']>
+type OnBlur = NonNullable<TextInputProps['onBlur']>
 
 export const AppInput: React.FC<AppInputProps> = ({
     label,
@@ -43,12 +46,12 @@ export const AppInput: React.FC<AppInputProps> = ({
 }) => {
     const [isFocused, setIsFocused] = useState(false)
 
-    const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    const handleFocus: OnFocus = (e) => {
         setIsFocused(true)
         onFocus?.(e)
     }
 
-    const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    const handleBlur: OnBlur = (e) => {
         setIsFocused(false)
         onBlur?.(e)
     }
@@ -61,10 +64,10 @@ export const AppInput: React.FC<AppInputProps> = ({
     return (
         <View className={cn('w-full', containerClassName)}>
             {!!label && (
-                <Text className={cn('mb-2 font-poppins text-base leading-[21px] text-text', labelClassName)}>
+                <AppText className={cn('mb-2 leading-[21px]', labelClassName)}>
                     {label}
-                    {required && <Text className="text-text">*</Text>}
-                </Text>
+                    {required && <AppText className="text-danger">*</AppText>}
+                </AppText>
             )}
 
             <View
@@ -104,7 +107,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                 )}
             </View>
 
-            {!!error && <Text className={cn('mt-1 font-poppins-semibold text-xs leading-4 text-danger', errorClassName)}>{error}</Text>}
+            {!!error && <AppText className={cn('mt-1 text-xs font-poppins-semibold leading-4 text-danger', errorClassName)}>{error}</AppText>}
         </View>
     )
 }
