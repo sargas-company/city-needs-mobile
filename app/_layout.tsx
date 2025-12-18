@@ -3,6 +3,7 @@ import '@dev-plugins/async-storage'
 import { Provider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
+import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Stack } from 'expo-router'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
@@ -24,10 +25,20 @@ if (__DEV__) {
 const RootNavigation = () => {
     const colorScheme = useColorScheme()
     const dispatch = useAppDispatch()
+    const [fontsLoaded] = useFonts({
+        Poppins_400Regular,
+        Poppins_500Medium,
+        Poppins_600SemiBold,
+        Poppins_700Bold,
+    })
 
     useEffect(() => {
         void dispatch(bootstrapAuthThunk())
     }, [dispatch])
+
+    if (!fontsLoaded) {
+        return null
+    }
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
