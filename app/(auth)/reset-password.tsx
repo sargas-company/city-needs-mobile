@@ -1,4 +1,4 @@
-import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, Pressable, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
 
+import { AppText } from '@/components/ui/AppText'
 import { FormInput } from '@/components/ui/FormInput'
 import { useRequestPasswordResetMutation } from '@/store/features/auth/authApi'
 
@@ -61,8 +62,10 @@ const ResetPassword = () => {
                 >
                     <View className="w-full max-w-md self-center gap-6">
                         <View className="gap-2">
-                            <Text className="text-2xl font-bold text-[#0C2A63]">Reset Password</Text>
-                            <Text className="text-sm text-gray-600">Enter your email and we&apos;ll send a reset link if an account exists.</Text>
+                            <AppText className="text-2xl font-bold text-brand">Reset Password</AppText>
+                            <AppText className="text-sm text-text-muted">
+                                Enter your email and we&apos;ll send a reset link if an account exists.
+                            </AppText>
                         </View>
 
                         <FormInput<ResetFormValues>
@@ -76,15 +79,15 @@ const ResetPassword = () => {
                             editable={!disabled}
                         />
 
-                        {submitError ? <Text className="text-sm text-red-600">{submitError}</Text> : null}
-                        {submitSuccess ? <Text className="text-sm text-green-600">{submitSuccess}</Text> : null}
+                        {submitError ? <AppText className="text-sm text-danger">{submitError}</AppText> : null}
+                        {submitSuccess ? <AppText className="text-sm text-brand">{submitSuccess}</AppText> : null}
 
                         <Pressable
                             onPress={handleSubmit(onSubmit)}
                             disabled={disabled}
-                            className={`w-full items-center rounded-full bg-blue-600 px-4 py-3 ${disabled ? 'opacity-60' : ''}`}
+                            className={`w-full items-center rounded-full bg-brand px-4 py-3 ${disabled ? 'opacity-60' : ''}`}
                         >
-                            <Text className="text-base font-semibold text-white">{disabled ? 'Sending...' : 'Send reset link'}</Text>
+                            <AppText className="text-base font-semibold text-white">{disabled ? 'Sending...' : 'Send reset link'}</AppText>
                         </Pressable>
                     </View>
                 </KeyboardAwareScrollView>

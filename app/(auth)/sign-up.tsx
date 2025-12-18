@@ -7,14 +7,15 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
+import TermsModal from '@/components/modals/TermsModal'
 import { FormInput } from '@/components/ui/FormInput'
+import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter'
 import { FormPhoneInput } from '@/components/ui/FormPhoneInput'
 import { SignUpPayload } from '@/services/auth/auth.types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
 import { signUpThunk } from '@/store/features/auth/auth.thunks'
-import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter'
-import TermsModal from '@/components/modals/TermsModal'
+import { AppButton } from '@/components/ui/AppButton'
 
 const signUpSchema = z
     .object({
@@ -61,20 +62,20 @@ const CheckboxField = ({ value, onChange, error, onPressTerms }: CheckboxFieldPr
                 accessibilityState={{ checked: value }}
             >
                 <View
-                    className={`h-5 w-5 items-center justify-center rounded border ${
-                        value ? 'border-blue-600 bg-blue-600' : 'border-gray-400 bg-white'
+                    className={`h-5 w-5 items-center justify-center rounded-checkbox border ${
+                        value ? 'border-brand bg-brand' : 'border-border bg-white'
                     }`}
                 >
                     {value ? <Text className="text-xs font-semibold text-white">✓</Text> : null}
                 </View>
-                <Text className="flex-1 text-sm text-gray-700">
+                <Text className="flex-1 font-poppins text-base text-text">
                     By continuing, you agree to our{' '}
-                    <Text className="text-blue-600 underline" onPress={onPressTerms}>
+                    <Text className="font-poppins-semibold text-base text-brand underline" onPress={onPressTerms}>
                         Terms & Privacy Policy
                     </Text>
                 </Text>
             </Pressable>
-            {!!error && <Text className="mt-1 text-xs font-semibold text-red-600">{error}</Text>}
+            {!!error && <Text className="mt-1 font-poppins-semibold text-xs text-danger">{error}</Text>}
         </View>
     )
 }
@@ -133,22 +134,24 @@ const SignUp = () => {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView className="flex-1 bg-white">
+            <SafeAreaView className="flex-1 bg-app-bg">
                 <KeyboardAwareScrollView
                     contentContainerStyle={{
                         flexGrow: 1,
                         justifyContent: 'center',
-                        paddingHorizontal: 24,
+                        paddingHorizontal: 0,
                     }}
                     keyboardShouldPersistTaps="handled"
                     bottomOffset={24}
                 >
-                    <View className="w-full max-w-md self-center gap-6">
+                    <View className="w-full max-w-md self-center gap-6 px-screen">
                         <View className="mb-2">
                             <View className="flex-row items-center justify-between">
-                                <Text className="text-2xl font-bold text-[#0C2A63]">Create Your Account</Text>
+                                <Text className="font-poppins-bold text-title text-brand">Create Your Account</Text>
                             </View>
-                            <Text className="mt-2 text-sm text-gray-600">Sign up to find trusted services and real local talent in minutes.</Text>
+                            <Text className="mt-2 font-poppins-medium text-subtitle text-text-muted">
+                                Sign up to find trusted services and real local talent in minutes.
+                            </Text>
                         </View>
 
                         <FormInput<SignUpFormValues>
@@ -218,20 +221,20 @@ const SignUp = () => {
                             )}
                         />
 
-                        <Pressable
+                        <AppButton
+                            title={isLoading ? 'Creating...' : 'Create an Account'}
                             onPress={handleSubmit(onSubmit)}
+                            loading={isLoading}
                             disabled={isLoading}
-                            className={`mt-2 w-full items-center rounded-full bg-blue-600 px-4 py-3 ${isLoading ? 'opacity-60' : ''}`}
-                        >
-                            <Text className="text-base font-semibold text-white">{isLoading ? 'Creating...' : 'Create an Account'}</Text>
-                        </Pressable>
+                            className="mt-2"
+                        />
 
-                        {submitError ? <Text className="text-center text-sm text-red-600">{submitError}</Text> : null}
+                        {submitError ? <Text className="text-center font-poppins text-base text-danger">{submitError}</Text> : null}
 
                         <View className="mt-4 items-center gap-2">
-                            <Text className="text-sm text-gray-600">
+                            <Text className="font-poppins text-base text-text">
                                 Already Have An Account?{' '}
-                                <Link href="/(auth)/sign-in" className="text-blue-600">
+                                <Link href="/(auth)/sign-in" className="font-poppins-semibold text-base text-brand">
                                     Login
                                 </Link>
                             </Text>

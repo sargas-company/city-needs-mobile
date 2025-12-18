@@ -1,7 +1,7 @@
-// @ts-nocheck
-// @ts-ignore
 import React, { useState } from 'react'
 import { TextInput, TextInputProps, Text, View, Pressable, NativeSyntheticEvent, TextInputFocusEventData } from 'react-native'
+
+import { Design } from '@/constants/theme'
 
 type AppInputProps = TextInputProps & {
     label?: string
@@ -37,7 +37,7 @@ export const AppInput: React.FC<AppInputProps> = ({
     editable = true,
     onFocus,
     onBlur,
-    placeholderTextColor = '#CACACA',
+    placeholderTextColor = Design.textPlaceholder,
     renderInput,
     ...textInputProps
 }) => {
@@ -54,22 +54,22 @@ export const AppInput: React.FC<AppInputProps> = ({
     }
 
     //  error > focus > default
-    const borderColorClass = error ? 'border-[#EF4444]' : isFocused ? 'border-[#0C2A63]' : 'border-[#CBCBCB]'
+    const borderColorClass = error ? 'border-danger' : isFocused ? 'border-brand' : 'border-border'
 
     const disabledClass = !editable ? 'opacity-60' : ''
 
     return (
         <View className={cn('w-full', containerClassName)}>
             {!!label && (
-                <Text className={cn('mb-2 text-[14px] leading-[21px] font-normal text-[#171717]', labelClassName)}>
+                <Text className={cn('mb-2 font-poppins text-base leading-[21px] text-text', labelClassName)}>
                     {label}
-                    {required && <Text className="text-[#171717]">*</Text>}
+                    {required && <Text className="text-text">*</Text>}
                 </Text>
             )}
 
             <View
                 className={cn(
-                    'flex-row items-center h-12 px-3 rounded-[12px] border bg-white',
+                    'flex-row items-center h-12 w-full rounded-input border border-border bg-white px-control',
                     borderColorClass,
                     disabledClass,
                     inputWrapperClassName
@@ -79,7 +79,7 @@ export const AppInput: React.FC<AppInputProps> = ({
 
                 {renderInput ? (
                     renderInput({
-                        className: cn('flex-1 text-[14px] text-[#171717]', inputClassName),
+                        className: cn('flex-1 font-poppins text-base text-text', inputClassName),
                         placeholderTextColor,
                         editable,
                         onFocus: handleFocus,
@@ -88,7 +88,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                     })
                 ) : (
                     <TextInput
-                        className={cn('flex-1 text-[14px] text-[#171717]', inputClassName)}
+                        className={cn('flex-1 font-poppins text-base text-text', inputClassName)}
                         placeholderTextColor={placeholderTextColor}
                         editable={editable}
                         onFocus={handleFocus}
@@ -104,7 +104,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                 )}
             </View>
 
-            {!!error && <Text className={cn('mt-1 text-[12px] leading-4 font-semibold text-[#EF4444]', errorClassName)}>{error}</Text>}
+            {!!error && <Text className={cn('mt-1 font-poppins-semibold text-xs leading-4 text-danger', errorClassName)}>{error}</Text>}
         </View>
     )
 }

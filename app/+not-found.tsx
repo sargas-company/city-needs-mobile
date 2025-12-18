@@ -1,5 +1,7 @@
 import { Link, Stack } from 'expo-router'
-import { SafeAreaView, Text, View } from 'react-native'
+import { SafeAreaView, View } from 'react-native'
+
+import { AppText } from '@/components/ui/AppText'
 
 export default function NotFoundScreen() {
     return (
@@ -7,8 +9,8 @@ export default function NotFoundScreen() {
             <Stack.Screen options={{ title: 'Oops!' }} />
             <SafeAreaView className="flex-1 items-center justify-center bg-white">
                 <View className="items-center gap-4">
-                    <Text className="text-2xl font-bold text-black">This screen doesn&apos;t exist.</Text>
-                    <Link href="/" className="text-blue-500">
+                    <AppText className="text-2xl font-bold text-text">This screen doesn&apos;t exist.</AppText>
+                    <Link href="/" className="font-poppins-semibold text-brand">
                         Go to home screen!
                     </Link>
                 </View>

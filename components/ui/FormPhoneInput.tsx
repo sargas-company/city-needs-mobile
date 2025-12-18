@@ -3,6 +3,8 @@ import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 import { MaskedTextInput } from 'react-native-mask-text'
 import { StyleSheet } from 'react-native'
 
+import { Design } from '@/constants/theme'
+
 import { AppInput } from './AppInput'
 
 export type FormPhoneInputProps<T extends FieldValues> = {
@@ -44,7 +46,7 @@ export function FormPhoneInput<T extends FieldValues>({
                                 const { className: _cn, style, placeholderTextColor, ...rest } = inputProps
                                 return {
                                     ...rest,
-                                    style: StyleSheet.flatten([{ flex: 1, fontSize: 14, color: '#171717' }, style]),
+                                    style: StyleSheet.flatten([{ flex: 1, fontSize: 14, color: Design.text }, style]),
                                     placeholderTextColor,
                                 }
                             })()}

@@ -1,7 +1,4 @@
-require('ts-node').register({ transpileOnly: true })
-
-const theme = require('./constants/theme')
-const { DesignColors } = theme
+const tokens = require('./constants/design-tokens')
 
 module.exports = {
     content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
@@ -9,13 +6,13 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                ...DesignColors,
+                ...tokens.colors,
             },
             fontFamily: {
-                poppins: ['Poppins_400Regular'],
-                'poppins-medium': ['Poppins_500Medium'],
-                'poppins-semibold': ['Poppins_600SemiBold'],
-                'poppins-bold': ['Poppins_700Bold'],
+                poppins: [tokens.fontFamily.poppins],
+                'poppins-medium': [tokens.fontFamily.poppinsMedium],
+                'poppins-semibold': [tokens.fontFamily.poppinsSemiBold],
+                'poppins-bold': [tokens.fontFamily.poppinsBold],
             },
             fontSize: {
                 title: ['24px', { lineHeight: '36px' }],
@@ -26,9 +23,9 @@ module.exports = {
                 caption: ['10px', { lineHeight: '15px' }],
             },
             borderRadius: {
-                input: '12px',
-                checkbox: '4px',
-                pill: '40px',
+                input: tokens.radii.input + 'px',
+                checkbox: tokens.radii.checkbox + 'px',
+                pill: tokens.radii.pill + 'px',
             },
             spacing: {
                 screen: '24px',

@@ -1,16 +1,13 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from 'react-native'
+
+const tokens = require('./design-tokens')
 
 const tintColorLight = '#0C2A63'
 const tintColorDark = '#fff'
 
 export const Colors = {
     light: {
-        text: '#11181C',
+        text: '#171717',
         background: '#F9F8FD',
         tint: tintColorLight,
         icon: '#687076',
@@ -25,17 +22,13 @@ export const Colors = {
         tabIconDefault: '#9BA1A6',
         tabIconSelected: tintColorDark,
     },
-}
+} as const
 
 export const Fonts = Platform.select({
     ios: {
-        /** iOS `UIFontDescriptorSystemDesignDefault` */
         sans: 'system-ui',
-        /** iOS `UIFontDescriptorSystemDesignSerif` */
         serif: 'ui-serif',
-        /** iOS `UIFontDescriptorSystemDesignRounded` */
         rounded: 'ui-rounded',
-        /** iOS `UIFontDescriptorSystemDesignMonospaced` */
         mono: 'ui-monospace',
     },
     default: {
@@ -52,27 +45,14 @@ export const Fonts = Platform.select({
     },
 })
 
-export const DesignColors = {
-    appBg: '#F9F8FD',
-    brand: '#0C2A63',
-    brand2: '#103E97',
-    text: '#171717',
-    textMuted: '#8D8C92',
-    textPlaceholder: '#CACACA',
-    border: '#CBCBCB',
-    danger: '#FF4D4D',
-    ink900: '#111827',
-} as const
-
-export const Radii = {
-    input: 12,
-    checkbox: 4,
-    pill: 40,
-} as const
-
-export const FontFamily = {
-    poppins: 'Poppins_400Regular',
-    poppinsMedium: 'Poppins_500Medium',
-    poppinsSemiBold: 'Poppins_600SemiBold',
-    poppinsBold: 'Poppins_700Bold',
+export const Design = {
+    appBg: tokens.colors['app-bg'],
+    brand: tokens.colors.brand,
+    brand2: tokens.colors['brand-2'],
+    text: tokens.colors.text,
+    textMuted: tokens.colors['text-muted'],
+    textPlaceholder: tokens.colors['text-placeholder'],
+    border: tokens.colors.border,
+    danger: tokens.colors.danger,
+    ink900: tokens.colors['ink-900'],
 } as const
