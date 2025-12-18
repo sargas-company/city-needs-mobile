@@ -8,7 +8,7 @@ import { axiosBaseQuery } from './axiosBaseQuery'
 const apiClient = axios.create({
     baseURL: apiConfig.baseURL,
     timeout: apiConfig.timeout,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { Accept: 'application/json' },
 })
 
 export const baseApi = createApi({

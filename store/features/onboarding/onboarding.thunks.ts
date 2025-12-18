@@ -4,7 +4,6 @@ import { AppDispatch, RootState } from '@/store/store'
 import { authApi } from '@/store/features/auth/authApi'
 import { setProfileError, setProfileStatus, setProfileUser } from '@/store/features/profile/profile.slice'
 import { BusinessInfoFormValues } from '@/components/forms/businessInfoSchema'
-import { BusinessFilesPayload, buildBusinessFilesFormData } from '@/services/onboarding/business-files.service'
 import { ProviderVerifyPayload, buildProviderVerifyFormData } from '@/services/onboarding/provider-verification.service'
 
 import { onboardingApi, SubmitOnboardingRequest } from './onboardingApi'
@@ -78,13 +77,16 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
     }
 )
 
-export const submitBusinessFilesThunk = createAsyncThunk<void, BusinessFilesPayload, { dispatch: AppDispatch; state: RootState }>(
+export const submitBusinessFilesThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
     'onboarding/submitBusinessFiles',
-    async (files, { dispatch, rejectWithValue }) => {
+    async (_, { dispatch, rejectWithValue }) => {
         try {
             dispatch(setProfileStatus('loading'))
-            const formData = buildBusinessFilesFormData(files)
-            await dispatch(onboardingApi.endpoints.submitOnboarding.initiate(formData as SubmitOnboardingRequest)).unwrap()
+            await dispatch(
+                onboardingApi.endpoints.submitOnboarding.initiate({
+                    action: 'BUSINESS_FILES',
+                })
+            ).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
             const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
             dispatch(setProfileUser(resolvedUser as never))
