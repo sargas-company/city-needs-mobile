@@ -29,7 +29,7 @@ const ProviderBusinessInfo = () => {
         resolver: zodResolver(businessInfoSchema),
         defaultValues: {
             businessName: '',
-            categoryIds: [],
+            categoryId: '',
             description: '',
             phone: '',
             email: '',
@@ -93,11 +93,8 @@ const ProviderBusinessInfo = () => {
 
                     <Controller
                         control={control}
-                        name="categoryIds"
+                        name="categoryId"
                         render={({ field: { value, onChange }, fieldState: { error } }) => {
-                            // value: string[] | undefined
-                            const selectedId = value && value.length > 0 ? value[0] : null
-
                             return (
                                 <View className="mb-4">
                                     <Text className="mb-2 text-sm font-semibold text-[#111827]">
@@ -108,12 +105,12 @@ const ProviderBusinessInfo = () => {
                                         data={fallbackCategories}
                                         labelField="name"
                                         valueField="id"
-                                        value={selectedId}
+                                        value={value}
                                         search
                                         searchPlaceholder="Search category"
                                         placeholder="Select category"
                                         onChange={(item: CategoryOption) => {
-                                            onChange([item.id])
+                                            onChange(item.id)
                                         }}
                                         style={{
                                             height: 48,

@@ -14,6 +14,6 @@ const apiClient = axios.create({
 export const baseApi = createApi({
     reducerPath: 'api',
     baseQuery: axiosBaseQuery({ client: apiClient }),
-    tagTypes: ['Me', 'Profile', 'AnyFutureEntity'],
+    tagTypes: ['Me', 'Profile', 'AnyFutureEntity', 'VerificationFile'],
     endpoints: () => ({}),
 })

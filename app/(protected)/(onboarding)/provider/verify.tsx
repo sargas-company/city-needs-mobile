@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
@@ -7,8 +7,14 @@ import * as DocumentPicker from 'expo-document-picker'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
-import { skipBusinessVerifyThunk, submitBusinessVerifyThunk } from '@/store/features/onboarding/onboarding.thunks'
-import { ProviderVerifyPayload, PickedFile } from '@/services/onboarding/provider-verification.service'
+import {
+    deleteVerificationFileThunk,
+    loadVerificationFileThunk,
+    submitVerificationThunk,
+    skipVerificationThunk,
+    uploadVerificationFileThunk,
+} from '@/store/features/onboarding/verify/verify.thunks'
+import { selectVerifyError, selectVerifyFile, selectVerifyStatus } from '@/store/features/onboarding/verify/verify.selectors'
 
 type VerifyState = 'empty' | 'pending' | 'failed' | 'verified'
 
@@ -24,13 +30,20 @@ const VerifyScreen = () => {
     const router = useRouter()
     const profileStatus = useAppSelector(selectProfileStatus)
 
-    const [selectedFile, setSelectedFile] = useState<PickedFile | null>(null)
     const [verifyState, setVerifyState] = useState<VerifyState>('empty')
-    const [error, setError] = useState<string | null>(null)
-    const [apiError, setApiError] = useState<string | null>(null)
+    const [localError, setLocalError] = useState<string | null>(null)
 
-    const isLoading = profileStatus === 'loading'
-    const canSubmit = verifyState !== 'verified' && verifyState !== 'pending' && !!selectedFile
+    const verifyFile = useAppSelector(selectVerifyFile)
+    const verifyStatus = useAppSelector(selectVerifyStatus)
+    const verifyError = useAppSelector(selectVerifyError)
+
+    const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
+    const canDelete = verifyFile ? !(verifyFile as { lock?: { locked?: boolean } }).lock?.locked : false
+    const canSubmit = !!verifyFile?.id && verifyState !== 'verified'
+
+    useEffect(() => {
+        dispatch(loadVerificationFileThunk())
+    }, [dispatch])
 
     const title = useMemo(() => {
         switch (verifyState) {
@@ -72,7 +85,6 @@ const VerifyScreen = () => {
     }, [verifyState])
 
     const pickDocument = async () => {
-        setApiError(null)
         const result = await DocumentPicker.getDocumentAsync({
             multiple: false,
             type: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
@@ -80,42 +92,45 @@ const VerifyScreen = () => {
         })
         if (result.canceled || !result.assets?.length) return
         const asset = result.assets[0]
-        const file: PickedFile = {
-            uri: asset.uri,
-            name: asset.name || asset.uri.split('/').pop() || 'document',
-            type: asset.mimeType || 'application/octet-stream',
-            size: asset.size,
+        try {
+            await dispatch(
+                uploadVerificationFileThunk({
+                    uri: asset.uri,
+                    name: asset.name || asset.uri.split('/').pop() || 'document',
+                    type: asset.mimeType || 'application/octet-stream',
+                })
+            ).unwrap()
+            setVerifyState('empty')
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to upload file'
+            setLocalError(message)
         }
-        setSelectedFile(file)
-        setVerifyState('empty')
     }
 
     const handleSubmit = async () => {
-        setError(null)
-        setApiError(null)
-        if (!selectedFile) {
-            setError('Please upload at least one document to submit for verification.')
+        setLocalError(null)
+        if (!verifyFile?.id) {
+            setLocalError('Please upload a document to submit for verification.')
             return
         }
         try {
-            const payload: ProviderVerifyPayload = { document: selectedFile }
-            await dispatch(submitBusinessVerifyThunk(payload)).unwrap()
-            // Assume server sets status to pending; we reflect that locally for UX.
+            await dispatch(submitVerificationThunk()).unwrap()
             setVerifyState('pending')
+            router.replace('/(protected)/(tabs)')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to submit verification'
-            setApiError(message)
+            setLocalError(message)
         }
     }
 
     const handleSkip = async () => {
-        setApiError(null)
+        setLocalError(null)
         try {
-            await dispatch(skipBusinessVerifyThunk()).unwrap()
+            await dispatch(skipVerificationThunk()).unwrap()
             router.replace('/(protected)/(tabs)')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to skip verification'
-            setApiError(message)
+            setLocalError(message)
         }
     }
 
@@ -124,13 +139,11 @@ const VerifyScreen = () => {
     }
 
     const renderStatusRow = () => {
-        if (!selectedFile && verifyState === 'empty') return null
-        if (verifyState === 'empty' && selectedFile) return null
-        if (verifyState === 'pending' && !selectedFile) return null
+        if (!verifyFile) return null
 
         const pillColor = statusColors[verifyState] ?? '#9CA3AF'
         const pillLabel = verifyState === 'pending' ? 'Pending' : verifyState === 'failed' ? 'Failed' : 'Verified'
-        const name = selectedFile?.name ?? 'Uploaded document'
+        const name = verifyFile.originalName || verifyFile.url || 'Uploaded document'
 
         return (
             <View className="mb-4 flex-row items-center justify-between rounded-xl border border-[#E5E7EB] bg-white px-4 py-3">
@@ -146,8 +159,8 @@ const VerifyScreen = () => {
         )
     }
 
-    const showUpload = verifyState === 'empty' || verifyState === 'failed'
-    const showSubmit = verifyState === 'empty' || verifyState === 'failed'
+    const showUpload = !verifyFile
+    const showSubmit = true
     const primaryLabel = verifyState === 'verified' ? 'Continue' : 'Submit for Verification'
 
     return (
@@ -165,7 +178,7 @@ const VerifyScreen = () => {
                     >
                         <Text className="text-lg text-[#0C2A63]">‹</Text>
                     </Pressable>
-                    <Pressable onPress={handleSkip} disabled={isLoading}>
+                    <Pressable onPress={handleSkip} disabled={isBusy}>
                         <Text className="text-base font-semibold text-[#0C2A63]">Skip for now</Text>
                     </Pressable>
                 </View>
@@ -202,15 +215,31 @@ const VerifyScreen = () => {
                     </View>
                 ) : null}
 
-                {selectedFile ? (
+                {verifyFile ? (
                     <View className="mb-4 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3">
                         <View className="flex-row items-center justify-between">
                             <Text className="flex-1 text-base text-[#111827]" numberOfLines={2}>
-                                {selectedFile.name}
+                                {verifyFile.originalName || verifyFile.url || 'Uploaded document'}
                             </Text>
-                            <Pressable onPress={() => setSelectedFile(null)}>
-                                <Text className="text-sm text-red-500">Remove</Text>
-                            </Pressable>
+                            {canDelete ? (
+                                <Pressable
+                                    onPress={async () => {
+                                        if (!verifyFile?.id) return
+                                        try {
+                                            await dispatch(deleteVerificationFileThunk(verifyFile.id)).unwrap()
+                                            setVerifyState('empty')
+                                        } catch (err) {
+                                            const message =
+                                                (err as { data?: { message?: string }; error?: { data?: { message?: string } } })?.data?.message ??
+                                                (err as { error?: { data?: { message?: string } } })?.error?.data?.message ??
+                                                'Failed to delete file'
+                                            setLocalError(message)
+                                        }
+                                    }}
+                                >
+                                    <Text className="text-sm text-red-500">Remove</Text>
+                                </Pressable>
+                            ) : null}
                         </View>
                     </View>
                 ) : null}
@@ -219,17 +248,15 @@ const VerifyScreen = () => {
                     <Text className="text-xs font-semibold text-[#0C2A63]">{infoBadge}</Text>
                 </View>
 
-                {!!error && <Text className="mb-2 text-sm font-semibold text-red-600">{error}</Text>}
-                {!!apiError && <Text className="mb-2 text-sm font-semibold text-red-600">{apiError}</Text>}
+                {!!verifyError && <Text className="mb-2 text-sm font-semibold text-red-600">{verifyError}</Text>}
+                {!!localError && <Text className="mb-2 text-sm font-semibold text-red-600">{localError}</Text>}
 
                 {showSubmit || verifyState === 'verified' ? (
                     <View className="mt-2">
                         <Pressable
                             onPress={verifyState === 'verified' ? handleContinue : handleSubmit}
-                            disabled={isLoading || (showSubmit && !canSubmit)}
-                            className={`w-full items-center rounded-full bg-[#0C2A63] px-4 py-3 ${
-                                isLoading || (showSubmit && !canSubmit) ? 'opacity-60' : ''
-                            }`}
+                            disabled={isBusy || !canSubmit}
+                            className={`w-full items-center rounded-full bg-[#0C2A63] px-4 py-3 ${isBusy || !canSubmit ? 'opacity-60' : ''}`}
                         >
                             <Text className="text-base font-semibold text-white">{primaryLabel}</Text>
                         </Pressable>

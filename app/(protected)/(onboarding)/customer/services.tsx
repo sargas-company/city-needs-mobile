@@ -18,7 +18,7 @@ export type CategoryOption = {
 }
 
 export const fallbackCategories: CategoryOption[] = [
-    { id: 'a9a5e867-d30b-4b1e-a2cb-62142445e674', name: 'Beauty & Wellness' },
+    { id: '8349ead4-def5-4966-a9bc-d553bb05c4c8', name: 'Beauty & Wellness' },
     { id: '4167790d-ccb1-4c39-8822-4a271a72be8a', name: 'Cleaning' },
     { id: '6072083f-de0a-4733-a01c-636115a4bba6', name: 'Pet Care' },
     { id: '51311644-5397-489d-a994-088cdb9b26a3', name: 'Home Repairs' },

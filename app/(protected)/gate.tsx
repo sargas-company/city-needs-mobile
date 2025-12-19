@@ -67,6 +67,10 @@ const Gate = () => {
                 router.replace('/(protected)/(onboarding)/provider/branding')
                 return
             }
+            if (step === 4) {
+                router.replace('/(protected)/(onboarding)/provider/verify')
+                return
+            }
         }
 
         router.replace('/(protected)/(tabs)')

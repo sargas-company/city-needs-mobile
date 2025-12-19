@@ -6,6 +6,7 @@ import { baseApi } from './api/baseApi'
 import { authReducer, logout } from './features/auth/auth.slice'
 import { profileReducer } from './features/profile/profile.slice'
 import { uploadSessionReducer } from './features/uploadSession/uploadSession.slice'
+import { verifyReducer } from './features/onboarding/verify/verify.slice'
 
 const authPersistConfig = {
     key: 'auth',
@@ -17,6 +18,7 @@ const appReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     profile: profileReducer,
     uploadSession: uploadSessionReducer,
+    verify: verifyReducer,
     [baseApi.reducerPath]: baseApi.reducer,
 })
 

@@ -165,7 +165,7 @@ const BrandingScreen = () => {
         setApiError(null)
         try {
             await dispatch(submitBusinessFilesSkipThunk()).unwrap()
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/gate')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to skip'
             setApiError(message)
@@ -181,7 +181,7 @@ const BrandingScreen = () => {
         setError(null)
         try {
             await dispatch(submitBusinessFilesThunk()).unwrap()
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/gate')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to upload files'
             setApiError(message)

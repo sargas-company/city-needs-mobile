@@ -49,6 +49,7 @@ export const Design = {
     appBg: tokens.colors['app-bg'],
     brand: tokens.colors.brand,
     brand2: tokens.colors['brand-2'],
+    orange: tokens.colors.orange,
     text: tokens.colors.text,
     textMuted: tokens.colors['text-muted'],
     textPlaceholder: tokens.colors['text-placeholder'],

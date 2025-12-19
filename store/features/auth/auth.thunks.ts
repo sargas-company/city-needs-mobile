@@ -119,7 +119,8 @@ export const refreshEmailVerificationStatusThunk = createAsyncThunk<void, void, 
             await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
             await dispatch(authApi.endpoints.authSync.initiate({})).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
+            const resolvedUser = (meResult as { data?: unknown })?.data.user ?? meResult
+
             dispatch(setProfileUser(resolvedUser as never))
             if (!(resolvedUser as { emailVerified?: boolean }).emailVerified) {
                 return rejectWithValue('NOT_VERIFIED')

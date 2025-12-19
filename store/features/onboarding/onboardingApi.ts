@@ -7,8 +7,8 @@ export type OnboardingAction =
     | 'BUSINESS_ADDRESS'
     | 'BUSINESS_FILES'
     | 'BUSINESS_FILES_SKIP'
-    | 'BUSINESS_VERIFY'
-    | 'BUSINESS_VERIFY_SKIP'
+    | 'BUSINESS_VERIFICATION_SUBMIT'
+    | 'BUSINESS_VERIFICATION_SKIP'
 
 export type SubmitOnboardingRequest =
     | {

@@ -55,7 +55,7 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
                 description: `${values.description.trim()}\n\nOperating hours: ${values.operatingHours.trim()}`,
                 phone: normalizeDigits(values.phone),
                 email: values.email.trim(),
-                categoryIds: values.categoryIds,
+                categoryId: values.categoryId,
             }
 
             await dispatch(

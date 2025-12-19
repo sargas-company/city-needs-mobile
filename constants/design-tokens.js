@@ -3,6 +3,7 @@ module.exports = {
         'app-bg': '#F9F8FD',
         brand: '#0C2A63',
         'brand-2': '#103E97',
+        orange: '#e89f48',
         text: '#171717',
         'text-muted': '#8D8C92',
         'text-placeholder': '#CACACA',

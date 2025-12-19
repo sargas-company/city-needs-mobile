@@ -66,7 +66,7 @@ export default function HomeScreen() {
                     <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
                 </ThemedText>
                 <View style={styles.welcomeButtonContainer}>
-                    <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.welcomeButton} accessibilityRole="button">
+                    <TouchableOpacity onPress={() => router.push('/(protected)/gate')} style={styles.welcomeButton} accessibilityRole="button">
                         <Text style={styles.welcomeButtonText}>Open Welcome</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLogout} style={[styles.welcomeButton, styles.logoutButton]} accessibilityRole="button">
