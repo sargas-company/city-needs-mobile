@@ -1,20 +1,88 @@
-export type AppUser = {
+export type UserRole = 'END_USER' | 'BUSINESS_OWNER' | 'ADMIN'
+export type UserStatus = string
+export type BusinessStatus = string
+export type FileType = string
+
+export type UserDto = {
     id: string
-    firebaseUid: string
-    email?: string
-    name?: string
-    phone?: string
-    role?: 'END_USER' | 'BUSINESS_OWNER' | null
-    emailVerified?: boolean
+
+    email?: string | null
+    phone?: string | null
+    username?: string | null
+    avatar?: string | null
+
+    role?: UserRole | null
+    status: UserStatus
+
+    emailVerified: boolean
+    lastVerificationEmailSentAt?: string | null
+
     onboardingStep?: number | null
-    addressLine1?: string
-    addressLine2?: string
-    city?: string
-    state?: string
-    zip?: string
-    countryCode?: string
-    countryName?: string
-    createdAt?: string
-    updatedAt?: string
-    [key: string]: unknown
+
+    createdAt: string
+    updatedAt: string
+}
+
+export type CategoryPublicDto = {
+    id: string
+    title: string
+    slug: string
+    description?: string | null
+}
+
+export type AddressDto = {
+    id: string
+    countryCode: string
+    city: string
+    state: string
+    addressLine1: string
+    addressLine2?: string | null
+    zip?: string | null
+}
+
+export type FileDto = {
+    id: string
+    url: string
+    type: FileType
+    mimeType?: string | null
+    sizeBytes?: number | null
+    originalName?: string | null
+}
+
+export type BusinessDto = {
+    id: string
+    name: string
+    description: string
+    phone: string
+    email: string
+
+    status: BusinessStatus
+
+    categoryId: string
+    category?: CategoryPublicDto | null
+
+    addressId?: string | null
+    address?: AddressDto | null
+
+    logoId?: string | null
+    logo?: FileDto | null
+
+    verificationGraceDeadlineAt?: string | null
+}
+
+export type BusinessVerificationNextAction = 'NONE' | 'GO_TO_VERIFICATION'
+
+export type BusinessVerificationGateDto = {
+    requiresVerification: boolean
+    graceDeadlineAt?: string | null
+    graceExpired: boolean
+    status: BusinessStatus
+    canUseApp: boolean
+    nextAction: BusinessVerificationNextAction
+}
+
+export type AppUser = {
+    user: UserDto
+    business?: BusinessDto | null
+    verification?: BusinessVerificationGateDto | null
 }

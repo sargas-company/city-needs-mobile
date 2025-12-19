@@ -11,7 +11,7 @@ import { verifyReducer } from './features/onboarding/verify/verify.slice'
 const authPersistConfig = {
     key: 'auth',
     storage: AsyncStorage,
-    whitelist: ['user', 'isAuth', 'status', 'emailVerificationSkipped'],
+    whitelist: ['user', 'isAuth', 'status'],
 }
 
 const appReducer = combineReducers({

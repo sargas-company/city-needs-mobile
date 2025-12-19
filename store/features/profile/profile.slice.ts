@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-import { AppUser } from './profile.types'
+import { AppUser } from '@/store/features/profile/profile.types'
 
 export type ProfileStatus = 'idle' | 'loading' | 'ready' | 'error'
 

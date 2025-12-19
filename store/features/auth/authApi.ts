@@ -1,5 +1,5 @@
 import { baseApi } from '@/store/api/baseApi'
-import { AppUser } from '@/store/features/profile/profile.types'
+import { AppUser, UserDto } from '@/store/features/profile/profile.types'
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -7,7 +7,7 @@ export const authApi = baseApi.injectEndpoints({
             query: () => ({ url: '/auth/me', method: 'GET' }),
             providesTags: ['Me', 'Profile'],
         }),
-        authSync: builder.mutation<AppUser, Partial<AppUser>>({
+        authSync: builder.mutation<AppUser, Partial<UserDto>>({
             query: (body) => ({ url: '/auth/sync', method: 'POST', data: body ?? {} }),
             invalidatesTags: ['Profile', 'Me'],
         }),

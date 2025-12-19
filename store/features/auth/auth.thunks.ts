@@ -8,6 +8,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
 import { getFirebaseLoginErrorMessage } from '@/services/auth'
+import type { AppUser } from '@/store/features/profile/profile.types'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
 import { logout, setAuthError, setAuthStatus } from './auth.slice'
@@ -18,6 +19,13 @@ const isUserNotSyncedError = (error: unknown) => {
     const message =
         (error as { data?: { message?: string } })?.data?.message ?? (error as { error?: { data?: { message?: string } } })?.error?.data?.message
     return status === 404 || nestedStatus === 404 || message === 'User is not synced'
+}
+
+export const resolveApiData = <T>(payload: unknown): T => {
+    if (payload && typeof payload === 'object' && 'data' in payload) {
+        return (payload as any).data as T
+    }
+    return payload as T
 }
 
 export const loginThunk = createAsyncThunk<void, LoginPayload, { dispatch: AppDispatch; state: RootState; rejectValue: string }>(
@@ -31,9 +39,8 @@ export const loginThunk = createAsyncThunk<void, LoginPayload, { dispatch: AppDi
 
             dispatch(authApi.util.invalidateTags(['Me']))
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(setAuthStatus('authenticated'))
         } catch (error) {
             const message = getFirebaseLoginErrorMessage(error)
@@ -62,8 +69,8 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
             await dispatch(authApi.endpoints.authSync.initiate(syncPayload)).unwrap()
             dispatch(authApi.util.invalidateTags(['Me']))
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(setAuthStatus('authenticated'))
             try {
                 await dispatch(authApi.endpoints.sendVerificationEmail.initiate(undefined)).unwrap()
@@ -96,8 +103,8 @@ export const selectRoleThunk = createAsyncThunk<void, 'END_USER' | 'BUSINESS_OWN
         try {
             await dispatch(authApi.endpoints.authSync.initiate({ role })).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
             dispatch(setProfileStatus('ready'))
         } catch (error) {
@@ -119,10 +126,9 @@ export const refreshEmailVerificationStatusThunk = createAsyncThunk<void, void, 
             await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
             await dispatch(authApi.endpoints.authSync.initiate({})).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data.user ?? meResult
-
-            dispatch(setProfileUser(resolvedUser as never))
-            if (!(resolvedUser as { emailVerified?: boolean }).emailVerified) {
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
+            if (!resolvedMe.user.emailVerified) {
                 return rejectWithValue('NOT_VERIFIED')
             }
             dispatch(setAuthStatus('authenticated'))
@@ -145,8 +151,8 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
                 await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
                 try {
                     const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-                    const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-                    dispatch(setProfileUser(resolvedUser as never))
+                    const resolvedMe = resolveApiData<AppUser>(meResult)
+                    dispatch(setProfileUser(resolvedMe))
                     dispatch(setAuthStatus('authenticated'))
                     return
                 } catch (error) {
@@ -154,8 +160,8 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
                         try {
                             await dispatch(authApi.endpoints.authSync.initiate({})).unwrap()
                             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-                            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-                            dispatch(setProfileUser(resolvedUser as never))
+                            const resolvedMe = resolveApiData<AppUser>(meResult)
+                            dispatch(setProfileUser(resolvedMe))
                             dispatch(setAuthStatus('authenticated'))
                             return
                         } catch (syncErr) {

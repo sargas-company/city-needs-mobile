@@ -4,7 +4,8 @@ import { AppDispatch, RootState } from '@/store/store'
 import { authApi } from '@/store/features/auth/authApi'
 import { setProfileError, setProfileStatus, setProfileUser } from '@/store/features/profile/profile.slice'
 import { BusinessInfoFormValues } from '@/components/forms/businessInfoSchema'
-import { ProviderVerifyPayload, buildProviderVerifyFormData } from '@/services/onboarding/provider-verification.service'
+import type { AppUser } from '@/store/features/profile/profile.types'
+import { resolveApiData } from '@/store/features/auth/auth.thunks'
 
 import { onboardingApi, SubmitOnboardingRequest } from './onboardingApi'
 
@@ -16,8 +17,8 @@ export const submitOnboardingThunk = createAsyncThunk<void, SubmitOnboardingRequ
         try {
             const resp = await dispatch(onboardingApi.endpoints.submitOnboarding.initiate(body)).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
         } catch (error) {
             return rejectWithValue(error)
@@ -36,8 +37,8 @@ export const submitCustomerCategoriesThunk = createAsyncThunk<void, string[], { 
                 })
             ).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
         } catch (error) {
             return rejectWithValue(error)
@@ -66,8 +67,8 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
             ).unwrap()
 
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
             dispatch(setProfileStatus('ready'))
         } catch (error) {
@@ -88,8 +89,8 @@ export const submitBusinessFilesThunk = createAsyncThunk<void, void, { dispatch:
                 })
             ).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
             dispatch(setProfileStatus('ready'))
         } catch (error) {
@@ -110,53 +111,12 @@ export const submitBusinessFilesSkipThunk = createAsyncThunk<void, void, { dispa
                 })
             ).unwrap()
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
+            const resolvedMe = resolveApiData<AppUser>(meResult)
+            dispatch(setProfileUser(resolvedMe))
             dispatch(authApi.util.invalidateTags(['Me']))
             dispatch(setProfileStatus('ready'))
         } catch (error) {
             dispatch(setProfileError('Failed to skip branding'))
-            return rejectWithValue(error)
-        }
-    }
-)
-
-export const submitBusinessVerifyThunk = createAsyncThunk<void, ProviderVerifyPayload, { dispatch: AppDispatch; state: RootState }>(
-    'onboarding/submitBusinessVerify',
-    async (payload, { dispatch, rejectWithValue }) => {
-        try {
-            dispatch(setProfileStatus('loading'))
-            const formData = buildProviderVerifyFormData(payload)
-            await dispatch(onboardingApi.endpoints.submitOnboarding.initiate(formData as SubmitOnboardingRequest)).unwrap()
-            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
-            dispatch(authApi.util.invalidateTags(['Me']))
-            dispatch(setProfileStatus('ready'))
-        } catch (error) {
-            dispatch(setProfileError('Failed to submit verification'))
-            return rejectWithValue(error)
-        }
-    }
-)
-
-export const skipBusinessVerifyThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
-    'onboarding/skipBusinessVerify',
-    async (_, { dispatch, rejectWithValue }) => {
-        try {
-            dispatch(setProfileStatus('loading'))
-            await dispatch(
-                onboardingApi.endpoints.submitOnboarding.initiate({
-                    action: 'BUSINESS_VERIFY_SKIP',
-                })
-            ).unwrap()
-            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedUser = (meResult as { data?: unknown })?.data ?? meResult
-            dispatch(setProfileUser(resolvedUser as never))
-            dispatch(authApi.util.invalidateTags(['Me']))
-            dispatch(setProfileStatus('ready'))
-        } catch (error) {
-            dispatch(setProfileError('Failed to skip verification'))
             return rejectWithValue(error)
         }
     }
