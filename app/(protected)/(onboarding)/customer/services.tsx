@@ -11,26 +11,17 @@ import { CustomerServicesFormValues, customerServicesSchema } from '@/components
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitCustomerCategoriesThunk } from '@/store/features/onboarding/onboarding.thunks'
-
-export type CategoryOption = {
-    id: string
-    name: string
-}
-
-export const fallbackCategories: CategoryOption[] = [
-    { id: '8349ead4-def5-4966-a9bc-d553bb05c4c8', name: 'Beauty & Wellness' },
-    { id: '4167790d-ccb1-4c39-8822-4a271a72be8a', name: 'Cleaning' },
-    { id: '6072083f-de0a-4733-a01c-636115a4bba6', name: 'Pet Care' },
-    { id: '51311644-5397-489d-a994-088cdb9b26a3', name: 'Home Repairs' },
-    { id: '7758feb9-a4f4-4f6b-8d29-3ec7514a7652', name: 'Delivery & Assistance' },
-    { id: '3fe68b0a-332b-434e-8156-ed8700c52700', name: 'Other' },
-]
+import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 
 const CustomerServicesScreen = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const profileStatus = useAppSelector(selectProfileStatus)
     const [submitError, setSubmitError] = useState<string | null>(null)
+
+    const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError } = useGetCategoriesQuery()
+
+    const categoryOptions = categories ?? []
 
     const {
         watch,
@@ -94,10 +85,10 @@ const CustomerServicesScreen = () => {
                 </View>
 
                 <View className="mb-6">
-                    {fallbackCategories.map((category) => (
+                    {categoryOptions.map((category) => (
                         <CategoryCard
                             key={category.id}
-                            label={category.name}
+                            label={category.title}
                             selected={selectedIds.includes(category.id)}
                             onPress={() => toggleCategory(category.id)}
                         />

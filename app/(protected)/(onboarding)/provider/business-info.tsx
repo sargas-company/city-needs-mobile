@@ -10,16 +10,17 @@ import { Dropdown } from 'react-native-element-dropdown'
 import { BusinessInfoFormValues, businessInfoSchema } from '@/components/forms/businessInfoSchema'
 import { FormInput } from '@/components/ui/FormInput'
 import { FormPhoneInput } from '@/components/ui/FormPhoneInput'
+import { CategoryType, useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitBusinessProfileThunk } from '@/store/features/onboarding/onboarding.thunks'
-import { fallbackCategories, type CategoryOption } from '@/app/(protected)/(onboarding)/customer/services'
 
 const ProviderBusinessInfo = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const profileStatus = useAppSelector(selectProfileStatus)
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError } = useGetCategoriesQuery()
 
     const {
         control,
@@ -40,6 +41,14 @@ const ProviderBusinessInfo = () => {
     })
 
     const isLoading = isSubmitting || profileStatus === 'loading'
+    const categoryOptions = categories ?? []
+    const categoriesEmpty = categoryOptions.length === 0
+    const categoriesPlaceholder = isCategoriesLoading ? 'Loading categories...' : categoriesEmpty ? 'No categories available' : 'Select category'
+    const categoriesErrorMessage =
+        (categoriesError as { data?: { message?: string } })?.data?.message ??
+        (categoriesError as { error?: { data?: { message?: string } } })?.error?.data?.message ??
+        (categoriesError as { message?: string })?.message ??
+        (typeof categoriesError === 'string' ? categoriesError : null)
 
     const onSubmit = async (values: BusinessInfoFormValues) => {
         setSubmitError(null)
@@ -95,6 +104,7 @@ const ProviderBusinessInfo = () => {
                         control={control}
                         name="categoryId"
                         render={({ field: { value, onChange }, fieldState: { error } }) => {
+                            const isDropdownDisabled = isLoading || isCategoriesLoading || categoriesEmpty
                             return (
                                 <View className="mb-4">
                                     <Text className="mb-2 text-sm font-semibold text-[#111827]">
@@ -102,14 +112,15 @@ const ProviderBusinessInfo = () => {
                                     </Text>
 
                                     <Dropdown
-                                        data={fallbackCategories}
-                                        labelField="name"
+                                        data={categoryOptions}
+                                        labelField="title"
                                         valueField="id"
                                         value={value}
                                         search
                                         searchPlaceholder="Search category"
-                                        placeholder="Select category"
-                                        onChange={(item: CategoryOption) => {
+                                        placeholder={categoriesPlaceholder}
+                                        disable={isDropdownDisabled}
+                                        onChange={(item: CategoryType) => {
                                             onChange(item.id)
                                         }}
                                         style={{
@@ -139,6 +150,9 @@ const ProviderBusinessInfo = () => {
                                     />
 
                                     {!!error && <Text className="mt-1 text-xs font-semibold text-[#EF4444]">{error.message}</Text>}
+                                    {!!categoriesErrorMessage && isCategoriesError ? (
+                                        <Text className="mt-1 text-xs font-semibold text-[#EF4444]">{categoriesErrorMessage}</Text>
+                                    ) : null}
                                 </View>
                             )
                         }}
