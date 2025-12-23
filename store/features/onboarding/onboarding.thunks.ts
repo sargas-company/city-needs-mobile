@@ -53,10 +53,19 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
             dispatch(setProfileStatus('loading'))
             const payload = {
                 name: values.businessName.trim(),
-                description: `${values.description.trim()}\n\nOperating hours: ${values.operatingHours.trim()}`,
+                description: values.description.trim(),
                 phone: normalizeDigits(values.phone),
                 email: values.email.trim(),
                 categoryId: values.categoryId,
+                businessHours: values.businessHours
+                    .filter((day) => day.isEnabled)
+                    .map((day) => ({
+                        weekday: day.weekday,
+                        isClosed: day.isClosed ?? false,
+                        is24h: day.is24h ?? false,
+                        startTime: day.is24h || day.isClosed ? null : (day.startTime ?? null),
+                        endTime: day.is24h || day.isClosed ? null : (day.endTime ?? null),
+                    })),
             }
 
             await dispatch(

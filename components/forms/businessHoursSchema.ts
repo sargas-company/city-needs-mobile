@@ -1,17 +1,19 @@
 import { z } from 'zod'
 
-export const dayScheduleSchema = z
+export const businessHoursItemSchema = z
     .object({
         weekday: z.number().min(0).max(6),
         isEnabled: z.boolean(),
-        is24h: z.boolean(),
-        startTime: z.string().nullable(),
-        endTime: z.string().nullable(),
+        isClosed: z.boolean().optional(),
+        is24h: z.boolean().optional(),
+        startTime: z.string().nullable().optional(),
+        endTime: z.string().nullable().optional(),
     })
     .refine(
         (data) => {
             if (!data.isEnabled) return true
             if (data.is24h) return true
+            if (data.isClosed) return true
             return Boolean(data.startTime && data.endTime)
         },
         {
@@ -19,9 +21,12 @@ export const dayScheduleSchema = z
         }
     )
 
+export const dayScheduleSchema = businessHoursItemSchema
+
 export const businessHoursFormSchema = z.object({
-    days: z.array(dayScheduleSchema).length(7),
+    days: z.array(businessHoursItemSchema).length(7),
 })
 
-export type DayScheduleForm = z.infer<typeof dayScheduleSchema>
+export type BusinessHoursFormItem = z.infer<typeof businessHoursItemSchema>
+export type DayScheduleForm = BusinessHoursFormItem
 export type BusinessHoursFormValues = z.infer<typeof businessHoursFormSchema>
