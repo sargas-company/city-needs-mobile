@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Text, View } from 'react-native'
+import { useMemo, useRef, useState } from 'react'
+import { FlatList, Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { Path, useFormContext, useWatch } from 'react-hook-form'
 
 import { BusinessHoursFormItem } from '@/components/forms/businessHoursSchema'
@@ -22,6 +22,10 @@ export const BusinessHoursForm = () => {
     const fieldName = 'businessHours' as const
     const days = useWatch({ control, name: fieldName }) ?? []
     const [activeTime, setActiveTime] = useState<{ dayIndex: number; field: TimeField } | null>(null)
+    const [activeIndex, setActiveIndex] = useState(0)
+    const listRef = useRef<FlatList<BusinessHoursFormItem>>(null)
+    const { width: screenWidth } = useWindowDimensions()
+    const cardWidth = screenWidth - 48
 
     const activeValue = useMemo(() => {
         if (!activeTime) return null
@@ -74,27 +78,65 @@ export const BusinessHoursForm = () => {
                 <Text className="text-sm text-[#6B7280]">Set your weekly schedule</Text>
             </View>
 
-            <View className="gap-3">
-                {days.map((day, index) => {
-                    const dayError = (errors.businessHours?.[index] as { message?: string } | undefined)?.message
+            <View className="flex-row flex-wrap gap-2">
+                {weekLabels.map((label, index) => {
+                    const isActive = index === activeIndex
+                    const isConfigured = days[index]?.isEnabled
                     return (
-                        <WeekdayCard
-                            key={day.weekday}
-                            label={weekLabels[index]}
-                            isEnabled={day.isEnabled}
-                            is24h={day.is24h ?? false}
-                            startTime={day.startTime ?? null}
-                            endTime={day.endTime ?? null}
-                            onToggleEnabled={(value) => toggleEnabled(index, value)}
-                            onToggle24h={(value) => toggle24h(index, value)}
-                            onPressStart={() => openPicker(index, 'startTime')}
-                            onPressEnd={() => openPicker(index, 'endTime')}
-                            errorMessage={dayError}
-                            showError={isSubmitted}
-                        />
+                        <Pressable
+                            key={label}
+                            onPress={() => {
+                                setActiveIndex(index)
+                                listRef.current?.scrollToIndex({ index, animated: true })
+                            }}
+                            className={`rounded-full px-3 py-1.5 ${isActive ? 'bg-[#0C2A63]' : 'bg-[#F3F4F6]'}`}
+                        >
+                            <View className="flex-row items-center gap-2">
+                                <Text className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-[#111827]'}`}>{label}</Text>
+                                {isConfigured ? <View className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-[#0C2A63]'}`} /> : null}
+                            </View>
+                        </Pressable>
                     )
                 })}
             </View>
+
+            <FlatList
+                ref={listRef}
+                data={days}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item) => String(item.weekday)}
+                getItemLayout={(_, index) => ({
+                    length: cardWidth,
+                    offset: cardWidth * index,
+                    index,
+                })}
+                onMomentumScrollEnd={(event) => {
+                    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / cardWidth)
+                    setActiveIndex(nextIndex)
+                }}
+                renderItem={({ item, index }) => {
+                    const dayError = (errors.businessHours?.[index] as { message?: string } | undefined)?.message
+                    return (
+                        <View style={{ width: cardWidth, paddingRight: index === days.length - 1 ? 0 : 12 }}>
+                            <WeekdayCard
+                                label={weekLabels[index]}
+                                isEnabled={item.isEnabled}
+                                is24h={item.is24h ?? false}
+                                startTime={item.startTime ?? null}
+                                endTime={item.endTime ?? null}
+                                onToggleEnabled={(value) => toggleEnabled(index, value)}
+                                onToggle24h={(value) => toggle24h(index, value)}
+                                onPressStart={() => openPicker(index, 'startTime')}
+                                onPressEnd={() => openPicker(index, 'endTime')}
+                                errorMessage={dayError}
+                                showError={isSubmitted}
+                            />
+                        </View>
+                    )
+                }}
+            />
 
             <TimePickerModal visible={!!activeTime} value={activeValue} onSelect={onSelectTime} onClose={() => setActiveTime(null)} />
         </View>

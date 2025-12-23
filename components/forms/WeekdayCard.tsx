@@ -35,14 +35,18 @@ export const WeekdayCard = ({
 
             <View className="mt-3 flex-row items-center justify-between">
                 <Text className="text-sm text-[#111827]">Working this day</Text>
-                <Switch value={isEnabled} onValueChange={onToggleEnabled} />
+                <View onStartShouldSetResponderCapture={() => true} onMoveShouldSetResponderCapture={() => true}>
+                    <Switch value={isEnabled} trackColor={{ true: '#0C2A63' }} onValueChange={onToggleEnabled} />
+                </View>
             </View>
 
             {isEnabled ? (
                 <View className="mt-3">
                     <View className="flex-row items-center justify-between">
                         <Text className="text-sm text-[#111827]">24 hours</Text>
-                        <Switch value={is24h} onValueChange={onToggle24h} />
+                        <View onStartShouldSetResponderCapture={() => true} onMoveShouldSetResponderCapture={() => true}>
+                            <Switch value={is24h} trackColor={{ true: '#0C2A63' }} onValueChange={onToggle24h} />
+                        </View>
                     </View>
 
                     {!is24h ? (
