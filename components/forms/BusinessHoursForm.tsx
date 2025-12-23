@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { FlatList, Pressable, Text, View, useWindowDimensions } from 'react-native'
+import { FlatList, Pressable, Text, View, useWindowDimensions, ScrollView } from 'react-native'
 import { Path, useFormContext, useWatch } from 'react-hook-form'
 
 import { BusinessHoursFormItem } from '@/components/forms/businessHoursSchema'
@@ -10,7 +10,7 @@ import { WeekdayCard } from './WeekdayCard'
 
 type TimeField = 'startTime' | 'endTime'
 
-const weekLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export const BusinessHoursForm = () => {
     const {
@@ -78,27 +78,29 @@ export const BusinessHoursForm = () => {
                 <Text className="text-sm text-[#6B7280]">Set your weekly schedule</Text>
             </View>
 
-            <View className="flex-row flex-wrap gap-2">
-                {weekLabels.map((label, index) => {
-                    const isActive = index === activeIndex
-                    const isConfigured = days[index]?.isEnabled
-                    return (
-                        <Pressable
-                            key={label}
-                            onPress={() => {
-                                setActiveIndex(index)
-                                listRef.current?.scrollToIndex({ index, animated: true })
-                            }}
-                            className={`rounded-full px-3 py-1.5 ${isActive ? 'bg-[#0C2A63]' : 'bg-[#F3F4F6]'}`}
-                        >
-                            <View className="flex-row items-center gap-2">
-                                <Text className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-[#111827]'}`}>{label}</Text>
-                                {isConfigured ? <View className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-[#0C2A63]'}`} /> : null}
-                            </View>
-                        </Pressable>
-                    )
-                })}
-            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View className="flex-row gap-2">
+                    {weekLabels.map((label, index) => {
+                        const isActive = index === activeIndex
+                        const isConfigured = days[index]?.isEnabled
+                        return (
+                            <Pressable
+                                key={label}
+                                onPress={() => {
+                                    setActiveIndex(index)
+                                    listRef.current?.scrollToIndex({ index, animated: true })
+                                }}
+                                className={`rounded-full px-3 py-1.5 ${isActive ? 'bg-[#0C2A63]' : 'bg-[#F3F4F6]'}`}
+                            >
+                                <View className="flex-row items-center gap-2">
+                                    <Text className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-[#111827]'}`}>{label}</Text>
+                                    {isConfigured ? <View className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-[#0C2A63]'}`} /> : null}
+                                </View>
+                            </Pressable>
+                        )
+                    })}
+                </View>
+            </ScrollView>
 
             <FlatList
                 ref={listRef}
