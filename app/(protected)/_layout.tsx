@@ -1,6 +1,4 @@
 import { Stack, useRouter } from 'expo-router'
-import { useEffect } from 'react'
-import { Text, View } from 'react-native'
 
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
@@ -10,23 +8,23 @@ export default function ProtectedLayout() {
     const status = useAppSelector(selectAuthStatus)
     const isAuth = useAppSelector(selectIsAuth)
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.replace('/(auth)/sign-in')
-        }
-    }, [router, status])
-
-    if (status === 'loading') {
-        return (
-            <View className="flex-1 items-center justify-center bg-white">
-                <Text>Loading session...</Text>
-            </View>
-        )
-    }
-
-    if (!isAuth) {
-        return null
-    }
+    // useEffect(() => {
+    //     if (status === 'unauthenticated') {
+    //         router.replace('/(auth)/sign-in')
+    //     }
+    // }, [router, status])
+    //
+    // if (status === 'loading') {
+    //     return (
+    //         <View className="flex-1 items-center justify-center bg-white">
+    //             <Text>Loading session...</Text>
+    //         </View>
+    //     )
+    // }
+    //
+    // if (!isAuth) {
+    //     return null
+    // }
 
     return (
         <Stack screenOptions={{ headerShown: false }}>
