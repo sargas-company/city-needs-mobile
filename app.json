@@ -10,7 +10,10 @@
         "jsEngine": "hermes",
         "newArchEnabled": true,
         "ios": {
-            "supportsTablet": true
+            "supportsTablet": true,
+            "infoPlist": {
+                "NSLocationWhenInUseUsageDescription": "We use your location to show nearby providers and personalize results."
+            }
         },
         "android": {
             "adaptiveIcon": {
@@ -19,6 +22,7 @@
                 "backgroundImage": "./assets/images/android-icon-background.png",
                 "monochromeImage": "./assets/images/android-icon-monochrome.png"
             },
+            "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false
         },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Pressable, TextInput, TextInputProps, View } from 'react-native'
+import { Pressable, Text, TextInput, TextInputProps, View } from 'react-native'
 
 import { AppText } from '@/components/ui/AppText'
 import { Design } from '@/constants/theme'
@@ -12,6 +12,9 @@ type AppInputProps = TextInputProps & {
     rightIcon?: React.ReactNode
     onRightIconPress?: () => void
 
+    clearable?: boolean
+    onClear?: () => void
+
     containerClassName?: string
     labelClassName?: string
     inputWrapperClassName?: string
@@ -22,6 +25,7 @@ type AppInputProps = TextInputProps & {
 }
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(' ')
+
 type OnFocus = NonNullable<TextInputProps['onFocus']>
 type OnBlur = NonNullable<TextInputProps['onBlur']>
 
@@ -32,11 +36,16 @@ export const AppInput: React.FC<AppInputProps> = ({
     leftIcon,
     rightIcon,
     onRightIconPress,
+
+    clearable = false,
+    onClear,
+
     containerClassName,
     labelClassName,
     inputWrapperClassName,
     inputClassName,
     errorClassName,
+
     editable = true,
     onFocus,
     onBlur,
@@ -56,10 +65,20 @@ export const AppInput: React.FC<AppInputProps> = ({
         onBlur?.(e)
     }
 
-    //  error > focus > default
+    // error > focus > default
     const borderColorClass = error ? 'border-danger' : isFocused ? 'border-brand' : 'border-border'
 
     const disabledClass = !editable ? 'opacity-60' : ''
+
+    const showClear = clearable && editable && typeof textInputProps.value === 'string' && textInputProps.value.length > 0
+
+    const handleClear = () => {
+        if (onClear) {
+            onClear()
+        } else {
+            textInputProps.onChangeText?.('')
+        }
+    }
 
     return (
         <View className={cn('w-full', containerClassName)}>
@@ -72,7 +91,7 @@ export const AppInput: React.FC<AppInputProps> = ({
 
             <View
                 className={cn(
-                    'flex-row items-center h-12 w-full rounded-input border border-border bg-white px-control',
+                    'flex-row items-center h-12 w-full rounded-input border bg-white px-control',
                     borderColorClass,
                     disabledClass,
                     inputWrapperClassName
@@ -100,7 +119,13 @@ export const AppInput: React.FC<AppInputProps> = ({
                     />
                 )}
 
-                {rightIcon && (
+                {showClear && (
+                    <Pressable hitSlop={8} onPress={handleClear} className="ml-2">
+                        <Text className="text-base text-[#6B7280]">✕</Text>
+                    </Pressable>
+                )}
+
+                {!showClear && rightIcon && (
                     <Pressable hitSlop={8} onPress={onRightIconPress} disabled={!onRightIconPress}>
                         {rightIcon}
                     </Pressable>

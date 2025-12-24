@@ -83,7 +83,7 @@ const SignIn = () => {
                     bottomOffset={24}
                 >
                     <View className="w-full max-w-md self-center gap-6">
-                        <Text className="text-2xl font-bold text-brand text-center w-full">Your local community{'\n'}starts here.</Text>
+                        <Text className="text-3xl font-bold text-brand text-center w-full">Your local community{'\n'}starts here.</Text>
 
                         <FormInput<SignInFormValues>
                             control={control}

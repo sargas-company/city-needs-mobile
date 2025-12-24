@@ -13,8 +13,8 @@ const Index = () => {
         return <Redirect href="/(onboarding)/welcome" />
     }
 
-    return <Redirect href="/(protected)/gate" />
-    // return <Redirect href="/(protected)/(onboarding)/provider/business-info" />
+    //return <Redirect href="/(protected)/gate" />
+    return <Redirect href="/(protected)/(onboarding)/location" />
 }
 
 export default Index
