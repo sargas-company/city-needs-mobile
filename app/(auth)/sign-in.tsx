@@ -1,18 +1,19 @@
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Feather } from '@expo/vector-icons'
+import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
 
 import { LoginPayload } from '@/services/auth/auth.types'
 import { loginThunk } from '@/store/features/auth/auth.thunks'
 import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { FormInput } from '@/components/ui/FormInput'
+import { AppButton } from '@/components/ui/AppButton'
 
 const signInSchema = z.object({
     email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -61,6 +62,14 @@ const SignIn = () => {
     const isLoading = status === 'loading' || isSubmitting
     const isDisabled = isLoading
 
+    const SocialButton = ({ children }: { children: React.ReactNode }) => {
+        return (
+            <TouchableOpacity activeOpacity={0.8} className="w-[30%] h-14 rounded-xl bg-white items-center justify-center border border-gray-200">
+                {children}
+            </TouchableOpacity>
+        )
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView className="flex-1 bg-white">
@@ -74,12 +83,12 @@ const SignIn = () => {
                     bottomOffset={24}
                 >
                     <View className="w-full max-w-md self-center gap-6">
-                        <Text className="text-2xl font-bold text-black">Sign In</Text>
+                        <Text className="text-2xl font-bold text-brand text-center w-full">Your local community{'\n'}starts here.</Text>
 
                         <FormInput<SignInFormValues>
                             control={control}
                             name="email"
-                            label="Email"
+                            label="Email address"
                             required
                             placeholder="Enter email"
                             autoCapitalize="none"
@@ -95,27 +104,48 @@ const SignIn = () => {
                             placeholder="Enter password"
                             secureTextEntry={!showPassword}
                             editable={!isLoading}
-                            rightIcon={<Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#171717" />}
+                            rightIcon={<Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#CBCBCB" />}
                             onRightIconPress={() => setShowPassword((prev) => !prev)}
                         />
 
-                        <Pressable
+                        <AppButton
+                            title={isLoading ? 'Logging in…' : 'Log In'}
                             onPress={handleSubmit(onSubmit)}
-                            disabled={isDisabled}
-                            className={`mt-2 w-full items-center rounded-md px-4 py-3 bg-blue-600 ${isDisabled ? 'opacity-60' : ''}`}
-                        >
-                            <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in...' : 'Sign In'}</Text>
-                        </Pressable>
+                            loading={isLoading}
+                            disabled={isLoading}
+                            className="mt-2"
+                        />
 
                         {submitError ? <Text className="mt-2 text-sm text-red-600 text-center">{submitError}</Text> : null}
 
-                        {/* Линки */}
-                        <View className="mt-4 items-center gap-2">
-                            <Link href="/(auth)/sign-up" className="text-center text-blue-500">
-                                Go to Sign Up
-                            </Link>
-                            <Link href="/(auth)/reset-password" className="text-center text-blue-500">
-                                Forgot password?
+                        <Link href="/(auth)/reset-password" className="text-center font-semibold text-brand  leading-[21px] tracking-normal">
+                            Forgot password?
+                        </Link>
+
+                        <View className="flex-row items-center mb-6">
+                            <View className="flex-1 h-px bg-gray-300" />
+                            <Text className="mx-4 text-gray-400 text-sm">Or login with</Text>
+                            <View className="flex-1 h-px bg-gray-300" />
+                        </View>
+
+                        <View className="flex-row justify-between mb-8">
+                            <SocialButton>
+                                <AntDesign name="google" size={22} color="#DB4437" />
+                            </SocialButton>
+
+                            <SocialButton>
+                                <FontAwesome name="facebook" size={22} color="#1877F2" />
+                            </SocialButton>
+
+                            <SocialButton>
+                                <AntDesign name="apple" size={22} color="#000" />
+                            </SocialButton>
+                        </View>
+
+                        <View className="flex-row justify-center">
+                            <Text className="text-base text-black">New here? </Text>
+                            <Link href="/(auth)/sign-up" className="text-base text-yellow-600 font-semibold">
+                                Create an account
                             </Link>
                         </View>
                     </View>

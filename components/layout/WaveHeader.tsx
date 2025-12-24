@@ -54,12 +54,11 @@ export const WaveHeader = ({ height, topInset, showLogo = false, style, logoTop 
                 style,
             ]}
         >
-            <View style={{ height: topInset, backgroundColor: '#FFFFFF' }} />
-
+            {' '}
+            <View style={{ height: topInset, backgroundColor: '#113e95' }} />
             <View style={{ height, backgroundColor: '#FFFFFF' }}>
                 <WaveSvg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
             </View>
-
             {showLogo ? (
                 <View style={[styles.logoWrap, { top: topInset + logoTop, right: logoRight }]}>
                     <LogoSvg width={56} height={56} />
