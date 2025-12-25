@@ -1,29 +1,30 @@
-// import onboarding1 from '@/assets/images/onboarding1.png'
-// import onboarding2 from '@/assets/images/onboarding2.png'
-// import onboarding3 from '@/assets/images/onboarding3.png'
+import { ImageSourcePropType } from 'react-native'
+
+import onboarding1 from '@/assets/images/onboarding1.png'
+import onboarding2 from '@/assets/images/onboarding2.png'
+import onboarding3 from '@/assets/images/onboarding3.png'
 
 export type OnboardingSlide = {
     id: number
     title: string
-    // image: ImageSourcePropType,
-    image: any
+    image: ImageSourcePropType
 }
 
 export const onboardingSlides: OnboardingSlide[] = [
     {
         id: 1,
         title: 'Support local families,\nhome businesses, and\nmicro-entrepreneurs!',
-        image: '',
+        image: onboarding1,
     },
     {
         id: 2,
         title: 'See who’s nearby and book\n instantly — no middleman\n fees',
-        image: '',
+        image: onboarding2,
     },
     {
         id: 3,
         title: 'Farmers, caterers,\n plumbers, drivers — all in\n one place.',
-        image: '',
+        image: onboarding3,
     },
 ]
 

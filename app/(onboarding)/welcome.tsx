@@ -49,7 +49,7 @@ const Welcome = () => {
 
     return (
         <SafeAreaView className="flex h-full items-center justify-between bg-white px-1">
-            <View className="w-full flex items-end p-5">
+            <View className="w-full flex items-end px-5 pb-0">
                 <TouchableOpacity onPress={handleComplete} className="rounded-full bg-transparent px-4 py-2" accessibilityRole="button">
                     <AppText className="font-poppins-semibold text-brand">Skip</AppText>
                 </TouchableOpacity>
@@ -59,16 +59,13 @@ const Welcome = () => {
                 ref={swiperRef}
                 loop={false}
                 dot={<View className={`${DOT_CLASSNAME} bg-[#E2E8F0]`} />}
-                activeDot={<View className={`${DOT_CLASSNAME} bg-[#0286FF]`} />}
+                activeDot={<View className={`${DOT_CLASSNAME} bg-brand`} />}
                 onIndexChanged={(index) => setActiveIndex(index)}
             >
                 {slides.map((item) => (
                     <View key={item.id} className="flex items-center justify-center p-5">
-                        <Image source={item.image} className="h-[300px] w-full" resizeMode="contain" />
+                        <Image source={item.image} className="h-[430px] w-full" resizeMode="contain" />
                         <View className="mt-10 w-full flex flex-row items-center justify-center">
-                            {/*<Text className="mx-10 text-center text-3xl font-bold text-black">{item.title}</Text>*/}
-                            {/*<Text className="mx-10 text-center text-3xl font-bold text-black">{item.title}</Text>*/}
-
                             <AppText className="text-center font-poppins-semibold text-[25px] text-brand">{item.title}</AppText>
                         </View>
                     </View>
