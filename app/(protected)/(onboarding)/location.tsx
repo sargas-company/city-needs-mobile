@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-import { getCurrentPosition, openSettings, requestLocationPermission, reverseGeocode } from '@/services/location/LocationService'
-import { syncLocation } from '@/services/location/locationApi'
-import { StoredLocation } from '@/services/location/location.types'
+import { openSettings } from '@/services/location/LocationService'
+import { getLocationErrorMessage } from '@/services/location/locationErrors'
+import { submitGpsLocation } from '@/services/location/submitLocation'
+import { useSyncLocationMutation } from '@/store/api/locationApi'
 import { setLocation, setLocationPermission } from '@/store/features/location/location.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
@@ -16,36 +17,28 @@ const LocationGate = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const permission = useAppSelector(selectLocationPermission)
-    const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [syncLocation, syncLocationState] = useSyncLocationMutation()
 
     const handleAllow = async () => {
         setError(null)
-        setIsLoading(true)
         try {
-            const status = await requestLocationPermission()
-            dispatch(setLocationPermission(status))
-            if (status !== 'granted') {
+            const result = await submitGpsLocation({
+                onPermission: (status) => dispatch(setLocationPermission(status)),
+                onStored: (payload) => dispatch(setLocation(payload)),
+                sync: (payload) => syncLocation(payload).unwrap(),
+            })
+
+            if (!result.ok && result.reason === 'permission') {
                 setError('Location permission is required to continue.')
                 return
             }
-
-            const coords = await getCurrentPosition()
-            const formattedAddress = await reverseGeocode(coords.lat, coords.lng)
-            const payload: StoredLocation = {
-                lat: coords.lat,
-                lng: coords.lng,
-                source: 'gps',
-                formattedAddress,
-                updatedAt: new Date().toISOString(),
+            if (result.ok && result.response.ok && result.response.location) {
+                dispatch(setLocation(result.response.location))
             }
-            dispatch(setLocation(payload))
-            void syncLocation(payload).catch(() => undefined)
             router.replace('/(protected)/gate')
         } catch (err) {
-            setError((err as Error)?.message ?? 'Failed to fetch location')
-        } finally {
-            setIsLoading(false)
+            setError(getLocationErrorMessage(err, 'Failed to fetch location'))
         }
     }
 
@@ -62,7 +55,12 @@ const LocationGate = () => {
 
                 {!!error && <Text className="text-sm font-semibold text-red-600">{error}</Text>}
 
-                <AppButton title={'Allow Location Access'} onPress={handleAllow} loading={isLoading} disabled={isLoading} />
+                <AppButton
+                    title={'Allow Location Access'}
+                    onPress={handleAllow}
+                    loading={syncLocationState.isLoading}
+                    disabled={syncLocationState.isLoading}
+                />
 
                 <Pressable onPress={() => router.push('/(protected)/(onboarding)/location-manual')}>
                     <Text className="text-sm font-semibold text-brand">Enter Location Manually</Text>

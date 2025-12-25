@@ -6,8 +6,10 @@ import { FontAwesome6 } from '@expo/vector-icons'
 
 import { useLazyGetLocationDetailsQuery, useLazySearchLocationsQuery } from '@/store/api/geocodingApi'
 import { getGeocodingProviderId } from '@/services/geocoding/GeocodingProvider'
-import { getCurrentPosition, openSettings, requestLocationPermission, reverseGeocode } from '@/services/location/LocationService'
-import { syncLocation } from '@/services/location/locationApi'
+import { openSettings } from '@/services/location/LocationService'
+import { getLocationErrorMessage } from '@/services/location/locationErrors'
+import { submitGpsLocation } from '@/services/location/submitLocation'
+import { useSyncLocationMutation } from '@/store/api/locationApi'
 import { setLocation, setLocationPermission } from '@/store/features/location/location.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
@@ -26,6 +28,7 @@ const LocationManual = () => {
 
     const [triggerSearch, searchResult] = useLazySearchLocationsQuery()
     const [triggerDetails] = useLazyGetLocationDetailsQuery()
+    const [syncLocation, syncLocationState] = useSyncLocationMutation()
     const lastSearchRef = useRef<ReturnType<typeof triggerSearch> | null>(null)
 
     useEffect(() => {
@@ -57,7 +60,7 @@ const LocationManual = () => {
             let lng = item.lng
             let formattedAddress = item.subtitle ? `${item.title}, ${item.subtitle}` : item.title
 
-            if (!lat || !lng) {
+            if (lat == null || lng == null) {
                 const details = await triggerDetails({ id: item.id }).unwrap()
                 lat = details.lat
                 lng = details.lng
@@ -78,36 +81,34 @@ const LocationManual = () => {
                 updatedAt: new Date().toISOString(),
             }
             dispatch(setLocation(payload))
-            void syncLocation(payload).catch(() => undefined)
+            const response = await syncLocation(payload).unwrap()
+            if (response.ok && response.location) {
+                dispatch(setLocation(response.location))
+            }
             router.replace('/(protected)/gate')
         } catch (err) {
-            setSubmitError((err as Error)?.message ?? 'Failed to select location')
+            setSubmitError(getLocationErrorMessage(err, 'Failed to select location'))
         }
     }
 
     const handleUseCurrentLocation = async () => {
         setSubmitError(null)
         try {
-            const status = await requestLocationPermission()
-            dispatch(setLocationPermission(status))
-            if (status !== 'granted') {
+            const result = await submitGpsLocation({
+                onPermission: (status) => dispatch(setLocationPermission(status)),
+                onStored: (payload) => dispatch(setLocation(payload)),
+                sync: (payload) => syncLocation(payload).unwrap(),
+            })
+            if (!result.ok && result.reason === 'permission') {
                 setSubmitError('Location permission is required to continue.')
                 return
             }
-            const coords = await getCurrentPosition()
-            const formattedAddress = await reverseGeocode(coords.lat, coords.lng)
-            const payload: StoredLocation = {
-                lat: coords.lat,
-                lng: coords.lng,
-                source: 'gps',
-                formattedAddress,
-                updatedAt: new Date().toISOString(),
+            if (result.ok && result.response.ok && result.response.location) {
+                dispatch(setLocation(result.response.location))
             }
-            dispatch(setLocation(payload))
-            void syncLocation(payload).catch(() => undefined)
             router.replace('/(protected)/gate')
         } catch (err) {
-            setSubmitError((err as Error)?.message ?? 'Failed to get current location')
+            setSubmitError(getLocationErrorMessage(err, 'Failed to get current location'))
         }
     }
 
@@ -125,7 +126,7 @@ const LocationManual = () => {
                 <AppInput placeholder={'Search location'} value={query} clearable onClear={() => setQuery('')} onChangeText={setQuery} />
             </View>
 
-            <Pressable onPress={handleUseCurrentLocation} className="p-2 mb-4 flex-row items-center gap-2">
+            <Pressable onPress={handleUseCurrentLocation} className="p-2 mb-4 flex-row items-center gap-2" disabled={syncLocationState.isLoading}>
                 <View>
                     <FontAwesome6 name="location-arrow" size={14} color="#0C2A63" />
                 </View>
@@ -143,7 +144,11 @@ const LocationManual = () => {
                 keyExtractor={(item) => item.id}
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
-                    <Pressable onPress={() => handleSelect(item)} className="border-b border-[#F3F4F6] py-3">
+                    <Pressable
+                        onPress={() => handleSelect(item)}
+                        disabled={syncLocationState.isLoading}
+                        className={`border-b border-[#F3F4F6] py-3 ${syncLocationState.isLoading ? 'opacity-60' : ''}`}
+                    >
                         <Text className="text-sm font-semibold text-[#111827]">{item.title}</Text>
                         {item.subtitle ? <Text className="text-xs text-[#6B7280]">{item.subtitle}</Text> : null}
                     </Pressable>
