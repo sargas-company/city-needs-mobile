@@ -5,7 +5,6 @@
 export type OnboardingSlide = {
     id: number
     title: string
-    description: string
     // image: ImageSourcePropType,
     image: any
 }
@@ -13,20 +12,17 @@ export type OnboardingSlide = {
 export const onboardingSlides: OnboardingSlide[] = [
     {
         id: 1,
-        title: 'The perfect ride is just a tap away!',
-        description: 'Your journey begins with Ryde. Find your ideal ride effortlessly.',
+        title: 'Support local families,\nhome businesses, and\nmicro-entrepreneurs!',
         image: '',
     },
     {
         id: 2,
-        title: 'Best car in your hands with Ryde',
-        description: 'Discover the convenience of finding your perfect ride with Ryde',
+        title: 'See who’s nearby and book\n instantly — no middleman\n fees',
         image: '',
     },
     {
         id: 3,
-        title: "Your ride, your way. Let's go!",
-        description: 'Enter your destination, sit back, and let us take care of the rest.',
+        title: 'Farmers, caterers,\n plumbers, drivers — all in\n one place.',
         image: '',
     },
 ]
