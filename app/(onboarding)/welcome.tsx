@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Image, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Swiper from 'react-native-swiper'
@@ -20,11 +20,11 @@ const Welcome = () => {
         router.replace('/(auth)/sign-in')
     }, [router])
 
-    // useEffect(() => {
-    //     if (isCompleted && !isLoading) {
-    //         navigateToAuth()
-    //     }
-    // }, [isCompleted, isLoading, navigateToAuth])
+    useEffect(() => {
+        if (isCompleted && !isLoading) {
+            navigateToAuth()
+        }
+    }, [isCompleted, isLoading, navigateToAuth])
 
     const isLastSlide = useMemo(() => activeIndex >= lastIndex, [activeIndex, lastIndex])
     const primaryCtaLabel = useMemo(() => (isLastSlide ? 'Get Started' : 'Next'), [isLastSlide])
@@ -65,7 +65,7 @@ const Welcome = () => {
                 {slides.map((item) => (
                     <View key={item.id} className="flex items-center justify-center p-5">
                         <Image source={item.image} className="h-[430px] w-full" resizeMode="contain" />
-                        <View className="mt-10 w-full flex flex-row items-center justify-center">
+                        <View className="mt-10 w-full flex flex-row items-center justify-center bg-white">
                             <AppText className="text-center font-poppins-semibold text-[25px] text-brand">{item.title}</AppText>
                         </View>
                     </View>
