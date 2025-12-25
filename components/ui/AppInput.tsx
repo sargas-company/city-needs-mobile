@@ -22,6 +22,7 @@ type AppInputProps = TextInputProps & {
     errorClassName?: string
 
     renderInput?: (props: TextInputProps) => React.ReactNode
+    keyboardType?: TextInputProps['keyboardType']
 }
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(' ')
@@ -51,6 +52,7 @@ export const AppInput: React.FC<AppInputProps> = ({
     onBlur,
     placeholderTextColor = Design.textPlaceholder,
     renderInput,
+    keyboardType,
     ...textInputProps
 }) => {
     const [isFocused, setIsFocused] = useState(false)
@@ -115,6 +117,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                         editable={editable}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
+                        keyboardType={keyboardType}
                         {...textInputProps}
                     />
                 )}

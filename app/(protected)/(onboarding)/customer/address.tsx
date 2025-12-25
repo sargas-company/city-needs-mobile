@@ -13,16 +13,6 @@ const CustomerAddress = () => {
     const [, setSubmitError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const initialValues = {
-        addressLine1: profile?.addressLine1 ?? '',
-        addressLine2: profile?.addressLine2 ?? '',
-        city: profile?.city ?? '',
-        state: profile?.state ?? '',
-        zip: profile?.zip ?? '',
-        countryCode: profile?.countryCode ?? 'CA',
-        countryName: profile?.countryName ?? 'Canada',
-    }
-
     const handleSubmit = async (values: any) => {
         setSubmitError(null)
         setIsSubmitting(true)
@@ -49,13 +39,13 @@ const CustomerAddress = () => {
 
     return (
         <AddressForm
-            initialValues={initialValues}
             onSubmit={handleSubmit}
             isSubmittingExternal={isSubmitting}
-            stepLabel="1/2"
             title="Enter Your Address Details"
             subtitle="Provide your address details so we can find services near you."
             submitLabel="Continue"
+            steps={['Address', 'Services']}
+            currentStep={1}
         />
     )
 }

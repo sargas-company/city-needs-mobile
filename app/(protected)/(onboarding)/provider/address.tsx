@@ -14,13 +14,13 @@ const ProviderAddress = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const initialValues = {
-        addressLine1: profile?.addressLine1 ?? '',
-        addressLine2: profile?.addressLine2 ?? '',
-        city: profile?.city ?? '',
-        state: profile?.state ?? '',
-        zip: profile?.zip ?? '',
-        countryCode: profile?.countryCode ?? 'CA',
-        countryName: profile?.countryName ?? 'Canada',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        zip: '',
+        countryCode: 'CA',
+        countryName: 'Canada',
     }
 
     const handleSubmit = async (values: any) => {
@@ -49,13 +49,13 @@ const ProviderAddress = () => {
 
     return (
         <AddressForm
-            initialValues={initialValues}
             onSubmit={handleSubmit}
             isSubmittingExternal={isSubmitting}
-            stepLabel="2/3"
             title="Enter Your Address Details"
             subtitle="Provide your business address so customers can find you."
             submitLabel="Continue"
+            steps={['Business Info', 'Address', 'Branding', 'Verification']}
+            currentStep={2}
         />
     )
 }

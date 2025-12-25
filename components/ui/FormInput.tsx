@@ -1,5 +1,6 @@
 import React from 'react'
 import { Control, Controller, FieldValues, Path } from 'react-hook-form'
+import { TextInputProps } from 'react-native'
 
 import { AppInput } from './AppInput'
 
@@ -8,9 +9,10 @@ type FormInputProps<T extends FieldValues> = {
     name: Path<T>
     label?: string
     required?: boolean
+    keyboardType?: TextInputProps['keyboardType']
 } & Omit<React.ComponentProps<typeof AppInput>, 'value' | 'onChangeText' | 'onBlur' | 'error'>
 
-export function FormInput<T extends FieldValues>({ control, name, label, required, ...rest }: FormInputProps<T>) {
+export function FormInput<T extends FieldValues>({ control, name, label, required, keyboardType, ...rest }: FormInputProps<T>) {
     return (
         <Controller
             control={control}
@@ -23,6 +25,7 @@ export function FormInput<T extends FieldValues>({ control, name, label, require
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={error?.message}
+                    keyboardType={keyboardType}
                     {...rest}
                 />
             )}
