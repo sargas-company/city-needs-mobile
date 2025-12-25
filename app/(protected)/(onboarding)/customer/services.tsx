@@ -1,7 +1,6 @@
-import { useState } from 'react'
-import { Platform, Pressable, Text, View } from 'react-native'
+import React, { useState } from 'react'
+import { ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'expo-router'
@@ -13,6 +12,7 @@ import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitCustomerCategoriesThunk } from '@/store/features/onboarding/onboarding.thunks'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { AppButton } from '@/components/ui/AppButton'
+import { ProgressStepper } from '@/components/ui/ProgressStepper'
 
 const CustomerServicesScreen = () => {
     const dispatch = useAppDispatch()
@@ -20,15 +20,14 @@ const CustomerServicesScreen = () => {
     const profileStatus = useAppSelector(selectProfileStatus)
     const [submitError, setSubmitError] = useState<string | null>(null)
 
-    const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError } = useGetCategoriesQuery()
-
+    const { data: categories } = useGetCategoriesQuery()
     const categoryOptions = categories ?? []
 
     const {
         watch,
         setValue,
         handleSubmit,
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors },
     } = useForm<CustomerServicesFormValues>({
         resolver: zodResolver(customerServicesSchema),
         defaultValues: { categoryIds: [] },
@@ -58,51 +57,49 @@ const CustomerServicesScreen = () => {
         }
     }
 
+    const steps = ['Address', 'Services']
+    const currentStep = 2
+
     return (
         <SafeAreaView className="flex-1 bg-white">
-            <KeyboardAwareScrollView
-                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
-                keyboardShouldPersistTaps="handled"
-                bottomOffset={24}
-                keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-            >
-                <View className="mt-4 mb-6 flex-row items-center">
-                    <Pressable
-                        onPress={() => router.back()}
-                        className="mr-4 h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                        accessibilityRole="button"
-                    >
-                        <Text className="text-lg text-[#0C2A63]">‹</Text>
-                    </Pressable>
-                    <View className="flex-1">
-                        <View className="h-2 w-full rounded-full bg-gray-200">
-                            <View className="h-2 rounded-full bg-[#0C2A63]" style={{ width: '100%' }} />
+            <View className="flex-1 px-6 pt-6 pb-6">
+                <View className="w-full max-w-md self-center flex-1">
+                    <View className="gap-6 flex-1">
+                        <View className="gap-2">
+                            <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
+                            <Text className="text-2xl text-center font-bold text-[#0C2A63]">What type of services are you interested in?</Text>
+                            <Text className="text-sm text-center text-gray-600">Select one or more categories. You can change this later.</Text>
+                            {!!errors.categoryIds?.message && <Text className="text-center text-sm text-red-600">{errors.categoryIds.message}</Text>}
+                        </View>
+
+                        <View className="flex-1">
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                bounces={false}
+                                overScrollMode="never"
+                                keyboardShouldPersistTaps="handled"
+                                contentContainerStyle={{ paddingBottom: 12 }}
+                            >
+                                <View className="gap-3">
+                                    {categoryOptions.map((category) => (
+                                        <CategoryCard
+                                            key={category.id}
+                                            label={category.title}
+                                            selected={selectedIds.includes(category.id)}
+                                            onPress={() => toggleCategory(category.id)}
+                                        />
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        </View>
+
+                        <View>
+                            <AppButton title="Continue" onPress={handleSubmit(onSubmit)} loading={isLoading} disabled={isLoading} />
+                            {/*{!!submitError && <Text className="mt-2 text-center text-sm text-red-600">{submitError}</Text>}*/}
                         </View>
                     </View>
-                    <Text className="ml-3 text-sm font-semibold text-[#0C2A63]">2/2</Text>
                 </View>
-
-                <View className="mb-6 items-center">
-                    <Text className="text-center text-xl font-bold text-[#0C2A63]">What type of services are you interested in?</Text>
-                </View>
-
-                <View className="mb-6">
-                    {categoryOptions.map((category) => (
-                        <CategoryCard
-                            key={category.id}
-                            label={category.title}
-                            selected={selectedIds.includes(category.id)}
-                            onPress={() => toggleCategory(category.id)}
-                        />
-                    ))}
-                </View>
-
-                <View className="mt-auto">
-                    <AppButton title={'Continue'} onPress={handleSubmit(onSubmit)} loading={isLoading} disabled={isLoading} className="mt-2" />
-
-                    {!!submitError && <Text className="mt-2 text-center text-sm text-red-600">{submitError}</Text>}
-                </View>
-            </KeyboardAwareScrollView>
+            </View>
         </SafeAreaView>
     )
 }
