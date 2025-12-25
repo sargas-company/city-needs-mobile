@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Keyboard, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
@@ -225,8 +225,10 @@ const VerifyScreen = () => {
         <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
-                keyboardShouldPersistTaps="handled"
+                keyboardShouldPersistTaps="always"
+                keyboardDismissMode="on-drag"
                 bottomOffset={24}
+                onScrollBeginDrag={Keyboard.dismiss}
             >
                 <View className="mt-4 mb-6 flex-row items-center justify-between">
                     <Pressable

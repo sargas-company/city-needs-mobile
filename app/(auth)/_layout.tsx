@@ -41,14 +41,14 @@ export default function AuthLayout() {
                     headerShown: false,
                     contentStyle: {
                         backgroundColor: '#FFFFFF',
-                        paddingTop: DEFAULT_CONTENT_TOP,
+                        paddingTop: 0,
                     },
                 }}
             >
                 {/* Пер-экранные правки отступа (если нужно) */}
-                <Stack.Screen name="sign-in" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 150 } }} />
-                <Stack.Screen name="sign-up" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 140 } }} />
-                <Stack.Screen name="reset-password" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 120 } }} />
+                <Stack.Screen name="sign-in" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 130 } }} />
+                <Stack.Screen name="sign-up" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 130 } }} />
+                <Stack.Screen name="reset-password" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 0 } }} />
             </Stack>
         </View>
     )

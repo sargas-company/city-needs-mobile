@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Platform, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitCustomerCategoriesThunk } from '@/store/features/onboarding/onboarding.thunks'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
+import { AppButton } from '@/components/ui/AppButton'
 
 const CustomerServicesScreen = () => {
     const dispatch = useAppDispatch()
@@ -63,6 +64,7 @@ const CustomerServicesScreen = () => {
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
                 keyboardShouldPersistTaps="handled"
                 bottomOffset={24}
+                keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
             >
                 <View className="mt-4 mb-6 flex-row items-center">
                     <Pressable
@@ -96,13 +98,8 @@ const CustomerServicesScreen = () => {
                 </View>
 
                 <View className="mt-auto">
-                    <Pressable
-                        onPress={handleSubmit(onSubmit)}
-                        disabled={isLoading}
-                        className={`mt-2 w-full items-center rounded-full bg-[#0C2A63] px-4 py-3 ${isLoading ? 'opacity-60' : ''}`}
-                    >
-                        <Text className="text-base font-semibold text-white">Continue</Text>
-                    </Pressable>
+                    <AppButton title={'Continue'} onPress={handleSubmit(onSubmit)} loading={isLoading} disabled={isLoading} className="mt-2" />
+
                     {!!submitError && <Text className="mt-2 text-center text-sm text-red-600">{submitError}</Text>}
                 </View>
             </KeyboardAwareScrollView>

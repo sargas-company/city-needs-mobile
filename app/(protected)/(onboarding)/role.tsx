@@ -12,7 +12,7 @@ const RoleScreen = () => {
     const handleSelect = async (role: 'END_USER' | 'BUSINESS_OWNER') => {
         try {
             await dispatch(selectRoleThunk(role)).unwrap()
-            router.replace('/(protected)/gate')
+            router.replace('/(protected)/(onboarding)/location')
         } catch {
             // noop for now
         }

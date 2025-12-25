@@ -1,6 +1,6 @@
 module.exports = {
     colors: {
-        'app-bg': '#F9F8FD',
+        'app-bg': '#ffffff',
         brand: '#0C2A63',
         'brand-2': '#103E97',
         orange: '#e89f48',

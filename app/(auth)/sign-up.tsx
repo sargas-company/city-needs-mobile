@@ -1,6 +1,6 @@
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { Pressable, Text, TouchableWithoutFeedback, View, Keyboard } from 'react-native'
+import { Pressable, Text, View, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { Controller, useForm } from 'react-hook-form'
@@ -94,12 +94,12 @@ const SignUp = () => {
     } = useForm<SignUpFormValues>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
-            fullName: 'Andrey',
-            phone: '12345678901',
-            email: 'cris.moe@minuteafter.com',
-            password: 'Admin1998%',
-            confirmPassword: 'Admin1998%',
-            termsAccepted: true,
+            fullName: '',
+            phone: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            termsAccepted: false,
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',
@@ -133,117 +133,115 @@ const SignUp = () => {
     }
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView className="flex-1 bg-app-bg">
-                <KeyboardAwareScrollView
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        justifyContent: 'center',
-                        paddingHorizontal: 0,
-                    }}
-                    keyboardShouldPersistTaps="handled"
-                    bottomOffset={24}
-                >
-                    <View className="w-full max-w-md self-center gap-6 px-screen">
-                        <View className="mb-2">
-                            <View className="flex-row items-center justify-between">
-                                <Text className="font-poppins-bold text-title text-brand">Create Your Account</Text>
-                            </View>
-                            <Text className="mt-2 font-poppins-medium text-subtitle text-text-muted">
-                                Sign up to find trusted services and real local talent in minutes.
-                            </Text>
+        <SafeAreaView className="flex-1 bg-app-bg">
+            <KeyboardAwareScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    justifyContent: 'center',
+                    paddingHorizontal: 0,
+                }}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+                bottomOffset={24}
+            >
+                <View className="w-full max-w-md self-center gap-6 px-screen">
+                    <View className="mb-2">
+                        <View className="flex-row items-center justify-between">
+                            <Text className="font-poppins-bold text-title text-brand">Create Your Account</Text>
                         </View>
-
-                        <FormInput<SignUpFormValues>
-                            control={control}
-                            name="fullName"
-                            label="Full Name"
-                            required
-                            placeholder="Name"
-                            editable={!isLoading}
-                        />
-
-                        <FormPhoneInput<SignUpFormValues>
-                            control={control}
-                            name="phone"
-                            label="Mobile Number"
-                            placeholder="+1 (___) ___-____"
-                            leftIcon={<Text className="text-lg">🇨🇦</Text>}
-                        />
-
-                        <FormInput<SignUpFormValues>
-                            control={control}
-                            name="email"
-                            label="Email address"
-                            required
-                            placeholder="Email"
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            editable={!isLoading}
-                        />
-
-                        <View className="gap-2">
-                            <FormInput<SignUpFormValues>
-                                control={control}
-                                name="password"
-                                label="Password"
-                                required
-                                placeholder="●●●●●"
-                                secureTextEntry
-                                editable={!isLoading}
-                            />
-                            <PasswordStrengthMeter password={passwordValue} />
-                        </View>
-
-                        <View className="gap-2">
-                            <FormInput<SignUpFormValues>
-                                control={control}
-                                name="confirmPassword"
-                                label="Confirm Password"
-                                required
-                                placeholder="●●●●●"
-                                secureTextEntry
-                                editable={!isLoading}
-                            />
-                            <PasswordStrengthMeter password={confirmPasswordValue} />
-                        </View>
-
-                        <Controller
-                            control={control}
-                            name="termsAccepted"
-                            render={({ field: { value, onChange }, fieldState: { error } }) => (
-                                <CheckboxField
-                                    value={value}
-                                    onChange={onChange}
-                                    error={error?.message}
-                                    onPressTerms={() => setIsTermsVisible(true)}
-                                />
-                            )}
-                        />
-
-                        <AppButton
-                            title={isLoading ? 'Creating...' : 'Create an Account'}
-                            onPress={handleSubmit(onSubmit)}
-                            loading={isLoading}
-                            disabled={isLoading}
-                            className="mt-2"
-                        />
-
-                        {submitError ? <Text className="text-center font-poppins text-base text-danger">{submitError}</Text> : null}
-
-                        <View className="mt-4 items-center gap-2">
-                            <Text className="font-poppins text-base text-text">
-                                Already Have An Account?{' '}
-                                <Link href="/(auth)/sign-in" className="font-poppins-semibold text-base text-brand">
-                                    Login
-                                </Link>
-                            </Text>
-                        </View>
+                        <Text className="mt-2 font-poppins-medium text-subtitle text-text-muted">
+                            Sign up to find trusted services and real local talent in minutes.
+                        </Text>
                     </View>
-                </KeyboardAwareScrollView>
-                <TermsModal visible={isTermsVisible} onClose={() => setIsTermsVisible(false)} />
-            </SafeAreaView>
-        </TouchableWithoutFeedback>
+
+                    <FormInput<SignUpFormValues>
+                        control={control}
+                        name="fullName"
+                        label="Full Name"
+                        required
+                        placeholder="Name"
+                        editable={!isLoading}
+                    />
+
+                    <FormPhoneInput<SignUpFormValues>
+                        control={control}
+                        name="phone"
+                        label="Mobile Number"
+                        placeholder="+1 (___) ___-____"
+                        leftIcon={<Text className="text-lg">🇨🇦</Text>}
+                    />
+
+                    <FormInput<SignUpFormValues>
+                        control={control}
+                        name="email"
+                        label="Email address"
+                        required
+                        placeholder="Email"
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        editable={!isLoading}
+                    />
+
+                    <View className="gap-2">
+                        <FormInput<SignUpFormValues>
+                            control={control}
+                            name="password"
+                            label="Password"
+                            required
+                            placeholder="●●●●●"
+                            editable={!isLoading}
+                            autoComplete="off"
+                            autoCorrect={false}
+                            autoCapitalize="none"
+                        />
+                        <PasswordStrengthMeter password={passwordValue} />
+                    </View>
+
+                    <View className="gap-2">
+                        <FormInput<SignUpFormValues>
+                            control={control}
+                            name="confirmPassword"
+                            label="Confirm Password"
+                            required
+                            placeholder="●●●●●"
+                            editable={!isLoading}
+                            autoComplete="off"
+                            autoCorrect={false}
+                            autoCapitalize="none"
+                        />
+                        <PasswordStrengthMeter password={confirmPasswordValue} />
+                    </View>
+
+                    <Controller
+                        control={control}
+                        name="termsAccepted"
+                        render={({ field: { value, onChange }, fieldState: { error } }) => (
+                            <CheckboxField value={value} onChange={onChange} error={error?.message} onPressTerms={() => setIsTermsVisible(true)} />
+                        )}
+                    />
+
+                    <AppButton
+                        title={isLoading ? 'Creating...' : 'Create an Account'}
+                        onPress={handleSubmit(onSubmit)}
+                        loading={isLoading}
+                        disabled={isLoading}
+                        className="mt-2"
+                    />
+
+                    {submitError ? <Text className="text-center font-poppins text-base text-danger">{submitError}</Text> : null}
+
+                    <View className="mt-4 items-center gap-2">
+                        <Text className="font-poppins text-base text-text">
+                            Already Have An Account?{' '}
+                            <Link href="/(auth)/sign-in" className="font-poppins-semibold text-base text-brand">
+                                Login
+                            </Link>
+                        </Text>
+                    </View>
+                </View>
+            </KeyboardAwareScrollView>
+            <TermsModal visible={isTermsVisible} onClose={() => setIsTermsVisible(false)} />
+        </SafeAreaView>
     )
 }
 

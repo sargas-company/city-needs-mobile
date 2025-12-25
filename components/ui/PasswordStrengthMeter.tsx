@@ -31,7 +31,7 @@ const PasswordStrengthMeter: React.FC<IPropsPasswordStrengthMeter> = ({ password
     const strengthStyles: Record<Exclude<Strength, 'empty'>, { color: string; bars: [string, string, string]; label: string }> = {
         weak: { color: Design.danger, bars: ['bg-danger', 'bg-border', 'bg-border'], label: 'Weak' },
         medium: { color: Design.orange, bars: ['bg-orange', 'bg-orange', 'bg-border'], label: 'Medium' },
-        strong: { color: Design.brand2, bars: ['bg-brand2', 'bg-brand2', 'bg-brand2'], label: 'Strong' },
+        strong: { color: Design.brand, bars: ['bg-brand', 'bg-brand', 'bg-brand'], label: 'Strong' },
     }
 
     const strength = getPasswordStrength(password)

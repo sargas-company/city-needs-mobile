@@ -22,7 +22,7 @@ const ProtectedOnboardingLayout = () => {
                     },
                 }}
             >
-                <Stack.Screen name="role" options={{ contentStyle: { paddingTop: 150 } }} />
+                <Stack.Screen name="role" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="location" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="location-manual" options={{ contentStyle: { paddingTop: 120 } }} />
                 <Stack.Screen name="customer/address" options={{ contentStyle: { paddingTop: 150 } }} />
