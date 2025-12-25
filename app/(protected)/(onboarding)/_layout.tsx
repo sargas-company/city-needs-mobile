@@ -30,6 +30,7 @@ const ProtectedOnboardingLayout = () => {
                 <Stack.Screen name="provider/business-info" options={{ contentStyle: { paddingTop: 150 } }} />
                 <Stack.Screen name="provider/address" options={{ contentStyle: { paddingTop: 150 } }} />
                 <Stack.Screen name="provider/branding" options={{ contentStyle: { paddingTop: 150 } }} />
+                <Stack.Screen name="verify-email" options={{ contentStyle: { paddingTop: 120 } }} />
             </Stack>
         </View>
     )

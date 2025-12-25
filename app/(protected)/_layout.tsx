@@ -31,7 +31,6 @@ export default function ProtectedLayout() {
     return (
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="gate" />
-            <Stack.Screen name="verify-email" />
             <Stack.Screen name="(onboarding)" />
             <Stack.Screen name="(tabs)" />
         </Stack>
