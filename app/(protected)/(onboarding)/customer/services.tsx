@@ -62,14 +62,16 @@ const CustomerServicesScreen = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            <View className="flex-1 px-6 pt-6 pb-6">
+            <View className="flex-1 px-6 pb-6">
                 <View className="w-full max-w-md self-center flex-1">
                     <View className="gap-6 flex-1">
                         <View className="gap-2">
                             <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
                             <Text className="text-2xl text-center font-bold text-[#0C2A63]">What type of services are you interested in?</Text>
                             <Text className="text-sm text-center text-gray-600">Select one or more categories. You can change this later.</Text>
-                            {!!errors.categoryIds?.message && <Text className="text-center text-sm text-red-600">{errors.categoryIds.message}</Text>}
+                            {!!errors.categoryIds?.message && (
+                                <Text className="mt-1 text-center text-sm text-red-600">{errors.categoryIds.message}</Text>
+                            )}
                         </View>
 
                         <View className="flex-1">
