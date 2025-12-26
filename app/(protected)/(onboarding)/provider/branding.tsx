@@ -5,7 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import * as DocumentPicker from 'expo-document-picker'
-import { Feather, FontAwesome } from '@expo/vector-icons'
+import { AntDesign, Feather, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
@@ -24,6 +24,7 @@ import {
 import { UploadSessionFileDto } from '@/services/onboarding/uploadSession.types'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
 import { AppText } from '@/components/ui/AppText'
+import { Avatar } from '@/components/ui/Avatar'
 
 type UploadSectionProps = {
     fieldTitle: string
@@ -221,19 +222,16 @@ const BrandingScreen = () => {
                     icon={<Feather name="upload" size={35} color="#3a3a3a" />}
                     onPress={handlePickLogo}
                 />
-
                 {logoFile ? (
                     <View className="mb-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
                         <View className="mb-3 flex-row items-center justify-between">
-                            {/*<Text className="text-base font-semibold text-[#0C2A63]">Uploaded logo1</Text>*/}
-
-                            <AppText className={'mb-2 leading-[21px] text-brand'}>Uploaded logo</AppText>
+                            <AppText className={'mb-2 leading-[21px] font-poppins-semibold'}>Uploaded logo</AppText>
                             <Pressable onPress={removeLogo}>
                                 <Text className="text-base text-red-500">✕</Text>
                             </Pressable>
                         </View>
-                        <View className="w-28 items-center justify-center rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-3">
-                            <Image source={{ uri: logoFile.url }} className="h-16 w-16 rounded-md" resizeMode="cover" />
+                        <View className="w-28 mx-auto items-center justify-center gap-2 ">
+                            <Avatar uri={logoFile.url} />
                             <Text className="mt-2 text-center text-xs text-[#111827]" numberOfLines={2}>
                                 {logoFile.originalName || logoFile.url.split('/').pop()}
                             </Text>
@@ -309,37 +307,97 @@ const UploadSection = ({ fieldTitle, title, description, onPress, required, icon
     </View>
 )
 
+const getFileExtension = (name?: string | null): string | null => {
+    if (!name) return null
+    const parts = name.split('.')
+    return parts.length > 1 ? (parts.pop()?.toLowerCase() ?? null) : null
+}
+
+export const getFileIcon = (file: UploadSessionFileDto): ReactNode => {
+    const ext = getFileExtension(file.originalName)
+    const mime = file.mimeType ?? ''
+
+    // ---- Images ----
+    if (mime.startsWith('image/')) {
+        return <FontAwesome name="photo" size={28} color="#3a3a3a" />
+    }
+
+    // ---- PDF ----
+    if (mime === 'application/pdf' || ext === 'pdf') {
+        return <AntDesign name="file-pdf" size={28} color="#EF4444" />
+    }
+
+    // ---- Word ----
+    if (mime.includes('word') || ext === 'doc' || ext === 'docx') {
+        return <MaterialCommunityIcons name="file-word-box-outline" size={28} color="#2563EB" />
+    }
+
+    // ---- Excel ----
+    if (mime.includes('excel') || ext === 'xls' || ext === 'xlsx') {
+        return <MaterialCommunityIcons name="file-excel-box-outline" size={28} color="#16A34A" />
+    }
+
+    // ---- Text / Web ----
+    if (mime.startsWith('text/') || ext === 'html' || ext === 'htm' || ext === 'txt') {
+        return <Ionicons name="document-text-outline" size={28} color="#6B7280" />
+    }
+
+    // ---- Archives ----
+    if (ext === 'zip' || ext === 'rar' || ext === '7z') {
+        return <MaterialCommunityIcons name="archive-outline" size={28} color="#CA8A04" />
+    }
+
+    // ---- Fallback ----
+    return <Feather name="file" size={28} color="#3a3a3a" />
+}
+
 const UploadedList = ({ title, files, onRemove, onClearAll, progress = 100, icon = '📄', showPreview }: UploadedListProps) => (
     <View className="mb-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+        {/* Header */}
         <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-base font-semibold text-[#0C2A63]">{title}</Text>
-            {onClearAll ? (
-                <Pressable onPress={onClearAll}>
-                    <Text className="text-base text-red-500">✕</Text>
+
+            {onClearAll && (
+                <Pressable onPress={onClearAll} hitSlop={8}>
+                    <Feather name="x" size={18} color="#EF4444" />
                 </Pressable>
-            ) : null}
+            )}
         </View>
+
+        {/* Files */}
         <View className="flex-row flex-wrap gap-3">
-            {files.map((file, idx) => (
-                <View key={`${file.id}-${idx}`} className="w-[30%] items-center justify-center rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-3">
-                    <Pressable className="absolute right-1 top-1" onPress={() => onRemove(idx)}>
-                        <Text className="text-xs text-red-500">✕</Text>
-                    </Pressable>
-                    {showPreview && file.mimeType?.startsWith('image') ? (
-                        <Image source={{ uri: file.url }} className="mb-2 h-12 w-12 rounded-md" resizeMode="cover" />
-                    ) : (
-                        <Text className="text-2xl">{icon}</Text>
-                    )}
-                    <Text className="mt-2 text-center text-xs text-[#111827]" numberOfLines={2}>
-                        {file.originalName || file.url.split('/').pop()}
-                    </Text>
-                </View>
-            ))}
+            {files.map((file, idx) => {
+                const isImage = file.mimeType?.startsWith('image')
+
+                return (
+                    <View key={file.id} className="relative w-[30%] items-center rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-3">
+                        {/* Remove */}
+                        <Pressable className="absolute right-1 top-1 z-10" onPress={() => onRemove(idx)} hitSlop={8}>
+                            <Feather name="x-circle" size={16} color="#EF4444" />
+                        </Pressable>
+
+                        {/* Preview / Icon */}
+                        {showPreview && isImage ? (
+                            <Image source={{ uri: file.url }} className="mb-2 h-12 w-12 rounded-md" resizeMode="cover" />
+                        ) : (
+                            <View className="mb-2 h-12 w-12 items-center justify-center">{getFileIcon(file)}</View>
+                        )}
+
+                        {/* Filename */}
+                        <Text className="mt-1 text-center text-xs text-[#111827]" numberOfLines={2}>
+                            {file.originalName ?? file.url.split('/').pop()}
+                        </Text>
+                    </View>
+                )
+            })}
         </View>
-        <View className="mt-3 h-1.5 w-full rounded-full bg-gray-200">
-            <View className="h-1.5 rounded-full bg-[#0C2A63]" style={{ width: `${progress || 0}%` }} />
+
+        {/* Progress */}
+        <View className="mt-4 h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
+            <View className="h-1.5 rounded-full bg-[#0C2A63]" style={{ width: `${progress}%` }} />
         </View>
-        <Text className="mt-2 text-xs text-gray-500">Progress: {progress || 0}%</Text>
+
+        <Text className="mt-2 text-xs text-gray-500">Progress: {progress}%</Text>
     </View>
 )
 
