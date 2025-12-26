@@ -95,8 +95,8 @@ const SignUp = () => {
         resolver: zodResolver(signUpSchema),
         defaultValues: {
             fullName: 'John',
-            phone: '1836420843',
-            email: 'kadeem.aadhyan@minuteafter.com',
+            phone: '',
+            email: 'khamani.ahron@minuteafter.com',
             password: 'Admin1998%',
             confirmPassword: 'Admin1998%',
             termsAccepted: true,

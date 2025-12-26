@@ -26,7 +26,7 @@ const Gate = () => {
         }
 
         if (!emailVerified) {
-            router.replace('//(protected)/(onboarding)/verify-email')
+            router.replace('/(protected)/(onboarding)/verify-email')
             return
         }
 

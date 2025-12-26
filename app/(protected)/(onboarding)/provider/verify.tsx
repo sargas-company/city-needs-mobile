@@ -1,21 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Keyboard, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'
+import { Feather } from '@expo/vector-icons'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import {
     deleteVerificationFileThunk,
     loadVerificationFileThunk,
-    submitVerificationThunk,
     skipVerificationThunk,
+    submitVerificationThunk,
     uploadVerificationFileThunk,
 } from '@/store/features/onboarding/verify/verify.thunks'
 import { selectVerifyError, selectVerifyFile, selectVerifyStatus } from '@/store/features/onboarding/verify/verify.selectors'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
+import { AppText } from '@/components/ui/AppText'
 
 type VerifyUiState = 'empty' | 'draft' | 'pending' | 'verified' | 'failed'
 
@@ -234,37 +236,35 @@ const VerifyScreen = () => {
                 bottomOffset={24}
                 onScrollBeginDrag={Keyboard.dismiss}
             >
-                <View className="mt-4 mb-6 flex-row items-center justify-between">
-                    {canSkip ? (
+                <View className="flex-row items-end justify-end">
+                    {canSkip && (
                         <Pressable onPress={handleSkip} disabled={isBusy}>
                             <Text className={`text-base font-semibold text-[#0C2A63] ${isBusy ? 'opacity-60' : ''}`}>Skip for now</Text>
                         </Pressable>
-                    ) : (
-                        <View />
                     )}
                 </View>
 
-                <View className="gap-2">
+                <View className="mb-2 gap-2">
                     <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
-                    <Text className="text-2xl font-bold text-[#0C2A63]">Your branding builds trust & increases booking chance</Text>
-                    <Text className="text-sm text-gray-600">This information helps us personalize your experience and settings.</Text>
+                    <Text className="text-2xl font-bold text-[#0C2A63]">Verify your business</Text>
+                    <Text className="text-sm text-gray-600">This helps build trust with users</Text>
                 </View>
 
                 {renderFileRow()}
 
                 {showUploadZone ? (
                     <View className="mb-4">
-                        <Text className="text-sm font-semibold text-[#111827]">Upload document (any of the following)</Text>
+                        <AppText>Upload document (any of the following)</AppText>
                         <Pressable
                             onPress={pickDocument}
                             disabled={isBusy || isLocked}
-                            className={`mt-3 items-center justify-center rounded-[12px] border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-4 py-6 ${
+                            className={`mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border pх-6 py-8 ${
                                 isBusy || isLocked ? 'opacity-60' : ''
                             }`}
                         >
-                            <Text className="text-3xl text-[#9CA3AF]">⬆</Text>
-                            <Text className="mt-2 text-base font-semibold text-[#0C2A63]">Upload your document</Text>
-                            <Text className="mt-1 text-center text-xs text-gray-500">Business reg, GST, license, utility bill</Text>
+                            <Feather name="upload" size={35} color="#3a3a3a" />
+                            <AppText className={'mt-3'}>Upload your document</AppText>
+                            <AppText className={'mt-3 text-text-muted text-xs'}>Business reg, GST, license, utility bill</AppText>
                         </Pressable>
                     </View>
                 ) : null}
@@ -277,7 +277,7 @@ const VerifyScreen = () => {
                 {!!localError && <Text className="mb-2 text-sm font-semibold text-red-600">{localError}</Text>}
 
                 {showPrimary ? (
-                    <View className="mt-2">
+                    <View className="mt-auto">
                         <Pressable
                             onPress={uiState === 'verified' ? handleContinue : handleSubmit}
                             disabled={primaryDisabled}
