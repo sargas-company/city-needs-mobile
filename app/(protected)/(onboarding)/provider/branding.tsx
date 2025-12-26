@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Image, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import * as DocumentPicker from 'expo-document-picker'
+import { Feather, FontAwesome } from '@expo/vector-icons'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
@@ -21,13 +22,16 @@ import {
     selectUploadSessionPhotoFiles,
 } from '@/store/features/uploadSession/uploadSession.slice'
 import { UploadSessionFileDto } from '@/services/onboarding/uploadSession.types'
+import { ProgressStepper } from '@/components/ui/ProgressStepper'
+import { AppText } from '@/components/ui/AppText'
 
 type UploadSectionProps = {
+    fieldTitle: string
     title: string
-    description: string
+    description?: string
     onPress: () => void
     required?: boolean
-    icon?: string
+    icon?: ReactNode
 }
 
 type UploadedListProps = {
@@ -188,6 +192,9 @@ const BrandingScreen = () => {
         }
     }
 
+    const steps = ['Business Info', 'Address', 'Branding', 'Verification']
+    const currentStep = 3
+
     return (
         <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
@@ -195,45 +202,32 @@ const BrandingScreen = () => {
                 keyboardShouldPersistTaps="handled"
                 bottomOffset={24}
             >
-                <View className="mt-4 mb-6 flex-row items-center justify-between">
-                    <Pressable
-                        onPress={() => router.back()}
-                        className="h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                        accessibilityRole="button"
-                    >
-                        <Text className="text-lg text-[#0C2A63]">‹</Text>
-                    </Pressable>
+                <View className="flex-row items-end justify-end">
                     <Pressable onPress={handleSkip} disabled={isLoading}>
                         <Text className="text-base font-semibold text-[#0C2A63]">Skip for now</Text>
                     </Pressable>
                 </View>
 
-                <View className="mb-4">
-                    <Text className="text-base font-semibold text-[#111827]">Your Progress</Text>
-                    <View className="mt-3 flex-row items-center gap-2">
-                        <View className="h-1.5 flex-1 rounded-full bg-[#0C2A63]" />
-                        <View className="h-1.5 flex-1 rounded-full bg-[#0C2A63]" />
-                        <View className="h-1.5 flex-1 rounded-full bg-[#F59E0B]" />
-                    </View>
-                    <Text className="mt-2 text-sm font-medium text-[#0C2A63]">Step 3 of 3 · Branding</Text>
-                </View>
-
-                <View className="mb-6">
-                    <Text className="text-center text-lg font-semibold text-[#0C2A63]">Your branding builds trust & increases booking chance</Text>
+                <View className="mb-2 gap-2">
+                    <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
+                    <Text className="text-2xl font-bold text-[#0C2A63]">Your branding builds trust & increases booking chance</Text>
+                    <Text className="text-sm text-gray-600">This information helps us personalize your experience and settings.</Text>
                 </View>
 
                 <UploadSection
-                    title="Upload Logo"
-                    required
+                    fieldTitle="Upload Logo"
+                    title={'Upload your logo'}
                     description="File must be a JPEG, JPG, PNG or WEB and up to 5 MB"
-                    icon="⬆"
+                    icon={<Feather name="upload" size={35} color="#3a3a3a" />}
                     onPress={handlePickLogo}
                 />
 
                 {logoFile ? (
                     <View className="mb-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
                         <View className="mb-3 flex-row items-center justify-between">
-                            <Text className="text-base font-semibold text-[#0C2A63]">Uploaded logo</Text>
+                            {/*<Text className="text-base font-semibold text-[#0C2A63]">Uploaded logo1</Text>*/}
+
+                            <AppText className={'mb-2 leading-[21px] text-brand'}>Uploaded logo</AppText>
                             <Pressable onPress={removeLogo}>
                                 <Text className="text-base text-red-500">✕</Text>
                             </Pressable>
@@ -248,10 +242,11 @@ const BrandingScreen = () => {
                 ) : null}
 
                 <UploadSection
-                    title="Upload Business Photos"
+                    fieldTitle="Upload Business Photos"
+                    title={'Upload photos of your business'}
                     required
                     description="File must be a JPEG, JPG, PNG or WEB and up to 10 MB per file"
-                    icon="🖼"
+                    icon={<FontAwesome name="photo" size={35} color="#3a3a3a" />}
                     onPress={handlePickPhotos}
                 />
 
@@ -268,10 +263,10 @@ const BrandingScreen = () => {
                 ) : null}
 
                 <UploadSection
-                    title="Upload Business Documents"
+                    fieldTitle="Upload Business Documents"
+                    title={'Upload document of your business'}
                     required
-                    description="File must be a PDF, JPEG, JPG, PNG or WEB and up to 15 MB per file"
-                    icon="📄"
+                    icon={<Feather name="file" size={35} color="#3a3a3a" />}
                     onPress={handlePickDocuments}
                 />
 
@@ -303,19 +298,13 @@ const BrandingScreen = () => {
     )
 }
 
-const UploadSection = ({ title, description, onPress, required, icon = '⬆' }: UploadSectionProps) => (
+const UploadSection = ({ fieldTitle, title, description, onPress, required, icon = '⬆' }: UploadSectionProps) => (
     <View className="mb-4">
-        <Text className="text-sm font-semibold text-[#111827]">
-            {title}
-            {required ? '*' : ''}
-        </Text>
-        <Pressable
-            onPress={onPress}
-            className="mt-3 items-center justify-center rounded-[12px] border border-dashed border-[#E5E7EB] bg-[#F9FAFB] px-4 py-6"
-        >
-            <Text className="text-3xl text-[#9CA3AF]">{icon}</Text>
-            <Text className="mt-2 text-base font-semibold text-[#0C2A63]">Upload your {title.toLowerCase().replace('*', '')}</Text>
-            <Text className="mt-1 text-center text-xs text-gray-500">{description}</Text>
+        <AppText>{fieldTitle}</AppText>
+        <Pressable onPress={onPress} className="mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border pх-6 py-8">
+            <View>{icon}</View>
+            <AppText className={'mt-3'}>{title}</AppText>
+            <AppText className={'mt-3 text-text-muted text-xs'}>{description}</AppText>
         </Pressable>
     </View>
 )

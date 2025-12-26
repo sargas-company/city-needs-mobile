@@ -62,7 +62,6 @@ export const AddressForm = ({
                 contentContainerStyle={{
                     flexGrow: 1,
                     paddingHorizontal: 24,
-                    paddingTop: 24,
                     paddingBottom: 24,
                 }}
                 bottomOffset={24}

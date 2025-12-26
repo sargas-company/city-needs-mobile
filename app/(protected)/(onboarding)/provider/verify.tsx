@@ -15,6 +15,7 @@ import {
     uploadVerificationFileThunk,
 } from '@/store/features/onboarding/verify/verify.thunks'
 import { selectVerifyError, selectVerifyFile, selectVerifyStatus } from '@/store/features/onboarding/verify/verify.selectors'
+import { ProgressStepper } from '@/components/ui/ProgressStepper'
 
 type VerifyUiState = 'empty' | 'draft' | 'pending' | 'verified' | 'failed'
 
@@ -221,6 +222,9 @@ const VerifyScreen = () => {
 
     const primaryDisabled = isBusy || uiState === 'pending' || (uiState !== 'verified' && !verifyFile?.id) || (uiState !== 'verified' && isLocked)
 
+    const steps = ['Business Info', 'Address', 'Branding', 'Verification']
+    const currentStep = 4
+
     return (
         <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
@@ -231,14 +235,6 @@ const VerifyScreen = () => {
                 onScrollBeginDrag={Keyboard.dismiss}
             >
                 <View className="mt-4 mb-6 flex-row items-center justify-between">
-                    <Pressable
-                        onPress={() => router.back()}
-                        className="h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                        accessibilityRole="button"
-                    >
-                        <Text className="text-lg text-[#0C2A63]">‹</Text>
-                    </Pressable>
-
                     {canSkip ? (
                         <Pressable onPress={handleSkip} disabled={isBusy}>
                             <Text className={`text-base font-semibold text-[#0C2A63] ${isBusy ? 'opacity-60' : ''}`}>Skip for now</Text>
@@ -248,20 +244,10 @@ const VerifyScreen = () => {
                     )}
                 </View>
 
-                <View className="mb-4">
-                    <Text className="text-base font-semibold text-[#111827]">Your Progress</Text>
-                    <View className="mt-3 flex-row items-center gap-2">
-                        <View className="h-1.5 flex-1 rounded-full bg-[#0C2A63]" />
-                        <View className="h-1.5 flex-1 rounded-full bg-[#0C2A63]" />
-                        <View className="h-1.5 flex-1 rounded-full bg-[#0C2A63]" />
-                        <View className="h-1.5 flex-1 rounded-full bg-[#F59E0B]" />
-                    </View>
-                    <Text className="mt-2 text-sm font-medium text-[#0C2A63]">Step 4 of 4 · Verification</Text>
-                </View>
-
-                <View className="mb-6">
-                    <Text className="text-xl font-bold text-[#0C2A63]">{title}</Text>
-                    <Text className="mt-1 text-base text-[#4B5563]">{description}</Text>
+                <View className="gap-2">
+                    <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
+                    <Text className="text-2xl font-bold text-[#0C2A63]">Your branding builds trust & increases booking chance</Text>
+                    <Text className="text-sm text-gray-600">This information helps us personalize your experience and settings.</Text>
                 </View>
 
                 {renderFileRow()}

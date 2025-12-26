@@ -67,8 +67,8 @@ const CustomerServicesScreen = () => {
                     <View className="gap-6 flex-1">
                         <View className="gap-2">
                             <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
-                            <Text className="text-2xl text-center font-bold text-[#0C2A63]">What type of services are you interested in?</Text>
-                            <Text className="text-sm text-center text-gray-600">Select one or more categories. You can change this later.</Text>
+                            <Text className="text-2xl  font-bold text-[#0C2A63]">What type of services are you interested in?</Text>
+                            <Text className="text-sm  text-gray-600">Select one or more categories. You can change this later.</Text>
                             {!!errors.categoryIds?.message && (
                                 <Text className="mt-1 text-center text-sm text-red-600">{errors.categoryIds.message}</Text>
                             )}
