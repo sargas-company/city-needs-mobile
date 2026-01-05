@@ -40,7 +40,6 @@ const Gate = () => {
             return
         }
 
-        // const step = onboardingStep ?? 0
         const step = onboardingStep ?? 0
 
         if (role === 'END_USER') {

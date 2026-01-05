@@ -7,7 +7,7 @@ import * as DocumentPicker from 'expo-document-picker'
 import { Feather } from '@expo/vector-icons'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
+import { selectProfileStatus, selectVerification } from '@/store/features/profile/profile.selectors'
 import {
     deleteVerificationFileThunk,
     loadVerificationFileThunk,
@@ -32,7 +32,9 @@ const pillColors: Record<VerifyUiState, string> = {
 const VerifyScreen = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
+
     const profileStatus = useAppSelector(selectProfileStatus)
+    const verificationGate = useAppSelector(selectVerification)
 
     const verifyFile = useAppSelector(selectVerifyFile)
     const verifyStatus = useAppSelector(selectVerifyStatus)
@@ -43,6 +45,9 @@ const VerifyScreen = () => {
     useEffect(() => {
         dispatch(loadVerificationFileThunk())
     }, [dispatch])
+
+    const requiresVerification = verificationGate?.requiresVerification === true
+    const graceExpired = verificationGate?.graceExpired === true
 
     const lockStatus = (verifyFile as any)?.lock?.status as string | undefined
 
@@ -57,11 +62,15 @@ const VerifyScreen = () => {
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
 
     const isLocked = uiState === 'pending' || uiState === 'verified'
-    const canDelete = !!verifyFile?.id && !isLocked && uiState !== 'failed'
+
+    const canSkipByGate = !requiresVerification || !graceExpired
+    const showSkip = requiresVerification && canSkipByGate && !isLocked
+
+    const canDelete = !!verifyFile?.id && !isLocked
     const canSubmit = !!verifyFile?.id && !isLocked
-    const canSkip = !isLocked
 
     const title = useMemo(() => {
+        if (!requiresVerification) return 'Verification not required'
         switch (uiState) {
             case 'pending':
                 return 'Verification in progress'
@@ -72,9 +81,10 @@ const VerifyScreen = () => {
             default:
                 return 'Verify your business'
         }
-    }, [uiState])
+    }, [uiState, requiresVerification])
 
     const description = useMemo(() => {
+        if (!requiresVerification) return 'Your category does not require verification.'
         switch (uiState) {
             case 'pending':
                 return 'Your document is being reviewed. This helps keep our community safe and trusted.'
@@ -85,9 +95,10 @@ const VerifyScreen = () => {
             default:
                 return 'This helps build trust with users.'
         }
-    }, [uiState])
+    }, [uiState, requiresVerification])
 
     const infoBadge = useMemo(() => {
+        if (!requiresVerification) return 'You can continue without verification.'
         switch (uiState) {
             case 'pending':
                 return "Reviews usually take up to 24–48 hours. You'll be notified once it's completed."
@@ -98,12 +109,11 @@ const VerifyScreen = () => {
             default:
                 return 'Upload 1 document (business reg, GST, license, utility bill).'
         }
-    }, [uiState])
+    }, [uiState, requiresVerification])
 
     const pickDocument = async () => {
         setLocalError(null)
-
-        if (isLocked) return
+        if (isLocked || !requiresVerification) return
 
         const result = await DocumentPicker.getDocumentAsync({
             multiple: false,
@@ -112,7 +122,6 @@ const VerifyScreen = () => {
         })
 
         if (result.canceled || !result.assets?.length) return
-
         const asset = result.assets[0]
 
         try {
@@ -148,6 +157,10 @@ const VerifyScreen = () => {
     const handleSubmit = async () => {
         setLocalError(null)
 
+        if (!requiresVerification) {
+            setLocalError('Verification is not required for your category.')
+            return
+        }
         if (!verifyFile?.id) {
             setLocalError('Please upload a document to submit for verification.')
             return
@@ -156,9 +169,6 @@ const VerifyScreen = () => {
 
         try {
             await dispatch(submitVerificationThunk()).unwrap()
-
-            await dispatch(loadVerificationFileThunk()).unwrap()
-
             router.replace('/(protected)/(tabs)')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to submit verification'
@@ -168,6 +178,11 @@ const VerifyScreen = () => {
 
     const handleSkip = async () => {
         setLocalError(null)
+
+        if (requiresVerification && !canSkipByGate) {
+            setLocalError('Grace period is expired. Verification is required to continue.')
+            return
+        }
 
         try {
             await dispatch(skipVerificationThunk()).unwrap()
@@ -217,8 +232,8 @@ const VerifyScreen = () => {
         )
     }
 
-    const showUploadZone = uiState === 'empty' || uiState === 'failed'
-    const showPrimary = uiState === 'verified' || uiState === 'pending' || uiState === 'draft' || uiState === 'empty' || uiState === 'failed'
+    const showUploadZone = requiresVerification && (uiState === 'empty' || uiState === 'failed')
+    const showPrimary = true
 
     const primaryLabel = uiState === 'verified' ? 'Continue' : uiState === 'pending' ? 'Verification Pending' : 'Submit for Verification'
 
@@ -237,17 +252,17 @@ const VerifyScreen = () => {
                 onScrollBeginDrag={Keyboard.dismiss}
             >
                 <View className="flex-row items-end justify-end">
-                    {canSkip && (
+                    {showSkip ? (
                         <Pressable onPress={handleSkip} disabled={isBusy}>
                             <Text className={`text-base font-semibold text-[#0C2A63] ${isBusy ? 'opacity-60' : ''}`}>Skip for now</Text>
                         </Pressable>
-                    )}
+                    ) : null}
                 </View>
 
                 <View className="mb-2 gap-2">
                     <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
-                    <Text className="text-2xl font-bold text-[#0C2A63]">Verify your business</Text>
-                    <Text className="text-sm text-gray-600">This helps build trust with users</Text>
+                    <Text className="text-2xl font-bold text-[#0C2A63]">{title}</Text>
+                    <Text className="text-sm text-gray-600">{description}</Text>
                 </View>
 
                 {renderFileRow()}
@@ -258,7 +273,7 @@ const VerifyScreen = () => {
                         <Pressable
                             onPress={pickDocument}
                             disabled={isBusy || isLocked}
-                            className={`mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border pх-6 py-8 ${
+                            className={`mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border px-6 py-8 ${
                                 isBusy || isLocked ? 'opacity-60' : ''
                             }`}
                         >
