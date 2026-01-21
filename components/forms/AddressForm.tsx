@@ -26,8 +26,7 @@ export type AddressFormProps = {
 const defaultValues: AddressFormValues = {
     addressLine1: '',
     addressLine2: '',
-    city: '',
-    state: '',
+    city: 'Regina',
     zip: '',
     countryCode: 'CA',
     countryName: 'Canada',
@@ -96,15 +95,6 @@ export const AddressForm = ({
                         />
 
                         <FormInput<AddressFormValues> control={control} name="city" label="City" required placeholder="City" editable={!isLoading} />
-
-                        <FormInput<AddressFormValues>
-                            control={control}
-                            name="state"
-                            label="State/ Province/ Region"
-                            required
-                            placeholder="State/ Province/ Region"
-                            editable={!isLoading}
-                        />
 
                         <FormInput<AddressFormValues>
                             control={control}

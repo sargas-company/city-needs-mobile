@@ -4,6 +4,7 @@ import { View, Text } from 'react-native'
 
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
+import { BusinessVerificationGuard } from '@/components/guards/BusinessVerificationGuard'
 
 export default function ProtectedLayout() {
     const router = useRouter()
@@ -29,10 +30,12 @@ export default function ProtectedLayout() {
     }
 
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="gate" />
-            <Stack.Screen name="(onboarding)" />
-            <Stack.Screen name="(tabs)" />
-        </Stack>
+        <BusinessVerificationGuard>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="gate" />
+                <Stack.Screen name="(onboarding)" />
+                <Stack.Screen name="(tabs)" />
+            </Stack>
+        </BusinessVerificationGuard>
     )
 }

@@ -23,10 +23,11 @@ const CustomerAddress = () => {
                     payload: {
                         countryCode: values.countryCode,
                         city: values.city,
-                        state: values.state,
                         addressLine1: values.addressLine1,
                         addressLine2: values.addressLine2 || undefined,
                         zip: values.zip,
+                        lat: 50.4452,
+                        lng: -104.6189,
                     },
                 })
             ).unwrap()
