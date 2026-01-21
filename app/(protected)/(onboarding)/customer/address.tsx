@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router'
 import { useState } from 'react'
 
 import { AddressForm } from '@/components/forms/AddressForm'
+import { AddressFormValues } from '@/components/forms/addressSchema'
 import { submitOnboardingThunk } from '@/store/features/onboarding/onboarding.thunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileUser } from '@/store/features/profile/profile.selectors'
@@ -13,7 +14,7 @@ const CustomerAddress = () => {
     const [, setSubmitError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: AddressFormValues) => {
         setSubmitError(null)
         setIsSubmitting(true)
         try {
@@ -26,8 +27,8 @@ const CustomerAddress = () => {
                         addressLine1: values.addressLine1,
                         addressLine2: values.addressLine2 || undefined,
                         zip: values.zip,
-                        lat: 50.4452,
-                        lng: -104.6189,
+                        lat: values.lat!,
+                        lng: values.lng!,
                     },
                 })
             ).unwrap()

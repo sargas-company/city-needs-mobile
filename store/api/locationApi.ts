@@ -1,6 +1,23 @@
 import { baseApi } from '@/store/api/baseApi'
 import { MeLocationResponseDto, StoredLocation } from '@/services/location/location.types'
 
+export type AddressSearchRequest = { city: 'Saskatoon' | 'Regina'; query: string }
+
+export type AddressSearchItemDto = {
+    label: string
+    location: { lat: number; lng: number }
+    address: {
+        addressLine1: string
+        city: string
+        state?: string
+        countryCode: string
+        zip?: string
+    }
+    placeId: string
+}
+
+export type AddressSearchResponseDto = { items: AddressSearchItemDto[] }
+
 export const locationApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         syncLocation: builder.mutation<MeLocationResponseDto, StoredLocation>({
@@ -23,7 +40,15 @@ export const locationApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+
+        addressSearch: builder.query<AddressSearchResponseDto, AddressSearchRequest>({
+            query: ({ city, query }) => ({
+                url: '/locations/address-search',
+                method: 'GET',
+                params: { city, query },
+            }),
+        }),
     }),
 })
 
-export const { useSyncLocationMutation, useGetLocationQuery } = locationApi
+export const { useSyncLocationMutation, useGetLocationQuery, useAddressSearchQuery } = locationApi
