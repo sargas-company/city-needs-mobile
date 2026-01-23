@@ -106,7 +106,7 @@ const ProfileScreen = () => {
                             title="Saved Businesses"
                             subtitle="View your saved businesses"
                             iconColor="#0C2A63"
-                            onPress={() => router.push('/(profile)/saved-businesses')}
+                            onPress={() => router.push('/saved-businesses')}
                         />
                         <View className="h-px bg-gray-200" />
                         <MenuRow icon="map-pin" title="Location" subtitle="Saskatoon, Canada" onPress={() => router.push('/(profile)/location')} />
