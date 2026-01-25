@@ -51,12 +51,14 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
     async (values, { dispatch, rejectWithValue }) => {
         try {
             dispatch(setProfileStatus('loading'))
+            const priceNumber = Number(values.price)
             const payload = {
                 name: values.businessName.trim(),
                 description: values.description.trim(),
                 phone: normalizeDigits(values.phone),
                 email: values.email.trim(),
                 categoryId: values.categoryId,
+                price: priceNumber,
                 businessHours: values.businessHours
                     .filter((day) => day.isEnabled)
                     .map((day) => ({

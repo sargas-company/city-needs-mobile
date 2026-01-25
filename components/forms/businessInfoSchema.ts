@@ -8,6 +8,10 @@ export const businessInfoSchema = z.object({
     description: z.string().min(10, 'Description is required'),
     phone: z.string().min(5, 'Mobile number is required'),
     email: z.string().min(1, 'Email is required').email('Enter a valid email'),
+    price: z
+        .string()
+        .min(1, 'Price is required')
+        .refine((val) => /^\d+(\.\d+)?$/.test(val.trim()), 'Enter a valid number'),
     businessHours: z.array(businessHoursItemSchema).length(7),
 })
 

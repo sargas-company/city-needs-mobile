@@ -34,6 +34,7 @@ const ProviderBusinessInfo = () => {
             description: '',
             phone: '',
             email: '',
+            price: '',
             businessHours: [
                 { weekday: 0, isEnabled: true, startTime: '09:00', endTime: '18:00' },
                 { weekday: 1, isEnabled: true, startTime: '09:00', endTime: '18:00' },
@@ -185,6 +186,16 @@ const ProviderBusinessInfo = () => {
                                     multiline
                                     numberOfLines={4}
                                     inputWrapperClassName="items-start"
+                                />
+
+                                <FormInput<BusinessInfoFormValues>
+                                    control={control}
+                                    name="price"
+                                    label="Price"
+                                    required
+                                    placeholder="Enter price"
+                                    keyboardType="numeric"
+                                    editable={!isLoading}
                                 />
 
                                 <FormPhoneInput<BusinessInfoFormValues> control={control} name="phone" label="Mobile Number" required />
