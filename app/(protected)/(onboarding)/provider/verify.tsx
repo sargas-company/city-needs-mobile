@@ -62,12 +62,11 @@ const VerifyScreen = () => {
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
 
     const isLocked = uiState === 'pending' || uiState === 'verified'
-
-    const canSkipByGate = !requiresVerification || !graceExpired
-    const showSkip = requiresVerification && canSkipByGate && !isLocked
-
+    const canUpload = !isLocked && requiresVerification
     const canDelete = !!verifyFile?.id && !isLocked
-    const canSubmit = !!verifyFile?.id && !isLocked
+    const canSubmit = !!verifyFile?.id && !isLocked && requiresVerification
+    const canSkip = !isLocked && (!requiresVerification || !graceExpired)
+    const showSkip = canSkip
 
     const title = useMemo(() => {
         if (!requiresVerification) return 'Verification not required'
@@ -113,7 +112,7 @@ const VerifyScreen = () => {
 
     const pickDocument = async () => {
         setLocalError(null)
-        if (isLocked || !requiresVerification) return
+        if (!canUpload) return
 
         const result = await DocumentPicker.getDocumentAsync({
             multiple: false,
@@ -179,7 +178,7 @@ const VerifyScreen = () => {
     const handleSkip = async () => {
         setLocalError(null)
 
-        if (requiresVerification && !canSkipByGate) {
+        if (!canSkip) {
             setLocalError('Grace period is expired. Verification is required to continue.')
             return
         }
@@ -232,12 +231,19 @@ const VerifyScreen = () => {
         )
     }
 
-    const showUploadZone = requiresVerification && (uiState === 'empty' || uiState === 'failed')
+    const showUploadZone = canUpload && (uiState === 'empty' || uiState === 'failed')
     const showPrimary = true
 
-    const primaryLabel = uiState === 'verified' ? 'Continue' : uiState === 'pending' ? 'Verification Pending' : 'Submit for Verification'
+    const primaryMode: 'continue' | 'pending' | 'submit' =
+        uiState === 'verified' ? 'continue' : uiState === 'pending' ? 'pending' : !requiresVerification ? 'continue' : 'submit'
+    const primaryLabel = primaryMode === 'continue' ? 'Continue' : primaryMode === 'pending' ? 'Verification Pending' : 'Submit for Verification'
 
-    const primaryDisabled = isBusy || uiState === 'pending' || (uiState !== 'verified' && !verifyFile?.id) || (uiState !== 'verified' && isLocked)
+    const primaryDisabled = isBusy || primaryMode === 'pending' || (primaryMode === 'submit' && !canSubmit)
+
+    const handlePrimaryPress = () => {
+        if (primaryMode === 'continue') return handleContinue()
+        if (primaryMode === 'submit') return handleSubmit()
+    }
 
     const steps = ['Business Info', 'Address', 'Branding', 'Verification']
     const currentStep = 4
@@ -272,9 +278,9 @@ const VerifyScreen = () => {
                         <AppText>Upload document (any of the following)</AppText>
                         <Pressable
                             onPress={pickDocument}
-                            disabled={isBusy || isLocked}
+                            disabled={isBusy || !canUpload}
                             className={`mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border px-6 py-8 ${
-                                isBusy || isLocked ? 'opacity-60' : ''
+                                isBusy || !canUpload ? 'opacity-60' : ''
                             }`}
                         >
                             <Feather name="upload" size={35} color="#3a3a3a" />
@@ -294,7 +300,7 @@ const VerifyScreen = () => {
                 {showPrimary ? (
                     <View className="mt-auto">
                         <Pressable
-                            onPress={uiState === 'verified' ? handleContinue : handleSubmit}
+                            onPress={handlePrimaryPress}
                             disabled={primaryDisabled}
                             className={`w-full items-center rounded-full bg-[#0C2A63] px-4 py-3 ${primaryDisabled ? 'opacity-60' : ''}`}
                         >
