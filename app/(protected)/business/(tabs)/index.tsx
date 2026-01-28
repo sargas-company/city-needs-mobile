@@ -10,7 +10,7 @@ import { ThemedView } from '@/components/themed-view'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { useAppDispatch } from '@/store/hooks'
 
-export default function HomeScreen() {
+export default function BuisnessHomeScreen() {
     const dispatch = useAppDispatch()
 
     const handleLogout = useCallback(async () => {
@@ -29,7 +29,7 @@ export default function HomeScreen() {
             <ThemedView style={styles.stepContainer}>
                 <ThemedText type="subtitle">Step 1: Try it</ThemedText>
                 <ThemedText>
-                    Edit <ThemedText type="defaultSemiBold">app/(protected)/(tabs)/index.tsx</ThemedText> to see changes. Press{' '}
+                    Edit <ThemedText type="defaultSemiBold">app/(protected)/user/(tabs)/index.tsx</ThemedText> to see changes. Press{' '}
                     <ThemedText type="defaultSemiBold">
                         {Platform.select({
                             ios: 'cmd + d',

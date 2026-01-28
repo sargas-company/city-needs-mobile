@@ -168,7 +168,7 @@ const VerifyScreen = () => {
 
         try {
             await dispatch(submitVerificationThunk()).unwrap()
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/business/(tabs)')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to submit verification'
             setLocalError(message)
@@ -185,7 +185,7 @@ const VerifyScreen = () => {
 
         try {
             await dispatch(skipVerificationThunk()).unwrap()
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/business/(tabs)')
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to skip verification'
             setLocalError(message)
@@ -193,7 +193,7 @@ const VerifyScreen = () => {
     }
 
     const handleContinue = () => {
-        router.replace('/(protected)/(tabs)')
+        router.replace('/(protected)/business/(tabs)')
     }
 
     const renderFileRow = () => {

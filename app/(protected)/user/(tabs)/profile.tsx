@@ -88,7 +88,7 @@ const ProfileScreen = () => {
 
                     <AppButton
                         title="Edit Profile"
-                        onPress={() => router.push('/(protected)/edit-profile')}
+                        onPress={() => router.push('/(protected)/user/edit-profile')}
                         className="mt-5 bg-[#0C2A63]"
                         textClassName="text-white"
                     />
@@ -101,7 +101,7 @@ const ProfileScreen = () => {
                             title="Saved Businesses"
                             subtitle="View your saved businesses"
                             iconColor="#0C2A63"
-                            onPress={() => router.push('/(protected)/saved-businesses')}
+                            onPress={() => router.push('/(protected)/user/saved-businesses')}
                         />
                         <View className="h-px bg-gray-200" />
                         <MenuRow

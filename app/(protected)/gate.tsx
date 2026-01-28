@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 
@@ -14,6 +14,18 @@ const Gate = () => {
     const onboardingStep = useAppSelector(selectOnboardingStep)
     const role = useAppSelector(selectUserRole)
     const profileUser = useAppSelector(selectProfileUser)
+
+    const redirectToRoleTabs = useCallback(() => {
+        if (role === 'END_USER') {
+            router.replace('/(protected)/user/(tabs)')
+            return
+        }
+
+        if (role === 'BUSINESS_OWNER') {
+            router.replace('/(protected)/business/(tabs)')
+            return
+        }
+    }, [role, router])
 
     useEffect(() => {
         if (status === 'loading' || status === 'idle') {
@@ -36,7 +48,7 @@ const Gate = () => {
         }
 
         if (profileUser?.onboardingStep === null || profileUser?.onboardingStep === undefined) {
-            router.replace('/(protected)/(tabs)')
+            redirectToRoleTabs()
             return
         }
 
@@ -72,8 +84,8 @@ const Gate = () => {
             }
         }
 
-        router.replace('/(protected)/(tabs)')
-    }, [emailVerified, isAuth, onboardingStep, profileUser?.onboardingStep, role, router, status])
+        redirectToRoleTabs()
+    }, [emailVerified, isAuth, onboardingStep, profileUser?.onboardingStep, redirectToRoleTabs, role, router, status])
 
     return (
         <View className="flex-1 items-center justify-center bg-white">

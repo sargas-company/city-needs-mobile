@@ -48,7 +48,7 @@ const CustomerServicesScreen = () => {
         setSubmitError(null)
         try {
             await dispatch(submitCustomerCategoriesThunk(values.categoryIds)).unwrap()
-            router.replace('/(protected)/(tabs)')
+            router.replace('/(protected)/user/(tabs)')
         } catch (err) {
             let message = 'Failed to save services. Please try again.'
             if (typeof err === 'string') message = err
