@@ -52,25 +52,20 @@ const ProfileScreen = () => {
     const profileUser = useAppSelector(selectProfileUser)
 
     const fullName = useMemo(() => {
-        // @ts-ignore
-        return profileUser?.username.trim() || '—'
-    }, [profileUser?.username])
+        return profileUser?.username?.trim() || user?.displayName?.trim() || '—'
+    }, [profileUser?.username, user?.displayName])
 
-    const email = user?.email || '—'
-    const photoURL = user?.photoURL || undefined
-    const fallbackLetter = getFirstLetter(profileUser?.username, user?.email)
+    const email = profileUser?.email || user?.email || '—'
+    const photoURL = profileUser?.avatar || user?.photoURL || undefined
+    const fallbackLetter = getFirstLetter(profileUser?.username, email)
 
     const onLogout = async () => {
         await dispatch(logoutThunk()).unwrap()
     }
 
     return (
-        <View className="flex-1 bg-[#F6F7FB]">
-            <ScrollView
-                className="flex-1"
-                contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 140 }}
-                showsVerticalScrollIndicator={false}
-            >
+        <View className="flex-1 bg-white pt-[190px]">
+            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
                 <AppText className="text-center text-[20px] font-poppins-semibold text-[#0C2A63]">My Profile</AppText>
 
                 <View className="mt-6 items-center">
@@ -93,7 +88,7 @@ const ProfileScreen = () => {
 
                     <AppButton
                         title="Edit Profile"
-                        onPress={() => router.push('/(profile)/edit-profile')}
+                        onPress={() => router.push('/(protected)/edit-profile')}
                         className="mt-5 bg-[#0C2A63]"
                         textClassName="text-white"
                     />
@@ -106,10 +101,15 @@ const ProfileScreen = () => {
                             title="Saved Businesses"
                             subtitle="View your saved businesses"
                             iconColor="#0C2A63"
-                            onPress={() => router.push('/saved-businesses')}
+                            onPress={() => router.push('/(protected)/saved-businesses')}
                         />
                         <View className="h-px bg-gray-200" />
-                        <MenuRow icon="map-pin" title="Location" subtitle="Saskatoon, Canada" onPress={() => router.push('/(profile)/location')} />
+                        <MenuRow
+                            icon="map-pin"
+                            title="Location"
+                            subtitle="Saskatoon, Canada"
+                            onPress={() => router.push('/(protected)/(onboarding)/location')}
+                        />
                     </View>
 
                     <View className="mt-5 rounded-2xl">

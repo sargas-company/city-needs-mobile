@@ -1,18 +1,10 @@
 import { Stack } from 'expo-router'
 import { View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { WaveHeader } from '@/components/layout/WaveHeader'
-
-const WAVE_HEIGHT = 190
 const DEFAULT_CONTENT_TOP = 140
 const ProtectedOnboardingLayout = () => {
-    const insets = useSafeAreaInsets()
-
     return (
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-            <WaveHeader height={WAVE_HEIGHT} topInset={insets.top} showLogo />
-
             <Stack
                 screenOptions={{
                     headerShown: false,

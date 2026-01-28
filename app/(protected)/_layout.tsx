@@ -5,6 +5,7 @@ import { View, Text } from 'react-native'
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 import { BusinessVerificationGuard } from '@/components/guards/BusinessVerificationGuard'
+import { WaveHeader } from '@/components/layout/WaveHeader'
 
 export default function ProtectedLayout() {
     const router = useRouter()
@@ -31,7 +32,16 @@ export default function ProtectedLayout() {
 
     return (
         <BusinessVerificationGuard>
-            <Stack screenOptions={{ headerShown: false }}>
+            <WaveHeader showLogo />
+
+            <Stack
+                screenOptions={{
+                    headerShown: false,
+                    contentStyle: {
+                        backgroundColor: '#FFFFFF',
+                    },
+                }}
+            >
                 <Stack.Screen name="gate" />
                 <Stack.Screen name="(onboarding)" />
                 <Stack.Screen name="(tabs)" />

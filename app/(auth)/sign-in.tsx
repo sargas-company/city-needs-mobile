@@ -36,7 +36,7 @@ const SignIn = () => {
     } = useForm<SignInFormValues>({
         resolver: zodResolver(signInSchema),
         defaultValues: {
-            email: 'khamani.ahron@minuteafter.com',
+            email: 'bishop.daxxon@minuteafter.com',
             password: 'Admin1998%',
         },
         mode: 'onSubmit',

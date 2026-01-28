@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { router } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
 import { useGetSavedBusinessesQuery } from '@/store/features/saved-businesses/savedBusinessesApi'
@@ -35,7 +34,7 @@ const SavedBusinessesScreen = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-[#F6F7FB]">
+        <View className="flex-1 pt-[190px]">
             <View className="px-6 pt-3">
                 <View className="flex-row items-center justify-between">
                     <Pressable
@@ -61,7 +60,7 @@ const SavedBusinessesScreen = () => {
                 onEndReached={loadNext}
                 onRefresh={onRefresh}
             />
-        </SafeAreaView>
+        </View>
     )
 }
 

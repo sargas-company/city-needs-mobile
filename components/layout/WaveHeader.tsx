@@ -1,19 +1,19 @@
 import React from 'react'
-import { View, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, View, ViewStyle } from 'react-native'
 
 import WaveSvg from '@/assets/images/wave.svg'
 import LogoSvg from '@/assets/images/main_logo.svg'
 
 type WaveHeaderProps = {
-    height: number
-    topInset: number
+    height?: number
+    topInset?: number
     showLogo?: boolean
     style?: ViewStyle
     logoTop?: number
     logoRight?: number
 }
 
-export const WaveHeader = ({ height, topInset, showLogo = false, style, logoTop = 14, logoRight = 18 }: WaveHeaderProps) => {
+export const WaveHeader = ({ height = 190, topInset = 62, showLogo = false, style, logoTop = 14, logoRight = 18 }: WaveHeaderProps) => {
     return (
         <View
             pointerEvents="none"
