@@ -67,7 +67,7 @@ const BusinessProfileScreen = () => {
         <View className="flex-1 pt-[190px] bg-white">
             <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
                 <View className="flex-row justify-end">
-                    <Pressable onPress={() => router.push('/(profile)/edit-business-profile' as never)} className="flex-row items-center gap-2">
+                    <Pressable onPress={() => router.push('/(protected)/business/edit-profile' as never)} className="flex-row items-center gap-2">
                         <Feather name="edit-3" size={18} color="#0C2A63" />
                         <AppText className="font-poppins-medium text-[13px] text-[#0C2A63]">Edit Profile</AppText>
                     </Pressable>
