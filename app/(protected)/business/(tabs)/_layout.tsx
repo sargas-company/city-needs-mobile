@@ -60,8 +60,8 @@ export default function BusinessTabsLayout() {
                 },
 
                 tabBarLabelStyle: {
-                    fontSize: 16,
-                    marginTop: 8,
+                    fontSize: 12,
+                    marginTop: 4,
                 },
 
                 tabBarItemStyle: {
@@ -72,8 +72,8 @@ export default function BusinessTabsLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'Home',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="home" focused={focused} color={color} />,
+                    title: 'Dashboard',
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="grid" focused={focused} color={color} />,
                 }}
             />
             <Tabs.Screen
@@ -81,6 +81,27 @@ export default function BusinessTabsLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ focused, color }) => <TabIcon icon="user" focused={focused} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="reels"
+                options={{
+                    title: 'Reels',
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="play" focused={focused} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="analytics"
+                options={{
+                    title: 'Analytics',
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="bar-chart-2" focused={focused} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="subscription"
+                options={{
+                    title: 'Subscription',
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="star" focused={focused} color={color} />,
                 }}
             />
         </Tabs>

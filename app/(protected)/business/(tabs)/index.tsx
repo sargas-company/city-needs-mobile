@@ -1,117 +1,95 @@
-import { Image } from 'expo-image'
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { Link, router } from 'expo-router'
-import { useCallback } from 'react'
+import React, { useState } from 'react'
+import { ScrollView, View } from 'react-native'
+import Feather from '@expo/vector-icons/Feather'
 
-import { HelloWave } from '@/components/hello-wave'
-import ParallaxScrollView from '@/components/parallax-scroll-view'
-import { ThemedText } from '@/components/themed-text'
-import { ThemedView } from '@/components/themed-view'
-import { logoutThunk } from '@/store/features/auth/auth.thunks'
-import { useAppDispatch } from '@/store/hooks'
+import { AppText } from '@/components/ui/AppText'
+import { Avatar } from '@/components/ui/Avatar'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { StatCard } from '@/components/ui/StatCard'
+import { ActivityChart } from '@/components/ui/ActivityChart'
+import { PeriodSelector } from '@/components/ui/PeriodSelector'
+import { AppPressable } from '@/components/ui/AppPressable'
 
-export default function BuisnessHomeScreen() {
-    const dispatch = useAppDispatch()
+const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly']
 
-    const handleLogout = useCallback(async () => {
-        await dispatch(logoutThunk()).unwrap()
-    }, [dispatch])
+const MOCK_CHART_DATA = [
+    { month: 'Jan', views: 40, actions: 65 },
+    { month: 'Feb', views: 55, actions: 70 },
+    { month: 'Mar', views: 25, actions: 10 },
+    { month: 'Apr', views: 50, actions: 60 },
+    { month: 'May', views: 60, actions: 75 },
+    { month: 'Jun', views: 55, actions: 45 },
+    { month: 'Jul', views: 20, actions: 80 },
+    { month: 'Aug', views: 50, actions: 65 },
+]
 
-    return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-            headerImage={<Image source={require('@/assets/images/partial-react-logo.png')} style={styles.reactLogo} />}
-        >
-            <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Welcome!</ThemedText>
-                <HelloWave />
-            </ThemedView>
-            <ThemedView style={styles.stepContainer}>
-                <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-                <ThemedText>
-                    Edit <ThemedText type="defaultSemiBold">app/(protected)/user/(tabs)/index.tsx</ThemedText> to see changes. Press{' '}
-                    <ThemedText type="defaultSemiBold">
-                        {Platform.select({
-                            ios: 'cmd + d',
-                            android: 'cmd + m',
-                            web: 'F12',
-                        })}
-                    </ThemedText>{' '}
-                    to open developer tools.
-                </ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.stepContainer}>
-                <Link href="/modal">
-                    <Link.Trigger>
-                        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-                    </Link.Trigger>
-                    <Link.Preview />
-                    <Link.Menu>
-                        <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-                        <Link.MenuAction title="Share" icon="square.and.arrow.up" onPress={() => alert('Share pressed')} />
-                        <Link.Menu title="More" icon="ellipsis">
-                            <Link.MenuAction title="Delete" icon="trash" destructive onPress={() => alert('Delete pressed')} />
-                        </Link.Menu>
-                    </Link.Menu>
-                </Link>
-
-                <ThemedText>{`Tap the Explore tab to learn more about what's included in this starter app.`}</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.stepContainer}>
-                <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-                <ThemedText>
-                    {`When you're ready, run `}
-                    <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-                    <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-                    <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-                </ThemedText>
-                <View style={styles.welcomeButtonContainer}>
-                    <TouchableOpacity onPress={() => router.push('/(protected)/gate')} style={styles.welcomeButton} accessibilityRole="button">
-                        <Text style={styles.welcomeButtonText}>Open Welcome</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLogout} style={[styles.welcomeButton, styles.logoutButton]} accessibilityRole="button">
-                        <Text style={styles.welcomeButtonText}>Logout</Text>
-                    </TouchableOpacity>
-                </View>
-            </ThemedView>
-        </ParallaxScrollView>
-    )
+const cardShadow = {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
 }
 
-const styles = StyleSheet.create({
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    stepContainer: {
-        gap: 8,
-        marginBottom: 8,
-    },
-    reactLogo: {
-        height: 178,
-        width: 290,
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-    },
-    welcomeButtonContainer: {
-        marginTop: 8,
-        flexDirection: 'row',
-        gap: 12,
-    },
-    welcomeButton: {
-        backgroundColor: '#0286FF',
-        borderRadius: 24,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-    logoutButton: {
-        backgroundColor: '#ef4444',
-    },
-    welcomeButtonText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 16,
-    },
-})
+const StatusRow = ({ label, variant, badgeLabel }: { label: string; variant: 'active' | 'expired' | 'inactive'; badgeLabel: string }) => (
+    <View className="flex-row items-center justify-between">
+        <AppText className="font-poppins-medium text-[15px] text-text">{label}</AppText>
+        <StatusBadge label={badgeLabel} variant={variant} />
+    </View>
+)
+
+export default function BusinessHomeScreen() {
+    const [period, setPeriod] = useState('Monthly')
+
+    return (
+        <View className="flex-1 bg-white pt-[190px]">
+            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+                {/* Header row: action icon + title + avatar */}
+                <View className="mb-6 flex-row items-center justify-between">
+                    <AppPressable className="relative h-10 w-10 items-center justify-center rounded-xl bg-[#F0F3FB]">
+                        <Feather name="mail" size={20} color="#0C2A63" />
+                        <View className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-[1.5px] border-white bg-danger" />
+                    </AppPressable>
+
+                    <AppText className="font-poppins-semibold text-subtitle text-brand">Home</AppText>
+
+                    <Avatar
+                        size={40}
+                        borderWidth={2}
+                        borderColor="#FFFFFF"
+                        uri="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
+                    />
+                </View>
+
+                {/* Business info card */}
+                <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
+                    <AppText className="mb-4 font-poppins-semibold text-[18px] text-text">Good Morning, Grooming Center!</AppText>
+                    <View className="gap-3">
+                        <StatusRow label="Profile" variant="active" badgeLabel="Active" />
+                        <StatusRow label="Reels" variant="expired" badgeLabel="Expired" />
+                    </View>
+                </View>
+
+                {/* Subscription card */}
+                <View className="mt-3 rounded-2xl bg-white px-5 py-4" style={cardShadow}>
+                    <StatusRow label="Subscription" variant="inactive" badgeLabel="Inactive" />
+                </View>
+
+                {/* Stats section */}
+                <View className="mt-6 flex-row items-center justify-between">
+                    <AppText className="font-poppins-bold text-[20px] text-brand">Stats</AppText>
+                    <PeriodSelector value={period} options={PERIOD_OPTIONS} onChange={setPeriod} />
+                </View>
+
+                <View className="mt-4 flex-row gap-3">
+                    <StatCard icon="eye" label="Profile views" value="1, 854" changePercent={12.5} />
+                    <StatCard icon="zap" label="User actions" value="96" changePercent={-1.6} />
+                </View>
+
+                {/* Activity overview section */}
+                <AppText className="mb-4 mt-8 font-poppins-bold text-[20px] text-brand">Activity overview</AppText>
+                <ActivityChart data={MOCK_CHART_DATA} />
+            </ScrollView>
+        </View>
+    )
+}
