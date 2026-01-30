@@ -11,6 +11,8 @@ import { ServiceFormValues, serviceSchema } from './serviceSchema'
 type ServiceFormProps = {
     onSubmit: (values: ServiceFormValues) => Promise<void> | void
     isSubmittingExternal?: boolean
+    initialValues?: Partial<ServiceFormValues>
+    submitLabel?: string
 }
 
 const defaultValues: ServiceFormValues = {
@@ -21,14 +23,14 @@ const defaultValues: ServiceFormValues = {
     currency: 'CAD',
 }
 
-export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmittingExternal = false }) => {
+export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmittingExternal = false, initialValues, submitLabel = 'Create' }) => {
     const {
         control,
         handleSubmit,
         formState: { isSubmitting },
     } = useForm<ServiceFormValues>({
         resolver: zodResolver(serviceSchema),
-        defaultValues,
+        defaultValues: { ...defaultValues, ...initialValues },
         mode: 'onSubmit',
         reValidateMode: 'onChange',
     })
@@ -69,7 +71,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmitting
 
             <FormInput<ServiceFormValues> control={control} name="price" label="Price" required keyboardType="number-pad" placeholder="0" />
 
-            <AppButton title="Create" onPress={handleSubmit(onSubmit)} loading={isLoading} disabled={isLoading} />
+            <AppButton title={submitLabel} onPress={handleSubmit(onSubmit)} loading={isLoading} disabled={isLoading} />
         </View>
     )
 }
