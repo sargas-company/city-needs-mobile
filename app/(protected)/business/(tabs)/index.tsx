@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
+import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
@@ -39,6 +40,7 @@ const StatusRow = ({ label, variant, badgeLabel }: { label: string; variant: 'ac
 )
 
 export default function BusinessHomeScreen() {
+    const router = useRouter()
     const [period, setPeriod] = useState('Monthly')
 
     return (
@@ -74,6 +76,19 @@ export default function BusinessHomeScreen() {
                 <View className="mt-3 rounded-2xl bg-white px-5 py-4" style={cardShadow}>
                     <StatusRow label="Subscription" variant="inactive" badgeLabel="Inactive" />
                 </View>
+
+                {/* Bookings */}
+                <AppPressable
+                    onPress={() => router.push('/(protected)/business/bookings' as never)}
+                    className="mt-3 flex-row items-center justify-between rounded-2xl bg-white px-5 py-4"
+                    style={cardShadow}
+                >
+                    <View className="flex-row items-center gap-3">
+                        <Feather name="calendar" size={20} color="#0C2A63" />
+                        <AppText className="font-poppins-medium text-[15px] text-text">Bookings</AppText>
+                    </View>
+                    <Feather name="chevron-right" size={20} color="#8D8C92" />
+                </AppPressable>
 
                 {/* Stats section */}
                 <View className="mt-6 flex-row items-center justify-between">
