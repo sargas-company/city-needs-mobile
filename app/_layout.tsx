@@ -3,7 +3,7 @@ import '@dev-plugins/async-storage'
 import { Provider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
-import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins'
+import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Stack } from 'expo-router'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
@@ -11,9 +11,11 @@ import 'react-native-reanimated'
 
 import '../global.css'
 import '@/services/auth'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuthThunk } from '@/store/features/auth/auth.thunks'
-import { store, persistor } from '@/store'
+import { persistor, store } from '@/store'
 import { useAppDispatch } from '@/store/hooks'
 
 if (__DEV__) {
@@ -56,12 +58,14 @@ const RootNavigation = () => {
 
 export default function RootLayout() {
     return (
-        <KeyboardProvider>
-            <Provider store={store}>
-                <PersistGate loading={null} persistor={persistor}>
-                    <RootNavigation />
-                </PersistGate>
-            </Provider>
-        </KeyboardProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <KeyboardProvider>
+                <Provider store={store}>
+                    <PersistGate loading={null} persistor={persistor}>
+                        <RootNavigation />
+                    </PersistGate>
+                </Provider>
+            </KeyboardProvider>
+        </GestureHandlerRootView>
     )
 }
