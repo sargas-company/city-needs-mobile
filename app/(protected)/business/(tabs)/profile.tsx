@@ -21,7 +21,7 @@ const mockBusiness = {
     avatarUrl: null,
 }
 
-type TabKey = 'about' | 'reviews'
+type TabKey = 'about' | 'reviews' | 'services'
 
 const cardShadow = {
     shadowColor: '#000',
@@ -111,6 +111,7 @@ const BusinessProfileScreen = () => {
                 <View className="mt-8 flex-row items-center justify-center gap-10">
                     <TabButton title="About Us" active={activeTab === 'about'} onPress={() => setActiveTab('about')} />
                     <TabButton title="Reviews" active={activeTab === 'reviews'} onPress={() => setActiveTab('reviews')} />
+                    <TabButton title="Services" active={activeTab === 'services'} onPress={() => router.push('/(protected)/business/services')} />
                 </View>
 
                 {activeTab === 'about' ? (
