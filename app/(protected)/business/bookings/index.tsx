@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
 import { BookingCard, type Booking } from '@/components/bookings/BookingCard'
+import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
 
 const MOCK_BOOKINGS: Booking[] = [
     {
@@ -45,6 +46,8 @@ const BookingsScreen = () => {
     const insets = useSafeAreaInsets()
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [bookings] = useState<Booking[]>(MOCK_BOOKINGS)
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+    const [isSheetOpen, setIsSheetOpen] = useState(false)
 
     const onRefresh = useCallback(() => {
         setIsRefreshing(true)
@@ -55,7 +58,17 @@ const BookingsScreen = () => {
 
     const keyExtractor = useCallback((item: Booking) => item.id, [])
 
-    const renderItem = useCallback(({ item }: { item: Booking }) => <BookingCard booking={item} />, [])
+    const openSheet = useCallback((item: Booking) => {
+        setSelectedBooking(item)
+        setIsSheetOpen(true)
+    }, [])
+
+    const closeSheet = useCallback(() => {
+        setIsSheetOpen(false)
+        setSelectedBooking(null)
+    }, [])
+
+    const renderItem = useCallback(({ item }: { item: Booking }) => <BookingCard booking={item} onPress={() => openSheet(item)} />, [openSheet])
 
     return (
         <SafeAreaView className="flex-1 bg-white pt-[140px]">
@@ -84,6 +97,8 @@ const BookingsScreen = () => {
                     showsVerticalScrollIndicator={false}
                 />
             </View>
+
+            <BookingDetailsSheet isOpen={isSheetOpen} booking={selectedBooking} onClose={closeSheet} />
         </SafeAreaView>
     )
 }
