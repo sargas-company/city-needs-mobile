@@ -110,7 +110,7 @@ const EditProfileScreen = () => {
                 name: asset.fileName ?? 'avatar.jpg',
                 type: asset.mimeType ?? 'image/jpeg',
             })
-        } catch (err) {
+        } catch (_err) {
             setSubmitError('Failed to pick image')
         }
     }

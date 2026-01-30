@@ -32,22 +32,25 @@ const MyServicesScreen = () => {
         refetch()
     }
 
-    const handleDelete = useCallback((service: BusinessServiceDto) => {
-        Alert.alert('Delete service', `Are you sure you want to delete "${service.name}"?`, [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteService(service.id).unwrap()
-                    } catch {
-                        Alert.alert('Error', 'Failed to delete service.')
-                    }
+    const handleDelete = useCallback(
+        (service: BusinessServiceDto) => {
+            Alert.alert('Delete service', `Are you sure you want to delete "${service.name}"?`, [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteService(service.id).unwrap()
+                        } catch {
+                            Alert.alert('Error', 'Failed to delete service.')
+                        }
+                    },
                 },
-            },
-        ])
-    }, [])
+            ])
+        },
+        [deleteService]
+    )
 
     const keyExtractor = useCallback((item: BusinessServiceDto) => item.id, [])
 
