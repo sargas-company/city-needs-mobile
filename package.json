@@ -10,6 +10,7 @@
         "web": "expo start --web",
         "lint": "expo lint",
         "lint:fix": "expo lint --fix",
+        "typecheck": "tsc --noEmit",
         "format": "prettier --write .",
         "prepare": "husky"
     },
@@ -17,6 +18,9 @@
         "*.{js,jsx,ts,tsx,json}": [
             "prettier --write",
             "eslint --fix"
+        ],
+        "*.{ts,tsx}": [
+            "sh -c 'npm run -s typecheck'"
         ]
     },
     "dependencies": {
