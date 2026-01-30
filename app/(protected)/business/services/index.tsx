@@ -23,7 +23,7 @@ const MyServicesScreen = () => {
     const contentPaddingBottom = insets.bottom + 112
 
     return (
-        <SafeAreaView className="flex-1 bg-[#F6F7FB]">
+        <SafeAreaView className="flex-1 bg-white pt-[140px]">
             <View className="flex-1">
                 <View className="relative items-center justify-center px-6 pt-6 pb-4">
                     <Pressable

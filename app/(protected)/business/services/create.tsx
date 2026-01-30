@@ -1,23 +1,33 @@
 import React from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Alert, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
 import { ServiceForm, ServiceFormValues } from '@/src/components/forms/ServiceForm'
+import { useCreateBusinessServiceMutation } from '@/store/features/business/businessServicesApi'
 
 const CreateServiceScreen = () => {
     const router = useRouter()
     const insets = useSafeAreaInsets()
+    const [createService, { isLoading }] = useCreateBusinessServiceMutation()
 
     const handleSubmit = async (values: ServiceFormValues) => {
-        console.log(values)
-        router.back()
+        try {
+            await createService({
+                name: values.name,
+                price: Math.round(values.price * 100),
+                duration: values.durationMinutes,
+            }).unwrap()
+            router.back()
+        } catch {
+            Alert.alert('Error', 'Failed to create service. Please try again.')
+        }
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-[#F6F7FB]">
+        <SafeAreaView className="flex-1 bg-white pt-[140px]">
             <View className="flex-1">
                 <View className="relative items-center justify-center px-6 pt-6 pb-4">
                     <Pressable
@@ -38,7 +48,7 @@ const CreateServiceScreen = () => {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
-                    <ServiceForm onSubmit={handleSubmit} />
+                    <ServiceForm onSubmit={handleSubmit} isSubmittingExternal={isLoading} />
                 </ScrollView>
             </View>
         </SafeAreaView>
