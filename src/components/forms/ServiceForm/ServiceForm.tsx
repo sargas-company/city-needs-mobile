@@ -17,7 +17,6 @@ type ServiceFormProps = {
 
 const defaultValues: ServiceFormValues = {
     name: '',
-    description: '',
     durationMinutes: 60,
     price: 0,
     currency: 'CAD',
@@ -46,18 +45,6 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmitting
                 required
                 placeholder="e.g., Haircut"
                 autoCapitalize="words"
-            />
-
-            <FormInput<ServiceFormValues>
-                control={control}
-                name="description"
-                label="Description"
-                placeholder="Add a short description"
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                inputWrapperClassName="items-start py-3"
-                inputClassName="min-h-[96px]"
             />
 
             <FormInput<ServiceFormValues>

@@ -1,11 +1,14 @@
 import { baseApi } from '@/store/api/baseApi'
 
+export type BusinessServiceStatus = 'ACTIVE' | 'INACTIVE'
+
 export type BusinessServiceDto = {
     id: string
     name: string
     price: number
     duration: number
     position: number
+    status: BusinessServiceStatus
     businessId: string
     createdAt: string
     updatedAt: string
@@ -23,6 +26,7 @@ export type UpdateBusinessServiceDto = {
     price?: number
     duration?: number
     position?: number
+    status?: BusinessServiceStatus
 }
 
 export type UpdateBusinessServiceArgs = {

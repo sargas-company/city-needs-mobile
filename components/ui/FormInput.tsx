@@ -21,7 +21,7 @@ export function FormInput<T extends FieldValues>({ control, name, label, require
                 <AppInput
                     label={label}
                     required={required}
-                    value={value ?? ''}
+                    value={value != null ? String(value) : ''}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={error?.message}
