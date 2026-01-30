@@ -3,6 +3,14 @@ export type UserStatus = string
 export type BusinessStatus = string
 export type FileType = string
 
+export type BusinessHoursDto = {
+    weekday: number
+    isClosed?: boolean
+    is24h?: boolean
+    startTime?: string | null
+    endTime?: string | null
+}
+
 export type UserDto = {
     id: string
 
@@ -66,6 +74,11 @@ export type BusinessDto = {
 
     logoId?: string | null
     logo?: FileDto | null
+
+    price?: number | null
+    serviceOnSite?: boolean | null
+    serviceInStudio?: boolean | null
+    businessHours?: BusinessHoursDto[] | null
 
     verificationGraceDeadlineAt?: string | null
 }
