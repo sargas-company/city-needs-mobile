@@ -7,14 +7,14 @@ import { useRouter } from 'expo-router'
 import { AppText } from '@/components/ui/AppText'
 import { BookingCard, BookingStatus, type Booking } from '@/components/bookings/BookingCard'
 import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
-import { useGetMyBookingsQuery } from '@/store/features/bookings/bookingsApi'
+import { useCancelBookingMutation, useGetMyBookingsQuery, useUpdateBookingStatusMutation } from '@/store/features/bookings/bookingsApi'
 import type { ApiBookingStatus, BookingListItemDto } from '@/store/features/bookings/bookings.types'
 
 const STATUS_MAP: Record<ApiBookingStatus, BookingStatus> = {
     PENDING: BookingStatus.NEW,
     CONFIRMED: BookingStatus.CONFIRMED,
     COMPLETED: BookingStatus.COMPLETED,
-    CANCELLED: BookingStatus.COMPLETED,
+    CANCELLED: BookingStatus.CANCELLED,
 }
 
 function formatDateLabel(iso: string): string {
@@ -64,6 +64,8 @@ const BookingsScreen = () => {
     const [isSheetOpen, setIsSheetOpen] = useState(false)
 
     const { data, isLoading, isFetching, error, refetch } = useGetMyBookingsQuery({ cursor, limit: LIMIT })
+    const [cancelBooking] = useCancelBookingMutation()
+    const [updateStatus] = useUpdateBookingStatusMutation()
 
     const bookings = useMemo(() => (data?.data ?? []).map(mapToBooking), [data?.data])
     const hasNextPage = data?.meta?.hasNextPage ?? false
@@ -90,6 +92,29 @@ const BookingsScreen = () => {
         setIsSheetOpen(false)
         setSelectedBooking(null)
     }, [])
+
+    const handleConfirm = useCallback(async () => {
+        if (!selectedBooking) return
+        const nextStatus = selectedBooking.status === BookingStatus.NEW ? 'CONFIRMED' : 'COMPLETED'
+        try {
+            await updateStatus({ id: selectedBooking.id, data: { status: nextStatus } }).unwrap()
+            closeSheet()
+            refetch()
+        } catch {
+            // silently fail for now
+        }
+    }, [selectedBooking, updateStatus, closeSheet, refetch])
+
+    const handleCancel = useCallback(async () => {
+        if (!selectedBooking) return
+        try {
+            await cancelBooking({ id: selectedBooking.id, data: {} }).unwrap()
+            closeSheet()
+            refetch()
+        } catch {
+            // silently fail for now
+        }
+    }, [selectedBooking, cancelBooking, closeSheet, refetch])
 
     const renderItem = useCallback(({ item }: { item: Booking }) => <BookingCard booking={item} onPress={() => openSheet(item)} />, [openSheet])
 
@@ -136,7 +161,13 @@ const BookingsScreen = () => {
                 )}
             </View>
 
-            <BookingDetailsSheet isOpen={isSheetOpen} booking={selectedBooking} onClose={closeSheet} />
+            <BookingDetailsSheet
+                isOpen={isSheetOpen}
+                booking={selectedBooking}
+                onClose={closeSheet}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+            />
         </SafeAreaView>
     )
 }

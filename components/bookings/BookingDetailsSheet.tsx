@@ -16,16 +16,19 @@ type Props = {
     onCancel?: () => void
 }
 
-function getBookingActionVisibility(status: BookingStatus): { showConfirm: boolean; showCancel: boolean } {
+type BookingActions = { primaryLabel: string | null; showCancel: boolean }
+
+function getBookingActions(status: BookingStatus): BookingActions {
     switch (status) {
         case BookingStatus.NEW:
-            return { showConfirm: true, showCancel: true }
+            return { primaryLabel: 'Confirm Booking', showCancel: true }
         case BookingStatus.CONFIRMED:
-            return { showConfirm: false, showCancel: true }
+            return { primaryLabel: 'Complete Booking', showCancel: true }
         case BookingStatus.COMPLETED:
-            return { showConfirm: false, showCancel: false }
+        case BookingStatus.CANCELLED:
+            return { primaryLabel: null, showCancel: false }
         default:
-            return { showConfirm: false, showCancel: false }
+            return { primaryLabel: null, showCancel: false }
     }
 }
 
@@ -41,7 +44,7 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
     if (!booking) return null
 
     const { customer, serviceName, price, currency, dateLabel, timeLabel, status } = booking
-    const { showConfirm, showCancel } = getBookingActionVisibility(status)
+    const { primaryLabel, showCancel } = getBookingActions(status)
     const fullName = `${customer.firstName} ${customer.lastName}`
     const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
@@ -111,14 +114,14 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
                     </View>
                 </View>
 
-                {(showConfirm || showCancel) && (
+                {(primaryLabel || showCancel) && (
                     <>
                         {/* Divider */}
                         <View className="mb-6 h-px bg-[#E5E7EB]" />
 
                         {/* Actions */}
                         <View className="gap-3">
-                            {showConfirm && <AppButton title="Confirm Booking" onPress={onConfirm} />}
+                            {primaryLabel && <AppButton title={primaryLabel} onPress={onConfirm} />}
                             {showCancel && <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />}
                         </View>
                     </>

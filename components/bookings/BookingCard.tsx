@@ -9,6 +9,7 @@ export enum BookingStatus {
     NEW = 'new',
     CONFIRMED = 'confirmed',
     COMPLETED = 'completed',
+    CANCELLED = 'cancelled',
 }
 
 export type Booking = {
@@ -31,6 +32,7 @@ const statusConfig: Record<BookingStatus, { label: string; bg: string; text: str
     [BookingStatus.NEW]: { label: 'New', bg: 'bg-[#FFF3E0]', text: 'text-[#E89F48]' },
     [BookingStatus.CONFIRMED]: { label: 'Confirmed', bg: 'bg-[#E8EAF6]', text: 'text-[#0C2A63]' },
     [BookingStatus.COMPLETED]: { label: 'Completed', bg: 'bg-[#E8F5E9]', text: 'text-[#27AE60]' },
+    [BookingStatus.CANCELLED]: { label: 'Cancelled', bg: 'bg-[#FFEBEE]', text: 'text-[#FF4D4D]' },
 }
 
 const cardShadow = {
