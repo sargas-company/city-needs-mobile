@@ -29,18 +29,25 @@ function formatTimeLabel(iso: string): string {
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
 }
 
+function getDurationMinutes(startAt: string, endAt: string): number {
+    return Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60_000)
+}
+
 function mapToBooking(item: BookingListItemDto): Booking {
-    const nameParts = item.businessName.split(' ')
+    const name = item.businessName ?? 'Booking'
+    const nameParts = name.split(' ')
+    const duration = getDurationMinutes(item.startAt, item.endAt)
+
     return {
         id: item.id,
         customer: {
-            firstName: nameParts[0] ?? item.businessName,
+            firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
             avatarUrl: null,
         },
-        serviceName: item.businessName,
-        price: 0,
-        currency: 'USD',
+        serviceName: name,
+        price: duration,
+        currency: 'min',
         dateLabel: formatDateLabel(item.startAt),
         timeLabel: formatTimeLabel(item.startAt),
         status: STATUS_MAP[item.status] ?? BookingStatus.NEW,

@@ -19,7 +19,7 @@ export const bookingsApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params: {
                     cursor: args && 'cursor' in args ? (args.cursor ?? undefined) : undefined,
-                    take: args && 'limit' in args ? (args.limit ?? DEFAULT_LIMIT) : DEFAULT_LIMIT,
+                    limit: args && 'limit' in args ? (args.limit ?? DEFAULT_LIMIT) : DEFAULT_LIMIT,
                     withoutReview: args && 'withoutReview' in args ? args.withoutReview : undefined,
                 },
             }),
