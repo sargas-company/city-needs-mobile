@@ -6,7 +6,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { AppButton } from '@/components/ui/AppButton'
-import type { Booking } from '@/components/bookings/BookingCard'
+import { BookingStatus, type Booking } from '@/components/bookings/BookingCard'
 
 type Props = {
     isOpen: boolean
@@ -14,6 +14,19 @@ type Props = {
     onClose: () => void
     onConfirm?: () => void
     onCancel?: () => void
+}
+
+function getBookingActionVisibility(status: BookingStatus): { showConfirm: boolean; showCancel: boolean } {
+    switch (status) {
+        case BookingStatus.NEW:
+            return { showConfirm: true, showCancel: true }
+        case BookingStatus.CONFIRMED:
+            return { showConfirm: false, showCancel: true }
+        case BookingStatus.COMPLETED:
+            return { showConfirm: false, showCancel: false }
+        default:
+            return { showConfirm: false, showCancel: false }
+    }
 }
 
 const iconButtonStyle = {
@@ -29,7 +42,8 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
 
     if (!booking) return null
 
-    const { customer, serviceName, price, currency, dateLabel, timeLabel } = booking
+    const { customer, serviceName, price, currency, dateLabel, timeLabel, status } = booking
+    const { showConfirm, showCancel } = getBookingActionVisibility(status)
     const fullName = `${customer.firstName} ${customer.lastName}`
     const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
@@ -108,14 +122,18 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
                     </View>
                 </View>
 
-                {/* Divider */}
-                <View className="mb-6 h-px bg-[#E5E7EB]" />
+                {(showConfirm || showCancel) && (
+                    <>
+                        {/* Divider */}
+                        <View className="mb-6 h-px bg-[#E5E7EB]" />
 
-                {/* Actions */}
-                <View className="gap-3">
-                    <AppButton title="Confirm Booking" onPress={onConfirm} />
-                    <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />
-                </View>
+                        {/* Actions */}
+                        <View className="gap-3">
+                            {showConfirm && <AppButton title="Confirm Booking" onPress={onConfirm} />}
+                            {showCancel && <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />}
+                        </View>
+                    </>
+                )}
             </View>
         </Modal>
     )

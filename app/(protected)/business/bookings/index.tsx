@@ -5,7 +5,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
-import { BookingCard, type Booking } from '@/components/bookings/BookingCard'
+import { BookingCard, BookingStatus, type Booking } from '@/components/bookings/BookingCard'
 import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
 
 const MOCK_BOOKINGS: Booking[] = [
@@ -17,7 +17,7 @@ const MOCK_BOOKINGS: Booking[] = [
         currency: 'USD',
         dateLabel: 'Th, 4 Dec 2025',
         timeLabel: '12:30',
-        status: 'new',
+        status: BookingStatus.NEW,
     },
     {
         id: '2',
@@ -27,7 +27,7 @@ const MOCK_BOOKINGS: Booking[] = [
         currency: 'USD',
         dateLabel: 'Mon, 3 Dec 2025',
         timeLabel: '10:00',
-        status: 'confirmed',
+        status: BookingStatus.CONFIRMED,
     },
     {
         id: '3',
@@ -37,7 +37,7 @@ const MOCK_BOOKINGS: Booking[] = [
         currency: 'USD',
         dateLabel: 'Fr, 30 Nov 2025',
         timeLabel: '11:30',
-        status: 'completed',
+        status: BookingStatus.COMPLETED,
     },
 ]
 
