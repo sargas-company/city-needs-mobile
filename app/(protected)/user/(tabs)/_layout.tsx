@@ -7,21 +7,9 @@ import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 
-function TabIcon({
-    icon,
-    focused,
-    color,
-    showBump = true,
-}: {
-    icon: React.ComponentProps<typeof Feather>['name']
-    focused: boolean
-    color: string
-    showBump?: boolean
-}) {
+function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['name']; color: string }) {
     return (
         <View style={styles.iconWrap}>
-            {/*{focused && showBump && <View style={styles.bump} />}*/}
-            {/*{focused && <View style={styles.dot} />}*/}
             <Feather name={icon} size={28} color={color} />
         </View>
     )

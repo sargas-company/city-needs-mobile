@@ -8,7 +8,6 @@ import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selec
 import { WaveHeader } from '@/components/layout/WaveHeader'
 
 const WAVE_HEIGHT = 190
-const DEFAULT_CONTENT_TOP = 140
 
 export default function AuthLayout() {
     const router = useRouter()

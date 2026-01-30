@@ -31,7 +31,6 @@ type UploadSectionProps = {
     title: string
     description?: string
     onPress: () => void
-    required?: boolean
     icon?: ReactNode
 }
 
@@ -41,7 +40,6 @@ type UploadedListProps = {
     onRemove: (index: number) => void
     onClearAll?: () => void
     progress?: number
-    icon?: string
     showPreview?: boolean
 }
 
@@ -296,7 +294,7 @@ const BrandingScreen = () => {
     )
 }
 
-const UploadSection = ({ fieldTitle, title, description, onPress, required, icon = '⬆' }: UploadSectionProps) => (
+const UploadSection = ({ fieldTitle, title, description, onPress, icon = '⬆' }: UploadSectionProps) => (
     <View className="mb-4">
         <AppText>{fieldTitle}</AppText>
         <Pressable onPress={onPress} className="mt-3 items-center justify-center rounded-[12px] border-[1.5px] border-dashed border-border pх-6 py-8">
@@ -351,7 +349,7 @@ export const getFileIcon = (file: UploadSessionFileDto): ReactNode => {
     return <Feather name="file" size={28} color="#3a3a3a" />
 }
 
-const UploadedList = ({ title, files, onRemove, onClearAll, progress = 100, icon = '📄', showPreview }: UploadedListProps) => (
+const UploadedList = ({ title, files, onRemove, onClearAll, progress = 100, showPreview }: UploadedListProps) => (
     <View className="mb-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
         {/* Header */}
         <View className="mb-3 flex-row items-center justify-between">

@@ -110,6 +110,7 @@ const EditProfileScreen = () => {
                 name: asset.fileName ?? 'avatar.jpg',
                 type: asset.mimeType ?? 'image/jpeg',
             })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setSubmitError('Failed to pick image')
         }

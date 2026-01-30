@@ -4,13 +4,11 @@ import { useState } from 'react'
 import { AddressForm } from '@/components/forms/AddressForm'
 import { AddressFormValues } from '@/components/forms/addressSchema'
 import { submitOnboardingThunk } from '@/store/features/onboarding/onboarding.thunks'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { selectProfileUser } from '@/store/features/profile/profile.selectors'
+import { useAppDispatch } from '@/store/hooks'
 
 const CustomerAddress = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
-    const profile = useAppSelector(selectProfileUser)
     const [, setSubmitError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 

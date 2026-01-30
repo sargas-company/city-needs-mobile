@@ -18,7 +18,7 @@ const CustomerServicesScreen = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const profileStatus = useAppSelector(selectProfileStatus)
-    const [submitError, setSubmitError] = useState<string | null>(null)
+    const [, setSubmitError] = useState<string | null>(null)
 
     const { data: categories } = useGetCategoriesQuery()
     const categoryOptions = categories ?? []

@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 
 import { refreshEmailVerificationStatusThunk } from '@/store/features/auth/auth.thunks'
-import { selectProfileUser } from '@/store/features/profile/profile.selectors'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { useAppDispatch } from '@/store/hooks'
 import { AppButton } from '@/components/ui/AppButton'
 
 const RESEND_COOLDOWN_SEC = 120
@@ -20,7 +19,6 @@ const formatMMSS = (sec: number) => {
 const VerifyEmail = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
-    const profileUser = useAppSelector(selectProfileUser)
 
     const [confirmLoading, setConfirmLoading] = useState(false)
     const [resendLoading, setResendLoading] = useState(false)
@@ -81,11 +79,6 @@ const VerifyEmail = () => {
             setResendLoading(false)
         }
     }
-
-    const resendText = useMemo(() => {
-        if (resendLeft > 0) return `Resend in ${resendLeft}s`
-        return resendLoading ? 'Sending...' : 'Resend email'
-    }, [resendLeft, resendLoading])
 
     return (
         <SafeAreaView className="flex-1 bg-white">

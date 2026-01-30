@@ -9,19 +9,15 @@ import { useColorScheme } from '@/hooks/use-color-scheme'
 
 function TabIcon({
     icon,
-    focused,
+
     color,
-    showBump = true,
 }: {
     icon: React.ComponentProps<typeof Feather>['name']
-    focused: boolean
+
     color: string
-    showBump?: boolean
 }) {
     return (
         <View style={styles.iconWrap}>
-            {/*{focused && showBump && <View style={styles.bump} />}*/}
-            {/*{focused && <View style={styles.dot} />}*/}
             <Feather name={icon} size={28} color={color} />
         </View>
     )

@@ -60,7 +60,6 @@ const SignIn = () => {
     }
 
     const isLoading = status === 'loading' || isSubmitting
-    const isDisabled = isLoading
 
     const SocialButton = ({ children }: { children: React.ReactNode }) => {
         return (
