@@ -1,11 +1,11 @@
 import React from 'react'
-import { Modal, Pressable, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Pressable, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { AppButton } from '@/components/ui/AppButton'
+import { AppBottomSheet } from '@/components/layout/AppBottomSheet'
 import { BookingStatus, type Booking } from '@/components/bookings/BookingCard'
 
 type Props = {
@@ -38,8 +38,6 @@ const iconButtonStyle = {
 }
 
 export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCancel }: Props) => {
-    const insets = useSafeAreaInsets()
-
     if (!booking) return null
 
     const { customer, serviceName, price, currency, dateLabel, timeLabel, status } = booking
@@ -48,17 +46,8 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
     const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
     return (
-        <Modal visible={isOpen} transparent animationType="fade" onRequestClose={onClose}>
-            {/* Backdrop */}
-            <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-
-            {/* Sheet */}
-            <View className="rounded-t-[32px] bg-white px-6 pt-5" style={{ paddingBottom: insets.bottom + 16 }}>
-                {/* Drag indicator */}
-                <View className="mb-4 items-center">
-                    <View className="h-1 w-10 rounded-full bg-[#E0E0E0]" />
-                </View>
-
+        <AppBottomSheet isOpen={isOpen && !!booking} onClose={onClose}>
+            <View className="px-6 pt-2">
                 {/* Header: Order Status + Close */}
                 <View className="mb-5 flex-row items-center justify-between">
                     <AppText className="font-poppins-bold text-[20px] text-brand">Order Status</AppText>
@@ -135,6 +124,6 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
                     </>
                 )}
             </View>
-        </Modal>
+        </AppBottomSheet>
     )
 }
