@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Stack } from 'expo-router'
+// eslint-disable-next-line import/order
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
 

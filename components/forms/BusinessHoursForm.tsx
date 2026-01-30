@@ -20,6 +20,7 @@ export const BusinessHoursForm = () => {
     } = useFormContext<BusinessInfoFormValues>()
 
     const fieldName = 'businessHours' as const
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const days = useWatch({ control, name: fieldName }) ?? []
     const [activeTime, setActiveTime] = useState<{ dayIndex: number; field: TimeField } | null>(null)
     const [activeIndex, setActiveIndex] = useState(0)

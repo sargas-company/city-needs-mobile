@@ -240,7 +240,6 @@ const BrandingScreen = () => {
                 <UploadSection
                     fieldTitle="Upload Business Photos"
                     title={'Upload photos of your business'}
-                    required
                     description="File must be a JPEG, JPG, PNG or WEB and up to 10 MB per file"
                     icon={<FontAwesome name="photo" size={35} color="#3a3a3a" />}
                     onPress={handlePickPhotos}
@@ -253,7 +252,6 @@ const BrandingScreen = () => {
                         onRemove={removePhoto}
                         onClearAll={clearPhotos}
                         progress={photoFiles.length ? 100 : 0}
-                        icon="🖼"
                         showPreview
                     />
                 ) : null}
@@ -261,7 +259,6 @@ const BrandingScreen = () => {
                 <UploadSection
                     fieldTitle="Upload Business Documents"
                     title={'Upload document of your business'}
-                    required
                     icon={<Feather name="file" size={35} color="#3a3a3a" />}
                     onPress={handlePickDocuments}
                 />
@@ -273,7 +270,6 @@ const BrandingScreen = () => {
                         onRemove={removeDocument}
                         onClearAll={clearDocuments}
                         progress={documentFiles.length ? 100 : 0}
-                        icon="📄"
                     />
                 ) : null}
 

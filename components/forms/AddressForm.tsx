@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
@@ -76,16 +76,19 @@ export const AddressForm = ({
     const latValue = watch('lat')
     const lngValue = watch('lng')
 
-    const clearAddressSelection = (clearAddressLine1 = false) => {
-        setAddressSelected(false)
-        setSuggestions([])
-        setValue('zip', '', { shouldValidate: false })
-        setValue('lat', undefined, { shouldValidate: false })
-        setValue('lng', undefined, { shouldValidate: false })
-        if (clearAddressLine1) {
-            setValue('addressLine1', '', { shouldValidate: false })
-        }
-    }
+    const clearAddressSelection = useCallback(
+        (clearAddressLine1 = false) => {
+            setAddressSelected(false)
+            setSuggestions([])
+            setValue('zip', '', { shouldValidate: false })
+            setValue('lat', undefined, { shouldValidate: false })
+            setValue('lng', undefined, { shouldValidate: false })
+            if (clearAddressLine1) {
+                setValue('addressLine1', '', { shouldValidate: false })
+            }
+        },
+        [setValue]
+    )
 
     useEffect(() => {
         const handler = setTimeout(() => setDebouncedQuery((addressLine1Value ?? '').trim()), 300)
@@ -97,7 +100,7 @@ export const AddressForm = ({
             clearAddressSelection(true)
         }
         previousCityRef.current = selectedCity as CityKey | undefined
-    }, [selectedCity])
+    }, [clearAddressSelection, selectedCity])
 
     useEffect(() => {
         if (!(addressLine1Value ?? '').trim()) {

@@ -32,7 +32,7 @@ const MyServicesScreen = () => {
         refetch()
     }
 
-    const handleDelete = (service: BusinessServiceDto) => {
+    const handleDelete = useCallback((service: BusinessServiceDto) => {
         Alert.alert('Delete service', `Are you sure you want to delete "${service.name}"?`, [
             { text: 'Cancel', style: 'cancel' },
             {
@@ -47,7 +47,7 @@ const MyServicesScreen = () => {
                 },
             },
         ])
-    }
+    }, [])
 
     const keyExtractor = useCallback((item: BusinessServiceDto) => item.id, [])
 
@@ -61,7 +61,7 @@ const MyServicesScreen = () => {
                 onDelete={() => handleDelete(item)}
             />
         ),
-        []
+        [handleDelete, router]
     )
 
     const renderEmpty = () => (
