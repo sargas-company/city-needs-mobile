@@ -5,7 +5,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
-import { ServiceForm, ServiceFormValues } from '@/src/components/forms/ServiceForm'
+import { ServiceForm, ServiceFormValues } from '@/components/forms/ServiceForm'
 import { useCreateBusinessServiceMutation } from '@/store/features/business/businessServicesApi'
 
 const CreateServiceScreen = () => {

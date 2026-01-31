@@ -61,21 +61,21 @@ export default function ProtectedTabsLayout() {
                 name="index"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="home" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="home" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="map"
                 options={{
                     title: 'Map',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="map-pin" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="map-pin" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="search"
                 options={{
                     title: 'Search',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="search" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="search" color={color} />,
                 }}
             />
 
@@ -83,7 +83,7 @@ export default function ProtectedTabsLayout() {
                 name="reels"
                 options={{
                     title: 'Reels',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="video" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="video" color={color} />,
                 }}
             />
 
@@ -91,7 +91,7 @@ export default function ProtectedTabsLayout() {
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="user" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="user" color={color} />,
                 }}
             />
         </Tabs>

@@ -1,12 +1,14 @@
 import React from 'react'
 import { View } from 'react-native'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { FormInput } from '@/components/ui/FormInput'
 import { AppButton } from '@/components/ui/AppButton'
 
-import { ServiceFormValues, serviceSchema } from './serviceSchema'
+import { type ServiceFormValues, serviceSchema } from './serviceSchema'
+
+export { ServiceFormValues } from './serviceSchema'
 
 type ServiceFormProps = {
     onSubmit: (values: ServiceFormValues) => Promise<void> | void
@@ -18,8 +20,7 @@ type ServiceFormProps = {
 const defaultValues: ServiceFormValues = {
     name: '',
     durationMinutes: 60,
-    price: 0,
-    currency: 'CAD',
+    price: 100,
 }
 
 export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmittingExternal = false, initialValues, submitLabel = 'Create' }) => {
@@ -28,7 +29,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, isSubmitting
         handleSubmit,
         formState: { isSubmitting },
     } = useForm<ServiceFormValues>({
-        resolver: zodResolver(serviceSchema),
+        resolver: zodResolver(serviceSchema) as Resolver<ServiceFormValues>,
         defaultValues: { ...defaultValues, ...initialValues },
         mode: 'onSubmit',
         reValidateMode: 'onChange',

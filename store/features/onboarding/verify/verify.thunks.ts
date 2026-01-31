@@ -59,9 +59,7 @@ export const uploadVerificationFileThunk = createAsyncThunk<
     dispatch(setVerifyStatus('submitting'))
 
     try {
-        const result = await dispatch(
-            verificationFilesApi.endpoints.uploadVerificationFile.initiate({ file: { uri, name, type } }, { forceRefetch: true })
-        )
+        const result = await dispatch(verificationFilesApi.endpoints.uploadVerificationFile.initiate({ file: { uri, name, type } }))
         const payload = resolveApiData(result) as UploadVerificationFileResponse
 
         dispatch(setVerifyFile(payload.file))
@@ -81,9 +79,9 @@ export const deleteVerificationFileThunk = createAsyncThunk<void, string, { stat
         dispatch(setVerifyStatus('submitting'))
 
         try {
-            const result = await dispatch(verificationFilesApi.endpoints.deleteVerificationFile.initiate(fileId, { forceRefetch: true }))
+            const result = await dispatch(verificationFilesApi.endpoints.deleteVerificationFile.initiate(fileId))
             const payload = resolveApiData(result) as DeleteVerificationFileResponse
-
+            // @ts-ignore
             dispatch(setVerifyFile(payload.file))
             dispatch(setVerifyStatus('ready'))
         } catch (err) {

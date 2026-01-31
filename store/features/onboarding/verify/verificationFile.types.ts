@@ -19,6 +19,7 @@ export type UploadVerificationFileResponse = {
 
 export type DeleteVerificationFileResponse = {
     deleted: true
+    file?: unknown
 }
 
 export type SignedUrlResponse = {

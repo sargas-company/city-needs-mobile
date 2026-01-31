@@ -69,35 +69,35 @@ export default function BusinessTabsLayout() {
                 name="index"
                 options={{
                     title: 'Dashboard',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="grid" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="grid" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="user" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="user" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="reels"
                 options={{
                     title: 'Reels',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="play" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="play" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="analytics"
                 options={{
                     title: 'Analytics',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="bar-chart-2" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="bar-chart-2" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="subscription"
                 options={{
                     title: 'Subscription',
-                    tabBarIcon: ({ focused, color }) => <TabIcon icon="star" focused={focused} color={color} />,
+                    tabBarIcon: ({ focused, color }) => <TabIcon icon="star" color={color} />,
                 }}
             />
         </Tabs>
