@@ -1,4 +1,4 @@
-import { Keyboard, Pressable, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
@@ -62,7 +62,7 @@ const ResetPassword = () => {
                 >
                     <View className="w-full max-w-md self-center gap-6">
                         <View className="gap-2">
-                            <AppText className="text-2xl font-bold text-brand">Reset Password</AppText>
+                            <Text className="text-3xl font-bold text-brand ">Reset Password.</Text>
                             <AppText className="text-sm text-text-muted">
                                 Enter your email and we&apos;ll send a reset link if an account exists.
                             </AppText>

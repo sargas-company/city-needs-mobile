@@ -39,7 +39,7 @@ export default function BusinessTabsLayout() {
                 tabBarStyle: {
                     height: 'auto',
                     paddingTop: 10,
-                    paddingBottom: 14,
+                    paddingBottom: 24,
                     paddingHorizontal: 24,
 
                     backgroundColor: '#efefef',
@@ -51,7 +51,7 @@ export default function BusinessTabsLayout() {
                     position: 'absolute',
                     left: 0,
                     right: 0,
-                    bottom: 10,
+                    bottom: 0,
                     elevation: 0,
                 },
 
