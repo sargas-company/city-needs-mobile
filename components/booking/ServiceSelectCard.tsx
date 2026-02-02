@@ -14,37 +14,32 @@ type ServiceSelectCardProps = {
 }
 
 function formatPrice(cents: number): string {
-    return `$${(cents / 100).toFixed(2)}`
+    const dollars = cents / 100
+    return dollars % 1 === 0 ? `$${dollars}` : `$${dollars.toFixed(2)}`
 }
 
 function formatDuration(minutes: number): string {
     if (minutes < 60) return `${minutes} min`
     const h = Math.floor(minutes / 60)
     const m = minutes % 60
-    return m > 0 ? `${h}h ${m}min` : `${h}h`
+    return m > 0 ? `${h}h ${m} min` : `${h}h`
 }
 
 export const ServiceSelectCard: React.FC<ServiceSelectCardProps> = ({ name, price, duration, selected, onToggle }) => {
     return (
-        <AppPressable
-            onPress={onToggle}
-            className={`flex-row items-center rounded-2xl border px-4 py-4 ${selected ? 'border-brand bg-brand/5' : 'border-border bg-white'}`}
-        >
-            <View className="flex-1 mr-3">
-                <AppText className="text-[16px] font-poppins-medium text-[#0C2A63]">{name}</AppText>
-                <View className="flex-row items-center mt-1 gap-3">
-                    <View className="flex-row items-center gap-1">
-                        <Feather name="clock" size={14} color="#8896AB" />
-                        <AppText className="text-[13px] text-text-muted">{formatDuration(duration)}</AppText>
-                    </View>
-                    <AppText className="text-[14px] font-poppins-semibold text-brand">{formatPrice(price)}</AppText>
-                </View>
+        <AppPressable onPress={onToggle} className="flex-row items-start py-3">
+            <View
+                className={`mt-0.5 h-7 w-7 items-center justify-center rounded-lg border-2 ${selected ? 'border-brand bg-brand' : 'border-[#CBCBCB] bg-white'}`}
+            >
+                {selected && <Feather name="check" size={18} color="#FFFFFF" />}
             </View>
 
-            <View
-                className={`h-6 w-6 items-center justify-center rounded-md border ${selected ? 'border-brand bg-brand' : 'border-border bg-white'}`}
-            >
-                {selected && <Feather name="check" size={16} color="#FFFFFF" />}
+            <View className="flex-1 ml-3">
+                <View className="flex-row items-center gap-2">
+                    <AppText className="text-[15px] font-poppins-medium text-[#0C2A63]">{name}</AppText>
+                    <AppText className="text-[15px] font-poppins-semibold text-[#0C2A63]">{formatPrice(price)}</AppText>
+                </View>
+                <AppText className="text-[13px] text-[#CBCBCB] mt-0.5">{formatDuration(duration)}</AppText>
             </View>
         </AppPressable>
     )

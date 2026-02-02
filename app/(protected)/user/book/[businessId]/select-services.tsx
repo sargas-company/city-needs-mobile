@@ -14,10 +14,6 @@ import { useGetPublicBusinessServicesQuery } from '@/store/features/public-busin
 import type { PublicServiceDto } from '@/store/features/public-business/publicBusiness.types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
-function formatPrice(cents: number): string {
-    return `$${(cents / 100).toFixed(2)}`
-}
-
 const SelectServicesScreen = () => {
     const { businessId } = useLocalSearchParams<{ businessId: string }>()
     const router = useRouter()
@@ -27,14 +23,7 @@ const SelectServicesScreen = () => {
 
     const activeServices = useMemo(() => (data?.data ?? []).filter((s) => s.status === 'ACTIVE'), [data?.data])
 
-    const summary = useMemo(() => {
-        const selected = activeServices.filter((s) => selectedIds.includes(s.id))
-        return {
-            count: selected.length,
-            totalPrice: selected.reduce((sum, s) => sum + s.price, 0),
-            totalDuration: selected.reduce((sum, s) => sum + s.duration, 0),
-        }
-    }, [activeServices, selectedIds])
+    const hasSelection = selectedIds.length > 0
 
     const handleToggle = (id: string) => {
         dispatch(toggleService(id))
@@ -56,7 +45,7 @@ const SelectServicesScreen = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-            <BookingStepHeader title="Select Services" />
+            <BookingStepHeader title="Choose service" />
 
             {isLoading ? (
                 <View className="flex-1 items-center justify-center">
@@ -75,22 +64,14 @@ const SelectServicesScreen = () => {
                     data={activeServices}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
-                    contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 140 }}
-                    ItemSeparatorComponent={() => <View className="h-3" />}
+                    ListHeaderComponent={<AppText className="text-[18px] font-poppins-semibold text-[#0C2A63] mb-2">Grooming Center</AppText>}
+                    contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 120 }}
                     showsVerticalScrollIndicator={false}
                 />
             )}
 
             <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-6 py-4 pb-8">
-                {summary.count > 0 && (
-                    <View className="flex-row items-center justify-between mb-3">
-                        <AppText className="text-[14px] text-text-muted">
-                            {summary.count} service{summary.count > 1 ? 's' : ''} selected
-                        </AppText>
-                        <AppText className="text-[16px] font-poppins-semibold text-brand">{formatPrice(summary.totalPrice)}</AppText>
-                    </View>
-                )}
-                <AppButton title="Continue" onPress={handleContinue} disabled={summary.count === 0} />
+                <AppButton title="Continue" onPress={handleContinue} disabled={!hasSelection} className="bg-[#0C2A63]" />
             </View>
         </SafeAreaView>
     )
