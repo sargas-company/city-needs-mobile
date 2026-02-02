@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
-import { Pressable, ScrollView, TextInput, View } from 'react-native'
+import { ScrollView, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
@@ -56,14 +56,6 @@ const ReviewScreen = () => {
     const dateLabel = bookingFlow.selectedDate ? formatDateLabel(bookingFlow.selectedDate) : ''
     const timeLabel = bookingFlow.selectedTimeSlot ? formatTimeLabel(bookingFlow.selectedTimeSlot) : ''
 
-    const handleChangeServices = () => {
-        router.navigate(`/(protected)/user/book/${businessId}/select-services`)
-    }
-
-    const handleChangeTime = () => {
-        router.navigate(`/(protected)/user/book/${businessId}/select-datetime`)
-    }
-
     const handleNotesChange = useCallback(
         (text: string) => {
             dispatch(setNotes(text))
@@ -96,15 +88,6 @@ const ReviewScreen = () => {
 
             <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
                 <BookingSummaryCard businessName={business?.name ?? ''} services={selectedServices} dateLabel={dateLabel} timeLabel={timeLabel} />
-
-                <View className="flex-row items-center justify-center gap-4 mt-3">
-                    <Pressable onPress={handleChangeServices} accessibilityRole="button">
-                        <AppText className="text-[13px] font-poppins-medium text-brand underline">Change services</AppText>
-                    </Pressable>
-                    <Pressable onPress={handleChangeTime} accessibilityRole="button">
-                        <AppText className="text-[13px] font-poppins-medium text-brand underline">Change time</AppText>
-                    </Pressable>
-                </View>
 
                 <View className="mt-6">
                     <AppText className="text-[15px] font-poppins-medium text-[#0C2A63] mb-2">Notes (optional)</AppText>

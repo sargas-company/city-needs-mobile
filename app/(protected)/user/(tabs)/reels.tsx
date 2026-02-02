@@ -15,6 +15,17 @@ export default function ReelsScreen() {
             <TouchableOpacity style={styles.testButton} onPress={() => router.push(`/(protected)/user/book/${TEST_BUSINESS_ID}`)}>
                 <Text style={styles.testButtonText}>Test: Open Business</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity style={styles.testButton}>
+                <Text
+                    style={styles.testButtonText}
+                    onPress={() => {
+                        router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/success`)
+                    }}
+                >
+                    Suc
+                </Text>
+            </TouchableOpacity>
         </View>
     )
 }

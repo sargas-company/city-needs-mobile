@@ -192,7 +192,7 @@ const BusinessDetailScreen = () => {
             </ScrollView>
 
             {/* Book Appointment button */}
-            <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-6 py-4 pb-8">
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8">
                 <AppButton title="Book Appointment" onPress={handleBookNow} className="bg-[#0C2A63]" />
             </View>
         </SafeAreaView>

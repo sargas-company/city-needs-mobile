@@ -185,12 +185,12 @@ const SelectDateTimeScreen = () => {
                                 <Pressable
                                     onPress={() => !isPast && handleSelectDate(day)}
                                     disabled={isPast}
-                                    className={`flex-1 items-center justify-center rounded-full m-0.5 ${isSelected ? 'bg-brand' : ''}`}
+                                    className={`flex-1 items-center justify-center rounded-full m-0.5 ${isSelected ? 'bg-orange' : ''}`}
                                     accessibilityRole="button"
                                 >
                                     <AppText
                                         className={`text-[14px] font-poppins-medium ${
-                                            isSelected ? 'text-white' : isPast ? 'text-text-muted/40' : isWeekend ? 'text-brand' : 'text-brand'
+                                            isSelected ? 'text-white' : isPast ? 'text-text-muted/40' : isWeekend ? 'text-brand' : 'text-text'
                                         }`}
                                     >
                                         {day}

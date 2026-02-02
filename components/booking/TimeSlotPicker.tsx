@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, ScrollView, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -35,23 +35,22 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ slots, selectedS
     }
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <View className="flex-row flex-wrap gap-2">
-                {slots.map((slot) => {
-                    const isSelected = selectedSlot === slot.startAt
-                    return (
+        <View className="flex-row flex-wrap">
+            {slots.map((slot) => {
+                const isSelected = selectedSlot === slot.startAt
+                return (
+                    <View key={slot.startAt} style={{ width: '33.33%', paddingHorizontal: 4, paddingVertical: 4 }}>
                         <AppPressable
-                            key={slot.startAt}
                             onPress={() => onSelectSlot(slot.startAt)}
-                            className={`rounded-xl px-4 py-3 border ${isSelected ? 'border-brand bg-brand/10' : 'border-border bg-white'}`}
+                            className={`rounded-xl py-3 items-center border ${isSelected ? 'border-orange bg-orange/20' : 'border-border bg-white'}`}
                         >
-                            <AppText className={`text-[14px] font-poppins-medium ${isSelected ? 'text-brand' : 'text-[#0C2A63]'}`}>
+                            <AppText className={`text-[14px] font-poppins-medium ${isSelected ? 'text-orange' : 'text-brand'}`}>
                                 {formatTime(slot.startAt)}
                             </AppText>
                         </AppPressable>
-                    )
-                })}
-            </View>
-        </ScrollView>
+                    </View>
+                )
+            })}
+        </View>
     )
 }
