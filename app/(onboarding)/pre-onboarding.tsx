@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Image, ScrollView, useWindowDimensions, View } from 'react-native'
+import { Image, ScrollView, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { useRouter } from 'expo-router'
@@ -8,6 +8,7 @@ import { useOnboarding } from '@/hooks/useOnboarding'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { AppPressable } from '@/components/ui/AppPressable'
+import Snail from '@/assets/images/snail.svg'
 import manOne from '@/assets/images/man_one.png'
 import family from '@/assets/images/family.png'
 
@@ -48,6 +49,12 @@ const PreOnboarding = () => {
                             <Image source={family} resizeMode="cover" />
                         </View>
 
+                        <View className="absolute rounded-full bg-[#F7F7F7] w-[120px] h-[120px] top-0 right-0 rotate-[240deg]">
+                            <View className={'rotate-[50deg]'}>
+                                <Snail />
+                            </View>
+                        </View>
+
                         <View
                             className="absolute bg-orange rounded-pill px-4 py-2 border-2 border-white shadow-[0_0_4px_0_#00000030]"
                             style={{ top: heroHeight * 0.38, left: screenWidth * 0.25 }}
@@ -64,25 +71,11 @@ const PreOnboarding = () => {
                     </View>
 
                     {/* Logo + Tagline */}
-                    {/*<View className="px-screen  " style={{ alignSelf: 'flex-start' }}>*/}
-                    {/*    <View className={'flex relative items-center justify-center w-[140px] h-[140px] rounded-full bg-[#F7F7F7] '}>*/}
-                    {/*        <AppText className="absolute font-poppins-semibold text-[6px] text-brand" style={{ top: 55, left: 9 }}>*/}
-                    {/*            Your city.*/}
-                    {/*        </AppText>*/}
-
-                    {/*        <View>*/}
-                    {/*            <LogoSvg width={52} height={52} />*/}
-                    {/*        </View>*/}
-
-                    {/*        <AppText className="absolute font-poppins-semibold text-[6px] text-brand" style={{ top: 85, left: 13 }}>*/}
-                    {/*            Your people.*/}
-                    {/*        </AppText>*/}
-
-                    {/*        <AppText className="absolute font-poppins-semibold text-[6px] text-brand" style={{ bottom: 23, left: 42 }}>*/}
-                    {/*            Your marketplace.*/}
-                    {/*        </AppText>*/}
-                    {/*    </View>*/}
-                    {/*</View>*/}
+                    <View className="px-screen  " style={{ alignSelf: 'flex-start' }}>
+                        <View className={'flex relative items-center justify-center w-[140px] h-[140px] rounded-full bg-[#F7F7F7] rotate-45 '}>
+                            <Snail />
+                        </View>
+                    </View>
 
                     {/* Headline */}
                     <View className="flex-1" />
