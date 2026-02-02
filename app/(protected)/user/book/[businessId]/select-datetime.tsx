@@ -15,7 +15,9 @@ import { useGetBusinessAvailabilityQuery } from '@/store/features/public-busines
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const WEEKDAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+const DAY_NAMES_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 function toDateString(date: Date): string {
     const y = date.getFullYear()
@@ -31,6 +33,15 @@ function getDaysInMonth(year: number, month: number): number {
 function getFirstDayOffset(year: number, month: number): number {
     const day = new Date(year, month, 1).getDay()
     return day === 0 ? 6 : day - 1
+}
+
+function formatSelectedDate(dateStr: string): string {
+    const date = new Date(dateStr + 'T00:00:00')
+    const dayName = DAY_NAMES_SHORT[date.getDay()]
+    const day = date.getDate()
+    const month = MONTHS_SHORT[date.getMonth()]
+    const year = date.getFullYear()
+    return `${dayName}, ${day} ${month} ${year}`
 }
 
 const SelectDateTimeScreen = () => {
@@ -114,17 +125,28 @@ const SelectDateTimeScreen = () => {
         [viewYear, viewMonth, todayString]
     )
 
+    const isWeekendColumn = (cellIndex: number) => {
+        const col = cellIndex % 7
+        return col === 5 || col === 6
+    }
+
     return (
         <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-            <BookingStepHeader title="Select Date & Time" />
+            <BookingStepHeader title="Choose date" />
 
             <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+                {/* Business name */}
+                <AppText className="text-[18px] font-poppins-semibold text-brand mb-4">Grooming Center</AppText>
+
+                {/* Select Date label */}
+                <AppText className="text-[16px] font-poppins text-brand mb-4">Select Date</AppText>
+
                 {/* Month navigation */}
                 <View className="flex-row items-center justify-between mb-4">
                     <Pressable onPress={handlePrevMonth} className="p-2" accessibilityRole="button">
                         <Feather name="chevron-left" size={20} color="#0C2A63" />
                     </Pressable>
-                    <AppText className="text-[16px] font-poppins-semibold text-[#0C2A63]">
+                    <AppText className="text-[16px] font-poppins-semibold text-brand">
                         {MONTHS[viewMonth]} {viewYear}
                     </AppText>
                     <Pressable onPress={handleNextMonth} className="p-2" accessibilityRole="button">
@@ -134,11 +156,16 @@ const SelectDateTimeScreen = () => {
 
                 {/* Weekday headers */}
                 <View className="flex-row mb-2">
-                    {WEEKDAY_LABELS.map((label) => (
-                        <View key={label} className="flex-1 items-center">
-                            <AppText className="text-[12px] font-poppins-medium text-text-muted">{label}</AppText>
-                        </View>
-                    ))}
+                    {WEEKDAY_LABELS.map((label, idx) => {
+                        const isWeekend = idx === 5 || idx === 6
+                        return (
+                            <View key={label} className="flex-1 items-center">
+                                <AppText className={`text-[12px] font-poppins-medium ${isWeekend ? 'text-brand' : 'text-text-muted'}`}>
+                                    {label}
+                                </AppText>
+                            </View>
+                        )
+                    })}
                 </View>
 
                 {/* Calendar grid */}
@@ -151,6 +178,7 @@ const SelectDateTimeScreen = () => {
                         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                         const isSelected = selectedDate === dateStr
                         const isPast = isPastDay(day)
+                        const isWeekend = isWeekendColumn(idx)
 
                         return (
                             <View key={dateStr} style={{ width: '14.28%', aspectRatio: 1 }}>
@@ -162,7 +190,7 @@ const SelectDateTimeScreen = () => {
                                 >
                                     <AppText
                                         className={`text-[14px] font-poppins-medium ${
-                                            isSelected ? 'text-white' : isPast ? 'text-text-muted/40' : 'text-[#0C2A63]'
+                                            isSelected ? 'text-white' : isPast ? 'text-text-muted/40' : isWeekend ? 'text-brand' : 'text-brand'
                                         }`}
                                     >
                                         {day}
@@ -176,14 +204,15 @@ const SelectDateTimeScreen = () => {
                 {/* Time slots */}
                 {selectedDate && (
                     <View>
-                        <AppText className="text-[15px] font-poppins-medium text-[#0C2A63] mb-3">Available Times</AppText>
+                        <AppText className="text-[16px] font-poppins-semibold text-brand mb-3">Select Time</AppText>
+                        <AppText className="text-[14px] font-poppins-medium text-brand mb-3 text-center">{formatSelectedDate(selectedDate)}</AppText>
                         <TimeSlotPicker slots={slots} selectedSlot={selectedTimeSlot} onSelectSlot={handleSelectSlot} isLoading={isLoadingSlots} />
                     </View>
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-6 py-4 pb-8">
-                <AppButton title="Continue" onPress={handleContinue} disabled={!selectedDate || !selectedTimeSlot} />
+            <View className="absolute bottom-0 left-0 right-0 bg-white  px-6 py-4 pb-8">
+                <AppButton title="Continue" onPress={handleContinue} disabled={!selectedDate || !selectedTimeSlot} className="bg-brand]" />
             </View>
         </SafeAreaView>
     )

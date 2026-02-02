@@ -59,7 +59,7 @@ constants/              # Design tokens, theme colors, onboarding config
 
 ### Styling
 - **NativeWind** (TailwindCSS for React Native) — use `className` prop, not `StyleSheet.create`
-- Design tokens in `constants/design-tokens.js`
+- Design tokens in `constants/design-tokens.js`!IMPORTANT USAGE
 - Light/dark mode via `useColorScheme()` hook
 - Fonts: Poppins family (4 weights)
 - Utility: `cn()` helper for conditional class merging
