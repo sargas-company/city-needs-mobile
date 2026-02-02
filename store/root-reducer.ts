@@ -7,6 +7,7 @@ import { authReducer, logout } from './features/auth/auth.slice'
 import { locationReducer } from './features/location/location.slice'
 import { profileReducer } from './features/profile/profile.slice'
 import { uploadSessionReducer } from './features/uploadSession/uploadSession.slice'
+import { bookingFlowReducer } from './features/booking-flow/bookingFlow.slice'
 import { verifyReducer } from './features/onboarding/verify/verify.slice'
 
 const authPersistConfig = {
@@ -27,6 +28,7 @@ const appReducer = combineReducers({
     location: persistReducer(locationPersistConfig, locationReducer),
     uploadSession: uploadSessionReducer,
     verify: verifyReducer,
+    bookingFlow: bookingFlowReducer,
     [baseApi.reducerPath]: baseApi.reducer,
 })
 

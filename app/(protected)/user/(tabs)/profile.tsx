@@ -111,6 +111,14 @@ const ProfileScreen = () => {
                         />
                         <View className="h-px bg-gray-200" />
                         <MenuRow
+                            icon="calendar"
+                            title="My Bookings"
+                            subtitle="View your bookings"
+                            iconColor="#0C2A63"
+                            onPress={() => router.push('/(protected)/user/bookings')}
+                        />
+                        <View className="h-px bg-gray-200" />
+                        <MenuRow
                             icon="map-pin"
                             title="Location"
                             subtitle="Saskatoon, Canada"
