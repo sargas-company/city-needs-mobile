@@ -6,8 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 import { WaveHeader } from '@/components/layout/WaveHeader'
-
-const WAVE_HEIGHT = 190
+import { WAVE_HEIGHT } from '@/constants/layout'
 
 export default function AuthLayout() {
     const router = useRouter()
@@ -40,14 +39,10 @@ export default function AuthLayout() {
                     headerShown: false,
                     contentStyle: {
                         backgroundColor: '#FFFFFF',
-                        paddingTop: 0,
                     },
                 }}
             >
-                {/* Пер-экранные правки отступа (если нужно) */}
-                <Stack.Screen name="sign-in" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 130 } }} />
-                <Stack.Screen name="sign-up" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 130 } }} />
-                <Stack.Screen name="reset-password" options={{ contentStyle: { backgroundColor: '#FFFFFF', paddingTop: 0 } }} />
+                <Stack.Screen name="reset-password" options={{ contentStyle: { paddingTop: 0 } }} />
             </Stack>
         </View>
     )

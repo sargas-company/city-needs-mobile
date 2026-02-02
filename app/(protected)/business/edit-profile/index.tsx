@@ -7,6 +7,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dropdown } from 'react-native-element-dropdown'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { BusinessHoursForm } from '@/components/forms/BusinessHoursForm'
 import { BusinessHoursFormItem } from '@/components/forms/businessHoursSchema'
@@ -27,6 +28,7 @@ import { selectBusiness, selectProfileUser } from '@/store/features/profile/prof
 import type { AppUser, BusinessHoursDto } from '@/store/features/profile/profile.types'
 import { setProfileUser } from '@/store/features/profile/profile.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const mockBusinessInfoDefaults: BusinessInfoFormValues = {
     businessName: 'Grooming Center',
@@ -244,10 +246,11 @@ const EditBusinessProfileScreen = () => {
     }
 
     return (
-        <View className="flex-1 bg-white pt-[190px]">
+        <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
-                contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
                 keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
                 bottomOffset={24}
             >
                 <View className="mb-6 flex-row items-center justify-between">
@@ -433,7 +436,7 @@ const EditBusinessProfileScreen = () => {
 
                 <AppButton title="Save" onPress={handleSave} className="mt-8 bg-[#0C2A63]" textClassName="text-white" disabled={isSaving} />
             </KeyboardAwareScrollView>
-        </View>
+        </SafeAreaView>
     )
 }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
@@ -10,6 +11,7 @@ import { StatCard } from '@/components/ui/StatCard'
 import { ActivityChart } from '@/components/ui/ActivityChart'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
 import { AppPressable } from '@/components/ui/AppPressable'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly']
 
@@ -44,8 +46,12 @@ export default function BusinessHomeScreen() {
     const [period, setPeriod] = useState('Monthly')
 
     return (
-        <View className="flex-1 bg-white pt-[190px]">
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Header row: action icon + title + avatar */}
                 <View className="mb-6 flex-row items-center justify-between">
                     <AppPressable className="relative h-10 w-10 items-center justify-center rounded-xl bg-[#F0F3FB]">
@@ -105,6 +111,6 @@ export default function BusinessHomeScreen() {
                 <AppText className="mb-4 mt-8 font-poppins-bold text-[20px] text-brand">Activity overview</AppText>
                 <ActivityChart data={MOCK_CHART_DATA} />
             </ScrollView>
-        </View>
+        </SafeAreaView>
     )
 }

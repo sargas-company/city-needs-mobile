@@ -197,7 +197,7 @@ const BrandingScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
-                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
+                contentContainerStyle={{ flexGrow: 1, paddingTop: 130, paddingHorizontal: 24, paddingBottom: 24 }}
                 keyboardShouldPersistTaps="handled"
                 bottomOffset={24}
             >

@@ -3,6 +3,7 @@ import { FlatList, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { FontAwesome6 } from '@expo/vector-icons'
+import Feather from '@expo/vector-icons/Feather'
 
 import { useLazyGetLocationDetailsQuery, useLazySearchLocationsQuery } from '@/store/api/geocodingApi'
 import { getGeocodingProviderId } from '@/services/geocoding/GeocodingProvider'
@@ -15,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
 import type { StoredLocation } from '@/services/location/location.types'
 import { AppInput } from '@/components/ui/AppInput'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const LocationManual = () => {
     const dispatch = useAppDispatch()
@@ -113,10 +115,14 @@ const LocationManual = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white px-6 py-4">
+        <SafeAreaView className="flex-1 bg-white px-6 pb-4" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <View className="mb-4 flex-row items-center gap-3">
-                <Pressable onPress={() => router.back()} className="h-10 w-10 items-center justify-center rounded-full border border-gray-200">
-                    <Text className="text-lg text-brand">{'‹'}</Text>
+                <Pressable
+                    onPress={() => router.back()}
+                    className="h-11 w-11 items-center justify-center rounded-full border border-border bg-white"
+                    accessibilityRole="button"
+                >
+                    <Feather name="arrow-left" size={20} color="#0C2A63" />
                 </Pressable>
 
                 <Text className="text-lg font-semibold text-brand">Enter Your Location</Text>
@@ -167,8 +173,6 @@ const LocationManual = () => {
                     <Text className="text-sm font-semibold text-brand">Open Settings</Text>
                 </Pressable>
             ) : null}
-
-            {providerId === 'nominatim' ? <Text className="mt-4 text-xs text-[#9CA3AF]">Search powered by OpenStreetMap</Text> : null}
         </SafeAreaView>
     )
 }

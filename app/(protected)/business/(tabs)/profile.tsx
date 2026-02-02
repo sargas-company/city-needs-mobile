@@ -2,10 +2,12 @@ import React, { useMemo, useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { AppPressable } from '@/components/ui/AppPressable'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const mockBusiness = {
     name: 'Grooming Center',
@@ -64,8 +66,12 @@ const BusinessProfileScreen = () => {
     const descriptionParagraphs = useMemo(() => mockBusiness.description.split('\n').filter(Boolean), [])
 
     return (
-        <View className="flex-1 pt-[190px] bg-white">
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                showsVerticalScrollIndicator={false}
+            >
                 <View className="flex-row justify-end">
                     <Pressable onPress={() => router.push('/(protected)/business/edit-profile' as never)} className="flex-row items-center gap-2">
                         <Feather name="edit-3" size={18} color="#0C2A63" />
@@ -166,7 +172,7 @@ const BusinessProfileScreen = () => {
                     </View>
                 )}
             </ScrollView>
-        </View>
+        </SafeAreaView>
     )
 }
 

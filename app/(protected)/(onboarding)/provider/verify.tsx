@@ -18,6 +18,7 @@ import {
 import { selectVerifyError, selectVerifyFile, selectVerifyStatus } from '@/store/features/onboarding/verify/verify.selectors'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
 import { AppText } from '@/components/ui/AppText'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 type VerifyUiState = 'empty' | 'draft' | 'pending' | 'verified' | 'failed'
 
@@ -251,7 +252,7 @@ const VerifyScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
-                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
+                contentContainerStyle={{ flexGrow: 1, paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 24 }}
                 keyboardShouldPersistTaps="always"
                 keyboardDismissMode="on-drag"
                 bottomOffset={24}

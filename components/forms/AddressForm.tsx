@@ -12,6 +12,7 @@ import { ProgressStepper } from '@/components/ui/ProgressStepper'
 import { AppText } from '@/components/ui/AppText'
 import { AppInput } from '@/components/ui/AppInput'
 import { AddressSearchItemDto, useAddressSearchQuery } from '@/store/api/locationApi'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 import { AddressFormValues, CityKey, addressSchema, supportedCities } from './addressSchema'
 
@@ -134,6 +135,7 @@ export const AddressForm = ({
             <KeyboardAwareScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
+                    paddingTop: HEADER_CONTENT_OFFSET,
                     paddingHorizontal: 24,
                     paddingBottom: 24,
                 }}

@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Switch, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { router } from 'expo-router'
 import { getAuth } from 'firebase/auth'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Avatar } from '@/components/ui/Avatar'
 import { AppButton } from '@/components/ui/AppButton'
@@ -10,6 +11,7 @@ import { AppText } from '@/components/ui/AppText'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileUser } from '@/store/features/profile/profile.selectors'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const getFirstLetter = (name?: string | null, email?: string | null) => {
     const source = (name?.trim() ? name : email?.trim()) ?? ''
@@ -64,8 +66,12 @@ const ProfileScreen = () => {
     }
 
     return (
-        <View className="flex-1 bg-white pt-[190px]">
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                showsVerticalScrollIndicator={false}
+            >
                 <AppText className="text-center text-[20px] font-poppins-semibold text-[#0C2A63]">My Profile</AppText>
 
                 <View className="mt-6 items-center">
@@ -143,7 +149,7 @@ const ProfileScreen = () => {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     )
 }
 

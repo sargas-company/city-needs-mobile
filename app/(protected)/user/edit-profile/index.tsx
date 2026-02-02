@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'expo-router'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { getAuth } from 'firebase/auth'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
@@ -21,6 +22,7 @@ import { selectProfileUser } from '@/store/features/profile/profile.selectors'
 import type { AppUser } from '@/store/features/profile/profile.types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { type UpdateMeRequest, useUpdateMeMutation, useUpdateMyAvatarMutation } from '@/store/features/profile/profileApi'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 type EditProfileForm = z.infer<typeof editProfileSchema>
 
@@ -164,10 +166,10 @@ const EditProfileScreen = () => {
     }
 
     return (
-        <View className="flex-1 pt-[190px]">
+        <SafeAreaView className="flex-1 bg-white">
             <KeyboardAwareScrollView
                 style={{ flex: 1 }}
-                contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32 }}
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 32 }}
                 keyboardShouldPersistTaps="handled"
             >
                 <View className="mb-6 h-12 flex-row items-center">
@@ -238,7 +240,7 @@ const EditProfileScreen = () => {
                     />
                 </View>
             </KeyboardAwareScrollView>
-        </View>
+        </SafeAreaView>
     )
 }
 

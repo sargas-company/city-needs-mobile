@@ -9,6 +9,7 @@ import { BookingCard, BookingStatus, type Booking } from '@/components/bookings/
 import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
 import { useCancelBookingMutation, useGetMyBookingsQuery, useUpdateBookingStatusMutation } from '@/store/features/bookings/bookingsApi'
 import type { ApiBookingStatus, BookingListItemDto } from '@/store/features/bookings/bookings.types'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const STATUS_MAP: Record<ApiBookingStatus, BookingStatus> = {
     PENDING: BookingStatus.NEW,
@@ -119,19 +120,20 @@ const BookingsScreen = () => {
     const renderItem = useCallback(({ item }: { item: Booking }) => <BookingCard booking={item} onPress={() => openSheet(item)} />, [openSheet])
 
     return (
-        <SafeAreaView className="flex-1 bg-white pt-[140px]">
+        <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <View className="flex-1">
-                {/* Header */}
-                <View className="relative items-center justify-center px-6 pt-6 pb-4">
+                <View className=" flex-row items-center justify-between px-6 mb-6">
                     <Pressable
                         onPress={() => router.back()}
-                        className="absolute left-6 h-14 w-14 items-center justify-center rounded-full border border-[#C9CEDA] bg-transparent"
-                        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }, { top: 10 }]}
+                        className="h-11 w-11 items-center justify-center rounded-full border border-border bg-white"
+                        accessibilityRole="button"
                     >
-                        <Feather name="arrow-left" size={22} color="#0C2A63" />
+                        <Feather name="arrow-left" size={20} color="#0C2A63" />
                     </Pressable>
 
-                    <AppText className="text-[18px] font-poppins-semibold text-[#0C2A63]">Bookings</AppText>
+                    <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Bookings</AppText>
+
+                    <View className="h-11 w-11" />
                 </View>
 
                 {isLoading ? (

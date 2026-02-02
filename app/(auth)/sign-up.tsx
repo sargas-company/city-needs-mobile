@@ -144,7 +144,7 @@ const SignUp = () => {
                 keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
                 bottomOffset={24}
             >
-                <View className="w-full max-w-md self-center gap-6 px-screen">
+                <View className="w-full max-w-md self-center gap-6 px-screen pt-[100px]">
                     <View className="mb-2">
                         <View className="flex-row items-center justify-between">
                             <Text className="font-poppins-bold text-title text-brand">Create Your Account</Text>

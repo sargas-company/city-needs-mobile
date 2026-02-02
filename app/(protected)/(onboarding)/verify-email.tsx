@@ -83,15 +83,12 @@ const VerifyEmail = () => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-1 px-6 pt-8">
-                <View className="items-center">
+                <View className="flex-1 justify-center items-center">
                     <Ionicons name="mail" size={90} color="#e89f48" />
 
                     <Text className="mt-6 text-3xl font-extrabold text-brand text-center">You&apos;re almost there!</Text>
 
-                    <Text className="mt-3 text-center text-base text-gray-400">
-                        {/*{`We’ve sent a verification code to your email ${profileUser?.email ? ` (${profileUser.email})` : ''} to continue.`}*/}
-                        We’ve sent a verification code to your email.
-                    </Text>
+                    <Text className="mt-3 text-center text-base text-gray-400">We’ve sent a verification code to your email.</Text>
 
                     <Text className="mt-8 text-6xl font-extrabold text-brand">{formatMMSS(resendLeft)}</Text>
 
@@ -100,7 +97,6 @@ const VerifyEmail = () => {
 
                         <Pressable onPress={handleResend} disabled={resendLeft > 0 || resendLoading}>
                             <Text className={['text-base font-semibold', resendLeft > 0 || resendLoading ? 'text-gray-400' : 'text-brand'].join(' ')}>
-                                {/*{resendText}*/}
                                 Resend email
                             </Text>
                         </Pressable>
@@ -110,9 +106,13 @@ const VerifyEmail = () => {
                     {!!error && <Text className="mt-4 text-base text-red-600 text-center">{error}</Text>}
                 </View>
 
-                <View className="flex-1" />
-
-                <AppButton title="Verify and Continue" onPress={handleConfirm} loading={confirmLoading} disabled={confirmLoading} className="mt-2" />
+                <AppButton
+                    title="Verify and Continue"
+                    onPress={handleConfirm}
+                    loading={confirmLoading}
+                    disabled={confirmLoading}
+                    className="mt-2 w-full"
+                />
 
                 <Text className="mt-4 mb-6 text-center text-xs text-gray-400">
                     If you didn’t receive the email, check spam or resend when available.

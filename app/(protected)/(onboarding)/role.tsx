@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useAppDispatch } from '@/store/hooks'
 import { selectRoleThunk } from '@/store/features/auth/auth.thunks'
 import { AppButton } from '@/components/ui/AppButton'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const roleEnum = z.enum(['END_USER', 'BUSINESS_OWNER'] as const)
 export type RoleValue = z.infer<typeof roleEnum>
@@ -109,7 +110,7 @@ const RoleScreen = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <View className="flex-1 px-6 pt-8">
                 <View className="items-center">
                     <Text className="text-3xl font-extrabold text-brand">

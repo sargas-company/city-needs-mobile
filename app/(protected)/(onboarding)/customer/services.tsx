@@ -13,6 +13,7 @@ import { submitCustomerCategoriesThunk } from '@/store/features/onboarding/onboa
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { AppButton } from '@/components/ui/AppButton'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const CustomerServicesScreen = () => {
     const dispatch = useAppDispatch()
@@ -61,7 +62,7 @@ const CustomerServicesScreen = () => {
     const currentStep = 2
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <View className="flex-1 px-6 pb-6">
                 <View className="w-full max-w-md self-center flex-1">
                     <View className="gap-6 flex-1">

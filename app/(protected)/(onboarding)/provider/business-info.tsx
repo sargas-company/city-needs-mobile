@@ -17,6 +17,7 @@ import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitBusinessProfileThunk } from '@/store/features/onboarding/onboarding.thunks'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
 import { AppText } from '@/components/ui/AppText'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const ProviderBusinessInfo = () => {
     const dispatch = useAppDispatch()
@@ -90,6 +91,7 @@ const ProviderBusinessInfo = () => {
                     style={{ flex: 1 }}
                     contentContainerStyle={{
                         flexGrow: 1,
+                        paddingTop: HEADER_CONTENT_OFFSET,
                         paddingHorizontal: 24,
                         paddingBottom: 24,
                     }}

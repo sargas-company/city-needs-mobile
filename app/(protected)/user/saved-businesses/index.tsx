@@ -34,7 +34,7 @@ const SavedBusinessesScreen = () => {
     }
 
     return (
-        <View className="flex-1 pt-[190px]">
+        <View className="flex-1 pt-[130px]">
             <View className="px-6 pt-3">
                 <View className="flex-row items-center justify-between">
                     <Pressable
