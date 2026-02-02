@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Linking, Modal, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -23,7 +23,7 @@ const mockBusiness = {
     serviceType: 'On Site & Studio',
     description:
         'Grooming Center is a space dedicated to the care and comfort of your pets. We specialize in professional grooming, offering a safe, gentle, and personalized experience for every animal. Our groomers work with all breeds, using high-quality tools and modern grooming techniques.',
-    provider: { name: 'Sarah Johnson', role: 'Manager' },
+    provider: { name: 'Sarah Johnson', role: 'Manager', phone: '+1 306 555 0199' },
     avatarUrl: null,
 }
 
@@ -65,6 +65,20 @@ const BusinessDetailScreen = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const [activeTab, setActiveTab] = useState<TabKey>('about')
+    const [callModalVisible, setCallModalVisible] = useState(false)
+    const [smsModalVisible, setSmsModalVisible] = useState(false)
+
+    const phoneRaw = mockBusiness.provider.phone.replace(/\s/g, '')
+
+    const handleCall = () => {
+        setCallModalVisible(false)
+        Linking.openURL(`tel:${phoneRaw}`)
+    }
+
+    const handleSms = () => {
+        setSmsModalVisible(false)
+        Linking.openURL(`sms:${phoneRaw}`)
+    }
 
     const businessInitial = useMemo(() => (mockBusiness.name ? mockBusiness.name[0].toUpperCase() : '?'), [])
     const providerInitial = useMemo(() => (mockBusiness.provider.name ? mockBusiness.provider.name[0].toUpperCase() : '?'), [])
@@ -163,10 +177,16 @@ const BusinessDetailScreen = () => {
                                 </View>
 
                                 <View className="flex-row items-center gap-3">
-                                    <AppPressable className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]">
+                                    <AppPressable
+                                        onPress={() => setSmsModalVisible(true)}
+                                        className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]"
+                                    >
                                         <Feather name="message-circle" size={20} color="#FFFFFF" />
                                     </AppPressable>
-                                    <AppPressable className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]">
+                                    <AppPressable
+                                        onPress={() => setCallModalVisible(true)}
+                                        className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]"
+                                    >
                                         <Feather name="phone" size={20} color="#FFFFFF" />
                                     </AppPressable>
                                 </View>
@@ -195,6 +215,34 @@ const BusinessDetailScreen = () => {
             <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8">
                 <AppButton title="Book Appointment" onPress={handleBookNow} className="bg-[#0C2A63]" />
             </View>
+
+            {/* Call modal */}
+            <Modal visible={callModalVisible} transparent animationType="fade" onRequestClose={() => setCallModalVisible(false)}>
+                <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setCallModalVisible(false)}>
+                    <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                        <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Call Provider</AppText>
+                        <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{mockBusiness.provider.phone}</AppText>
+                        <View className="mt-6 gap-3">
+                            <AppButton title="Call" onPress={handleCall} className="bg-[#0C2A63]" />
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
+
+            {/* SMS modal */}
+            <Modal visible={smsModalVisible} transparent animationType="fade" onRequestClose={() => setSmsModalVisible(false)}>
+                <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setSmsModalVisible(false)}>
+                    <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                        <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Write a Message</AppText>
+                        <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                            Write to {mockBusiness.provider.phone}
+                        </AppText>
+                        <View className="mt-6">
+                            <AppButton title="Message" onPress={handleSms} className="bg-[#0C2A63]" />
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </SafeAreaView>
     )
 }
