@@ -10,7 +10,7 @@ const Index = () => {
     }
 
     if (!isCompleted) {
-        return <Redirect href="/(onboarding)/welcome" />
+        return <Redirect href="/(onboarding)/pre-onboarding" />
     }
 
     return <Redirect href="/(protected)/gate" />
