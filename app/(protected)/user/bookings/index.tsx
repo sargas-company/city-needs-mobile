@@ -133,7 +133,7 @@ const UserBookingsScreen = () => {
     const handleLeaveReview = useCallback(() => {
         if (!selectedBooking) return
         closeSheet()
-        router.push(`/(protected)/user/book/${selectedBooking.businessId}/leave-review`)
+        router.push(`/(protected)/user/book/${selectedBooking.businessId}/leave-review?bookingId=${selectedBooking.id}`)
     }, [selectedBooking, closeSheet, router])
 
     const renderItem = useCallback(({ item }: { item: Booking }) => <BookingCard booking={item} onPress={() => openSheet(item)} />, [openSheet])
