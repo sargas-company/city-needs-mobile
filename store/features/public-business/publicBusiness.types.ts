@@ -62,3 +62,18 @@ export type GetAvailabilityArgs = {
 }
 
 export type AvailabilityResponse = AvailabilityData
+
+export type BusinessHourItemDto = {
+    id: string
+    businessId: string
+    weekday: number
+    startTime: string | null
+    endTime: string | null
+    isClosed: boolean
+    is24h: boolean
+}
+
+export type BusinessHoursDayDto = {
+    weekday: number
+    hours: BusinessHourItemDto[]
+}

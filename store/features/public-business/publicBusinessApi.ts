@@ -1,6 +1,12 @@
 import { baseApi } from '@/store/api/baseApi'
 
-import type { AvailabilityResponse, GetAvailabilityArgs, PublicBusinessResponse, PublicServicesListResponse } from './publicBusiness.types'
+import type {
+    AvailabilityResponse,
+    BusinessHoursDayDto,
+    GetAvailabilityArgs,
+    PublicBusinessResponse,
+    PublicServicesListResponse,
+} from './publicBusiness.types'
 
 export const publicBusinessApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -20,6 +26,14 @@ export const publicBusinessApi = baseApi.injectEndpoints({
             providesTags: (_result, _error, businessId) => [{ type: 'PublicBusiness', id: `${businessId}-services` }],
         }),
 
+        getBusinessHours: builder.query<BusinessHoursDayDto[], string>({
+            query: (businessId) => ({
+                url: `/business/${businessId}/hours`,
+                method: 'GET',
+            }),
+            providesTags: (_result, _error, id) => [{ type: 'PublicBusiness', id: `${id}-hours` }],
+        }),
+
         getBusinessAvailability: builder.query<AvailabilityResponse, GetAvailabilityArgs>({
             query: ({ businessId, date, serviceIds }) => {
                 const serviceIdsQuery = serviceIds.map((id) => `serviceIds=${encodeURIComponent(id)}`).join('&')
@@ -34,5 +48,10 @@ export const publicBusinessApi = baseApi.injectEndpoints({
     }),
 })
 
-export const { useGetPublicBusinessQuery, useGetPublicBusinessServicesQuery, useGetBusinessAvailabilityQuery, useLazyGetBusinessAvailabilityQuery } =
-    publicBusinessApi
+export const {
+    useGetPublicBusinessQuery,
+    useGetPublicBusinessServicesQuery,
+    useGetBusinessHoursQuery,
+    useGetBusinessAvailabilityQuery,
+    useLazyGetBusinessAvailabilityQuery,
+} = publicBusinessApi

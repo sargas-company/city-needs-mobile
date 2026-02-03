@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Modal, Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,22 +10,39 @@ import { AppText } from '@/components/ui/AppText'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { Avatar } from '@/components/ui/Avatar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-import type { BusinessHoursDto } from '@/store/features/profile/profile.types'
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
-import { useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
+import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
+import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppSelector } from '@/store/hooks'
 
 type TabKey = 'about' | 'reviews' | 'services'
 
-function getTodayHoursLabel(hours?: BusinessHoursDto[] | null): string {
-    if (!hours?.length) return '—'
+const WEEKDAYS = [
+    { weekday: 1, label: 'Monday' },
+    { weekday: 2, label: 'Tuesday' },
+    { weekday: 3, label: 'Wednesday' },
+    { weekday: 4, label: 'Thursday' },
+    { weekday: 5, label: 'Friday' },
+    { weekday: 6, label: 'Saturday' },
+    { weekday: 0, label: 'Sunday' },
+]
+
+function getDayLabel(day?: BusinessHoursDayDto): string {
+    if (!day || day.hours.length === 0) return 'Closed'
+    if (day.hours.every((h) => h.isClosed)) return 'Closed'
+    if (day.hours.some((h) => h.is24h)) return 'Round the clock'
+
+    const slots = day.hours.filter((h) => !h.isClosed && h.startTime && h.endTime).map((h) => `${h.startTime} – ${h.endTime}`)
+
+    return slots.length > 0 ? slots.join(', ') : 'Closed'
+}
+
+function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
+    if (!days?.length) return '—'
     const today = new Date().getDay()
-    const entry = hours.find((h) => h.weekday === today)
-    if (!entry || entry.isClosed) return 'Closed'
-    if (entry.is24h) return '24 hours'
-    if (entry.startTime && entry.endTime) return `${entry.startTime} – ${entry.endTime}`
-    return '—'
+    const day = days.find((d) => d.weekday === today)
+    return `${getDayLabel(day)}`
 }
 
 function getServiceTypeLabel(onSite?: boolean | null, inStudio?: boolean | null): string {
@@ -43,9 +60,20 @@ const cardShadow = {
     elevation: 2,
 }
 
-const InfoCard = ({ icon, label, value }: { icon: React.ComponentProps<typeof Feather>['name']; label: string; value: string }) => {
+const InfoCard = ({
+    icon,
+    label,
+    value,
+    onPress,
+}: {
+    icon: React.ComponentProps<typeof Feather>['name']
+    label: string
+    value: string
+    onPress?: () => void
+}) => {
+    const Wrapper = onPress ? Pressable : View
     return (
-        <View className="w-[48%] rounded-2xl bg-white px-4 py-3" style={cardShadow}>
+        <Wrapper className="w-[48%] rounded-2xl bg-white px-4 py-3" style={cardShadow} {...(onPress ? { onPress } : {})}>
             <View className="flex-row items-center gap-2">
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-[#F0F3FB]">
                     <Feather name={icon} size={18} color="#0C2A63" />
@@ -53,7 +81,61 @@ const InfoCard = ({ icon, label, value }: { icon: React.ComponentProps<typeof Fe
                 <AppText className="font-poppins-medium text-[12px] text-[#8D8C92]">{label}</AppText>
             </View>
             <AppText className="mt-2 font-poppins-semibold text-[14px] text-[#0C2A63]">{value}</AppText>
-        </View>
+        </Wrapper>
+    )
+}
+
+const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
+    const today = new Date().getDay()
+    const daysMap = useMemo(() => {
+        const map = new Map<number, BusinessHoursDayDto>()
+        days?.forEach((d) => map.set(d.weekday, d))
+        return map
+    }, [days])
+
+    return (
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+            <Pressable className="flex-1 items-center justify-center bg-black/40" onPress={onClose}>
+                <Pressable className="mx-6 w-[90%] rounded-3xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                    <View className="flex-row items-center justify-between mb-5">
+                        <AppText className="text-[18px] font-poppins-semibold text-[#0C2A63]">Working Hours</AppText>
+                        <Pressable onPress={onClose} className="h-9 w-9 items-center justify-center rounded-full bg-[#F0F3FB]">
+                            <Feather name="x" size={18} color="#0C2A63" />
+                        </Pressable>
+                    </View>
+
+                    {WEEKDAYS.map(({ weekday, label }) => {
+                        const isToday = weekday === today
+                        const day = daysMap.get(weekday)
+                        const timeText = getDayLabel(day)
+
+                        return (
+                            <View
+                                key={weekday}
+                                className={`flex-row items-center justify-between rounded-xl px-4 py-3 ${isToday ? 'bg-[#F0F3FB]' : ''}`}
+                            >
+                                <AppText
+                                    className={`text-[14px] ${isToday ? 'font-poppins-semibold text-[#0C2A63]' : 'font-poppins-medium text-[#171717]'}`}
+                                >
+                                    {isToday ? `${label} (Today)` : label}
+                                </AppText>
+                                <AppText
+                                    className={`text-[14px] ${
+                                        timeText === 'Closed'
+                                            ? 'font-poppins-medium text-[#FF4D4D]'
+                                            : isToday
+                                              ? 'font-poppins-semibold text-[#0C2A63]'
+                                              : 'font-poppins-medium text-[#171717]'
+                                    }`}
+                                >
+                                    {timeText}
+                                </AppText>
+                            </View>
+                        )
+                    })}
+                </Pressable>
+            </Pressable>
+        </Modal>
     )
 }
 
@@ -70,11 +152,13 @@ const BusinessProfileScreen = () => {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [reviewsCursor, setReviewsCursor] = useState<string | null>(null)
+    const [hoursModalVisible, setHoursModalVisible] = useState(false)
 
     const business = useAppSelector(selectBusiness)
     const profileUser = useAppSelector(selectProfileUser)
 
     const { data: publicData } = useGetPublicBusinessQuery(business?.id!, { skip: !business?.id })
+    const { data: businessHours } = useGetBusinessHoursQuery(business?.id!, { skip: !business?.id })
 
     const isReviewsTab = activeTab === 'reviews'
     const {
@@ -90,7 +174,7 @@ const BusinessProfileScreen = () => {
     const ratingAvg = publicData?.ratingAvg ?? 0
 
     const priceLabel = business?.price != null ? `$${business.price}` : '—'
-    const timeLabel = getTodayHoursLabel(business?.businessHours)
+    const timeLabel = getTodayHoursLabel(businessHours)
     const categoryLabel = business?.category?.title ?? '—'
     const serviceTypeLabel = getServiceTypeLabel(business?.serviceOnSite, business?.serviceInStudio)
 
@@ -166,7 +250,7 @@ const BusinessProfileScreen = () => {
 
                 <View className="mt-6 flex-row flex-wrap justify-between gap-3">
                     <InfoCard icon="dollar-sign" label="Price" value={priceLabel} />
-                    <InfoCard icon="clock" label="Time" value={timeLabel} />
+                    <InfoCard icon="clock" label="Time Today" value={timeLabel} onPress={() => setHoursModalVisible(true)} />
                     <InfoCard icon="tag" label="Category" value={categoryLabel} />
                     <InfoCard icon="layers" label="Service Type" value={serviceTypeLabel} />
                 </View>
@@ -238,6 +322,8 @@ const BusinessProfileScreen = () => {
                     </View>
                 ) : null}
             </ScrollView>
+
+            <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
         </SafeAreaView>
     )
 }
