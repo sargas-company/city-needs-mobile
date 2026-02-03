@@ -20,7 +20,7 @@ export default function ReelsScreen() {
                 <Text
                     style={styles.testButtonText}
                     onPress={() => {
-                        router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/success`)
+                        router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/leave-review`)
                     }}
                 >
                     Suc
