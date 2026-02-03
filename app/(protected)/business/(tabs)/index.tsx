@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { ScrollView, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -12,6 +12,8 @@ import { ActivityChart } from '@/components/ui/ActivityChart'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { useAppDispatch } from '@/store/hooks'
+import { logoutThunk } from '@/store/features/auth/auth.thunks'
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly']
 
@@ -44,6 +46,12 @@ const StatusRow = ({ label, variant, badgeLabel }: { label: string; variant: 'ac
 export default function BusinessHomeScreen() {
     const router = useRouter()
     const [period, setPeriod] = useState('Monthly')
+
+    const dispatch = useAppDispatch()
+
+    const handleLogout = useCallback(async () => {
+        await dispatch(logoutThunk()).unwrap()
+    }, [dispatch])
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -110,6 +118,12 @@ export default function BusinessHomeScreen() {
                 {/* Activity overview section */}
                 <AppText className="mb-4 mt-8 font-poppins-bold text-[20px] text-brand">Activity overview</AppText>
                 <ActivityChart data={MOCK_CHART_DATA} />
+
+                <View>
+                    <TouchableOpacity onPress={handleLogout} accessibilityRole="button">
+                        <Text>Logout</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     )

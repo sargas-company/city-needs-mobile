@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
 
-const TEST_BUSINESS_ID = '9b4023d0-fc0e-4c95-a9f4-5b79041ce8a3'
+const TEST_BUSINESS_ID = '445eb7ad-b5d1-4cc0-841b-36c00e5debee'
 
 export default function ReelsScreen() {
     const router = useRouter()

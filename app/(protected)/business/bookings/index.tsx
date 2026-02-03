@@ -7,8 +7,8 @@ import { useRouter } from 'expo-router'
 import { AppText } from '@/components/ui/AppText'
 import { BookingCard, BookingStatus, type Booking } from '@/components/bookings/BookingCard'
 import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
-import { useCancelBookingMutation, useGetMyBookingsQuery, useUpdateBookingStatusMutation } from '@/store/features/bookings/bookingsApi'
-import type { ApiBookingStatus, BookingListItemDto } from '@/store/features/bookings/bookings.types'
+import { useCancelBookingMutation, useGetBusinessBookingsQuery, useUpdateBookingStatusMutation } from '@/store/features/bookings/bookingsApi'
+import type { ApiBookingStatus, BusinessBookingListItemDto } from '@/store/features/bookings/bookings.types'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { UserRole } from '@/store/features/profile/profile.types'
 
@@ -31,26 +31,22 @@ function formatTimeLabel(iso: string): string {
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
 }
 
-function getDurationMinutes(startAt: string, endAt: string): number {
-    return Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60_000)
-}
-
-function mapToBooking(item: BookingListItemDto): Booking {
-    const name = item.businessName ?? 'Booking'
+function mapToBooking(item: BusinessBookingListItemDto): Booking {
+    const name = item.userName ?? 'Customer'
     const nameParts = name.split(' ')
-    const duration = getDurationMinutes(item.startAt, item.endAt)
+    const serviceName = item.services.length > 0 ? item.services.join(', ') : 'Booking'
 
     return {
         id: item.id,
-        businessId: item.businessId,
+        businessId: '',
         customer: {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
             avatarUrl: null,
         },
-        serviceName: name,
-        price: duration,
-        currency: 'min',
+        serviceName,
+        price: item.totalPrice,
+        currency: 'USD',
         dateLabel: formatDateLabel(item.startAt),
         timeLabel: formatTimeLabel(item.startAt),
         status: STATUS_MAP[item.status] ?? BookingStatus.NEW,
@@ -66,7 +62,7 @@ const BookingsScreen = () => {
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
     const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-    const { data, isLoading, isFetching, error, refetch } = useGetMyBookingsQuery({ cursor, limit: LIMIT })
+    const { data, isLoading, isFetching, error, refetch } = useGetBusinessBookingsQuery({ cursor, limit: LIMIT })
     const [cancelBooking] = useCancelBookingMutation()
     const [updateStatus] = useUpdateBookingStatusMutation()
 
@@ -124,7 +120,7 @@ const BookingsScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <View className="flex-1">
-                <View className=" flex-row items-center justify-between px-6 mb-6">
+                <View className="flex-row items-center justify-between px-6 mb-6">
                     <Pressable
                         onPress={() => router.back()}
                         className="h-11 w-11 items-center justify-center rounded-full border border-border bg-white"

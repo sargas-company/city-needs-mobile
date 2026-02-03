@@ -31,7 +31,9 @@ components/
 ├── forms/              # Form components + Zod schemas
 ├── layout/             # Layout wrappers
 ├── guards/             # Route guard components
-└── modals/             # Modal components
+├── modals/             # Modal components
+├── bookings/           # Booking cards, details sheet
+└── reviews/            # Review display components (ReviewCard, ReviewList)
 services/
 ├── api/                # API config, error types
 ├── auth/               # Firebase auth, session/token management
@@ -39,7 +41,7 @@ services/
 └── geocoding/          # Geocoding providers
 store/
 ├── api/                # RTK Query base API + Axios adapter
-└── features/           # Redux slices by domain (auth, profile, location, business, etc.)
+└── features/           # Redux slices by domain (auth, profile, location, business, bookings, reviews, etc.)
 hooks/                  # Custom hooks
 constants/              # Design tokens, theme colors, onboarding config
 ```
@@ -51,6 +53,7 @@ constants/              # Design tokens, theme colors, onboarding config
 - **RTK Query** with custom `axiosBaseQuery` for API calls + caching
 - **Redux Persist** for auth and location data
 - Feature endpoints injected via `baseApi.injectEndpoints()`
+- Cursor-based pagination with custom `serializeQueryArgs` + `merge` for infinite scroll (see `bookingsApi.ts`, `reviewsApi.ts`)
 
 ### Forms
 - **react-hook-form** with `Controller` pattern
@@ -80,6 +83,11 @@ constants/              # Design tokens, theme colors, onboarding config
 - Token stored via `expo-secure-store`
 - Auto-refresh on 401 responses
 
+### User Roles
+- `UserRole` enum: `END_USER`, `BUSINESS_OWNER` (defined in `store/features/profile/profile.types.ts`)
+- Re-exported from `services/auth/auth.types.ts` for cross-domain use
+- Used for role-based UI rendering (e.g., `BookingDetailsSheet` shows different actions per role)
+
 ## Code Conventions
 
 - **TypeScript strict mode** — no `any` unless unavoidable
@@ -87,6 +95,7 @@ constants/              # Design tokens, theme colors, onboarding config
 - **Components**: PascalCase, functional only (arrow or function declaration)
 - **Base UI components**: Prefixed with `App` (AppButton, AppInput, AppText, AppPressable)
 - **Redux slices**: `feature.slice.ts`, `feature.thunks.ts`, `feature.selectors.ts`, `featureApi.ts`
+- **Shared types**: Domain enums/types defined in their primary domain, re-exported where needed (e.g., `UserRole` in `profile.types.ts`, re-exported from `auth.types.ts`)
 - **No semicolons**, single quotes, trailing commas (es5), 4-space indent, 150 char print width
 - **Import order**: builtin → external → internal (enforced by ESLint)
 - **Unused imports**: Auto-removed; unused vars allowed with `_` prefix

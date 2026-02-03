@@ -21,11 +21,10 @@ const LeaveReviewScreen = () => {
     const { data: businessData } = useGetPublicBusinessQuery(businessId!)
     const [createReview, { isLoading: isSubmitting }] = useCreateReviewMutation()
 
-    const business = businessData?.data
-    const businessName = business?.name ?? 'Business'
-    const businessCity = business?.address?.city ?? ''
-    const businessRating = business?.averageRating ?? 0
-    const businessAvatarUrl = business?.logo?.url ?? null
+    const businessName = businessData?.name ?? 'Business'
+    const businessCity = businessData?.address?.city ?? ''
+    const businessRating = businessData?.ratingAvg ?? 0
+    const businessAvatarUrl = businessData?.logo?.url ?? null
     const businessInitial = businessName[0].toUpperCase()
 
     const handleSubmit = async () => {

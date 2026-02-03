@@ -3,8 +3,10 @@ import { baseApi } from '@/store/api/baseApi'
 import type {
     BookingListResponse,
     BookingResponse,
+    BusinessBookingListResponse,
     CancelBookingDto,
     CreateBookingDto,
+    GetBusinessBookingsArgs,
     GetMyBookingsArgs,
     UpdateBookingStatusDto,
 } from './bookings.types'
@@ -52,6 +54,42 @@ export const bookingsApi = baseApi.injectEndpoints({
                     : [{ type: 'Bookings', id: 'LIST' }],
         }),
 
+        getBusinessBookings: builder.query<BusinessBookingListResponse, GetBusinessBookingsArgs | void>({
+            query: (args) => ({
+                url: '/business/bookings',
+                method: 'GET',
+                params: {
+                    cursor: args?.cursor ?? undefined,
+                    limit: args?.limit ?? DEFAULT_LIMIT,
+                    status: args?.status ?? undefined,
+                    date: args?.date ?? undefined,
+                },
+            }),
+            serializeQueryArgs: ({ endpointName }) => endpointName,
+            forceRefetch: ({ currentArg, previousArg }) => (currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null),
+            merge: (currentCache, newResp, ctx) => {
+                const cursor = ctx.arg?.cursor ?? null
+
+                if (!cursor) {
+                    currentCache.code = newResp.code
+                    currentCache.data = newResp.data
+                    currentCache.meta = newResp.meta
+                    return
+                }
+
+                const existingIds = new Set(currentCache.data.map((x) => x.id))
+                const appended = newResp.data.filter((x) => !existingIds.has(x.id))
+
+                currentCache.code = newResp.code
+                currentCache.data.push(...appended)
+                currentCache.meta = newResp.meta
+            },
+            providesTags: (result) =>
+                result?.data
+                    ? [...result.data.map(({ id }) => ({ type: 'Bookings' as const, id })), { type: 'Bookings', id: 'BUSINESS_LIST' }]
+                    : [{ type: 'Bookings', id: 'BUSINESS_LIST' }],
+        }),
+
         createBooking: builder.mutation<BookingResponse, CreateBookingDto>({
             query: (data) => ({
                 url: '/bookings',
@@ -90,6 +128,7 @@ export const bookingsApi = baseApi.injectEndpoints({
 export const {
     useGetMyBookingsQuery,
     useLazyGetMyBookingsQuery,
+    useGetBusinessBookingsQuery,
     useCreateBookingMutation,
     useCancelBookingMutation,
     useUpdateBookingStatusMutation,

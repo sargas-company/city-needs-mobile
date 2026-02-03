@@ -18,15 +18,13 @@ export type PublicBusinessDto = {
     serviceInStudio?: boolean | null
     businessHours?: BusinessHoursDto[] | null
 
-    averageRating?: number | null
-    reviewCount?: number | null
+    ratingAvg?: number | null
+    ratingCount?: number | null
 }
 
 export type PublicBusinessResponse = {
     code?: number
-    data: PublicBusinessDto
-    message?: string
-}
+} & PublicBusinessDto
 
 export type PublicServiceDto = {
     id: string

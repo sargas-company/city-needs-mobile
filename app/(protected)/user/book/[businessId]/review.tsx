@@ -45,7 +45,6 @@ const ReviewScreen = () => {
     const { data: servicesData } = useGetPublicBusinessServicesQuery(businessId!)
     const [createBooking] = useCreateBookingMutation()
 
-    const business = businessData?.data
     const allServices = servicesData?.data ?? []
 
     const selectedServices = useMemo(
@@ -87,7 +86,7 @@ const ReviewScreen = () => {
             <BookingStepHeader title="Review Booking" />
 
             <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
-                <BookingSummaryCard businessName={business?.name ?? ''} services={selectedServices} dateLabel={dateLabel} timeLabel={timeLabel} />
+                <BookingSummaryCard businessName={businessData?.name ?? ''} services={selectedServices} dateLabel={dateLabel} timeLabel={timeLabel} />
 
                 <View className="mt-6">
                     <AppText className="text-[15px] font-poppins-medium text-[#0C2A63] mb-2">Notes (optional)</AppText>

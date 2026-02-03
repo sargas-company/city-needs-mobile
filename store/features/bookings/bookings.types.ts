@@ -61,3 +61,29 @@ export type GetMyBookingsArgs = {
     limit?: number
     withoutReview?: boolean
 }
+
+export type BusinessBookingListItemDto = {
+    id: string
+    userId: string
+    userName?: string
+    userPhone?: string
+    status: ApiBookingStatus
+    startAt: string
+    endAt: string
+    createdAt: string
+    services: string[]
+    totalPrice: number
+}
+
+export type BusinessBookingListResponse = {
+    code?: number
+    data: BusinessBookingListItemDto[]
+    meta: CursorPaginationMeta
+}
+
+export type GetBusinessBookingsArgs = {
+    cursor?: string | null
+    limit?: number
+    status?: ApiBookingStatus
+    date?: string
+}

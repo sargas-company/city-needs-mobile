@@ -6,7 +6,7 @@ export const publicBusinessApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getPublicBusiness: builder.query<PublicBusinessResponse, string>({
             query: (businessId) => ({
-                url: `/businesses/${businessId}`,
+                url: `/business/${businessId}`,
                 method: 'GET',
             }),
             providesTags: (_result, _error, id) => [{ type: 'PublicBusiness', id }],
