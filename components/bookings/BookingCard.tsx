@@ -14,6 +14,7 @@ export enum BookingStatus {
 
 export type Booking = {
     id: string
+    businessId: string
     customer: { firstName: string; lastName: string; avatarUrl?: string | null }
     serviceName: string
     price: number
@@ -21,6 +22,7 @@ export type Booking = {
     dateLabel: string
     timeLabel: string
     status: BookingStatus
+    hasReview?: boolean
 }
 
 type Props = {

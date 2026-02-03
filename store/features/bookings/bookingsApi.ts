@@ -23,8 +23,12 @@ export const bookingsApi = baseApi.injectEndpoints({
                     withoutReview: args && 'withoutReview' in args ? args.withoutReview : undefined,
                 },
             }),
-            serializeQueryArgs: ({ endpointName }) => endpointName,
-            forceRefetch: ({ currentArg, previousArg }) => (currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null),
+            serializeQueryArgs: ({ endpointName, queryArgs }) => {
+                return `${endpointName}-${queryArgs?.withoutReview ? 'awaitingReview' : 'all'}`
+            },
+            forceRefetch: ({ currentArg, previousArg }) =>
+                (currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null) ||
+                Boolean(currentArg?.withoutReview) !== Boolean(previousArg?.withoutReview),
             merge: (currentCache, newResp, ctx) => {
                 const cursor = ctx.arg?.cursor ?? null
 

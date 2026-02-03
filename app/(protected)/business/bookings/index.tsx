@@ -41,6 +41,7 @@ function mapToBooking(item: BookingListItemDto): Booking {
 
     return {
         id: item.id,
+        businessId: item.businessId,
         customer: {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',

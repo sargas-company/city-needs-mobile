@@ -14,21 +14,23 @@ type Props = {
     onClose: () => void
     onConfirm?: () => void
     onCancel?: () => void
+    onLeaveReview?: () => void
 }
 
-type BookingActions = { primaryLabel: string | null; showCancel: boolean }
+type BookingActions = { primaryLabel: string | null; showCancel: boolean; showLeaveReview: boolean }
 
-function getBookingActions(status: BookingStatus): BookingActions {
+function getBookingActions(status: BookingStatus, hasReview?: boolean): BookingActions {
     switch (status) {
         case BookingStatus.NEW:
-            return { primaryLabel: 'Confirm Booking', showCancel: true }
+            return { primaryLabel: 'Confirm Booking', showCancel: true, showLeaveReview: false }
         case BookingStatus.CONFIRMED:
-            return { primaryLabel: 'Complete Booking', showCancel: true }
+            return { primaryLabel: 'Complete Booking', showCancel: true, showLeaveReview: false }
         case BookingStatus.COMPLETED:
+            return { primaryLabel: null, showCancel: false, showLeaveReview: !hasReview }
         case BookingStatus.CANCELLED:
-            return { primaryLabel: null, showCancel: false }
+            return { primaryLabel: null, showCancel: false, showLeaveReview: false }
         default:
-            return { primaryLabel: null, showCancel: false }
+            return { primaryLabel: null, showCancel: false, showLeaveReview: false }
     }
 }
 
@@ -40,11 +42,11 @@ const iconButtonStyle = {
     elevation: 2,
 }
 
-export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCancel }: Props) => {
+export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
     if (!booking) return null
 
-    const { customer, serviceName, price, currency, dateLabel, timeLabel, status } = booking
-    const { primaryLabel, showCancel } = getBookingActions(status)
+    const { customer, serviceName, price, currency, dateLabel, timeLabel, status, hasReview } = booking
+    const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, hasReview)
     const fullName = `${customer.firstName} ${customer.lastName}`
     const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
@@ -114,7 +116,7 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
                     </View>
                 </View>
 
-                {(primaryLabel || showCancel) && (
+                {(primaryLabel || showCancel || showLeaveReview) && (
                     <>
                         {/* Divider */}
                         <View className="mb-6 h-px bg-[#E5E7EB]" />
@@ -122,6 +124,13 @@ export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCan
                         {/* Actions */}
                         <View className="gap-3">
                             {primaryLabel && <AppButton title={primaryLabel} onPress={onConfirm} />}
+                            {showLeaveReview && (
+                                <AppButton
+                                    title="Leave Review"
+                                    leftIcon={<Feather name="star" size={18} color="#FFFFFF" />}
+                                    onPress={onLeaveReview}
+                                />
+                            )}
                             {showCancel && <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />}
                         </View>
                     </>
