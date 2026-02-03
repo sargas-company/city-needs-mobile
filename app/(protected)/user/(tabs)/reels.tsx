@@ -16,16 +16,16 @@ export default function ReelsScreen() {
                 <Text style={styles.testButtonText}>Test: Open Business</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.testButton}>
-                <Text
-                    style={styles.testButtonText}
-                    onPress={() => {
-                        router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/leave-review`)
-                    }}
-                >
-                    Suc
-                </Text>
-            </TouchableOpacity>
+            {/*<TouchableOpacity style={styles.testButton}>*/}
+            {/*    <Text*/}
+            {/*        style={styles.testButtonText}*/}
+            {/*        onPress={() => {*/}
+            {/*            router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/leave-review`)*/}
+            {/*        }}*/}
+            {/*    >*/}
+            {/*        Suc*/}
+            {/*    </Text>*/}
+            {/*</TouchableOpacity>*/}
         </View>
     )
 }

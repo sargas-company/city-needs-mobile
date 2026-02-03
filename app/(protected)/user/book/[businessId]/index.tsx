@@ -8,6 +8,8 @@ import { AppButton } from '@/components/ui/AppButton'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
+import { ReviewList } from '@/components/reviews/ReviewList'
+import type { Review } from '@/components/reviews/ReviewCard'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { initBookingFlow } from '@/store/features/booking-flow/bookingFlow.slice'
 import { useAppDispatch } from '@/store/hooks'
@@ -26,6 +28,27 @@ const mockBusiness = {
     provider: { name: 'Sarah Johnson', role: 'Manager', phone: '+1 306 555 0199' },
     avatarUrl: null,
 }
+
+// TODO: replace with real API data
+const mockReviews: Review[] = [
+    {
+        id: '1',
+        authorName: 'Dale Thiel',
+        authorAvatarUrl: null,
+        rating: 5,
+        comment:
+            'The staff were so gentle and caring with my dog, and the result was beyond expectations. Everything was clean, calm, and very professional.\nMy pup came back happy, relaxed, and looking amazing. I\u2019ll definitely be coming back and recommending this place to all my friends!',
+        createdAt: new Date(Date.now() - 11 * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: '2',
+        authorName: 'Emily Carter',
+        authorAvatarUrl: null,
+        rating: 5,
+        comment: 'Booking was easy, the staff were friendly and professional, and they handled my pet with so much care.',
+        createdAt: new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+]
 
 type TabKey = 'about' | 'reviews'
 
@@ -205,8 +228,8 @@ const BusinessDetailScreen = () => {
                         </View>
                     </View>
                 ) : (
-                    <View className="mt-6 rounded-2xl bg-white p-6" style={cardShadow}>
-                        <AppText className="text-center font-poppins-medium text-[14px] text-[#8D8C92]">No reviews yet</AppText>
+                    <View className="mt-6">
+                        <ReviewList reviews={mockReviews} />
                     </View>
                 )}
             </ScrollView>
