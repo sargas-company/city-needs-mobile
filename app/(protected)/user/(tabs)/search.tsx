@@ -1,5 +1,5 @@
-import React from 'react'
-import { ScrollView, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -9,55 +9,80 @@ import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
+import type { BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
-// ── Mock data ──────────────────────────────────────────────────────────────────
+// ── Filter chip config ──────────────────────────────────────────────────────────
 
-const FILTER_CHIPS = [
-    { id: 'open-now', label: 'Open Now', active: false },
-    { id: 'top-rated', label: 'Top Rated', active: true },
-    { id: 'deals', label: 'Deals', active: false },
-    { id: 'new', label: 'New', active: true },
-    { id: 'fast-replies', label: 'Fast Replies', active: false },
-    { id: 'best-price', label: 'Best Price', active: false },
-]
+type FilterChip = {
+    id: string
+    label: string
+    getParams: () => Partial<SearchBusinessesArgs>
+}
 
-const SERVICES = [
-    {
-        id: '1',
-        name: 'Grooming',
-        category: 'Pets',
-        rating: 4.5,
-        reviewCount: 112,
-        location: 'Saskatoon',
-        hours: '9 AM – 6 PM',
-        priceRange: '$300 - $600',
-        bookmarked: true,
-        avatarColor: '#A3C9A8',
-        initial: 'G',
-    },
-    {
-        id: '2',
-        name: 'Grooming',
-        category: 'Pets',
-        rating: 4.5,
-        reviewCount: 112,
-        location: 'Saskatoon',
-        hours: '9 AM – 6 PM',
-        priceRange: '$300 - $600',
-        bookmarked: false,
-        avatarColor: '#A3C9A8',
-        initial: 'G',
-    },
-]
-
-const EXPLORE_ITEMS = [
-    { id: '1', title: 'Pets Grooming', category: 'Pets', rating: 4.5 },
-    { id: '2', title: 'Pets Grooming', category: 'Pets', rating: 4.5 },
+const FILTER_CHIPS: FilterChip[] = [
+    { id: 'open-now', label: 'Open Now', getParams: () => ({ openNow: true }) },
+    { id: 'top-rated', label: 'Top Rated', getParams: () => ({ topRated: true }) },
+    { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }) },
 ]
 
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
 export default function SearchScreen() {
+    const [searchText, setSearchText] = useState('')
+    const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
+    const [sort, _setSort] = useState<BusinessSort>('popular')
+    const [cursor, setCursor] = useState<string | null>(null)
+
+    const queryArgs = useMemo<SearchBusinessesArgs>(() => {
+        const args: SearchBusinessesArgs = {
+            sort,
+            cursor: cursor ?? undefined,
+        }
+
+        if (searchText.trim()) {
+            args.search = searchText.trim()
+        }
+
+        for (const chip of FILTER_CHIPS) {
+            if (activeChips.has(chip.id)) {
+                Object.assign(args, chip.getParams())
+            }
+        }
+
+        return args
+    }, [searchText, activeChips, sort, cursor])
+
+    const { data, isLoading, isFetching } = useSearchBusinessesQuery(queryArgs)
+
+    const businesses = data?.data ?? []
+    const meta = data?.meta
+    const totalCount = meta?.totalCount
+
+    const toggleChip = useCallback((chipId: string) => {
+        setActiveChips((prev) => {
+            const next = new Set(prev)
+            if (next.has(chipId)) {
+                next.delete(chipId)
+            } else {
+                next.add(chipId)
+            }
+            return next
+        })
+        setCursor(null)
+    }, [])
+
+    const handleSearchChange = useCallback((text: string) => {
+        setSearchText(text)
+        setCursor(null)
+    }, [])
+
+    const loadMore = useCallback(() => {
+        if (meta?.hasNextPage && meta.nextCursor && !isFetching) {
+            setCursor(meta.nextCursor)
+        }
+    }, [meta, isFetching])
+
     return (
         <View className="flex-1 bg-white">
             <WaveHeader />
@@ -82,7 +107,8 @@ export default function SearchScreen() {
                             <AppInput
                                 leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
                                 clearable
-                                value="Grooming"
+                                value={searchText}
+                                onChangeText={handleSearchChange}
                                 placeholder="Search services..."
                             />
                         </View>
@@ -90,27 +116,29 @@ export default function SearchScreen() {
 
                     {/* ── Filter chips ──────────────────────────── */}
                     <View className="mb-3 flex-row flex-wrap gap-2">
-                        {FILTER_CHIPS.map((chip) => (
-                            <AppPressable
-                                key={chip.id}
-                                className={
-                                    chip.active
-                                        ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                        : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
-                                }
-                            >
-                                <AppText
+                        {FILTER_CHIPS.map((chip) => {
+                            const active = activeChips.has(chip.id)
+                            return (
+                                <AppPressable
+                                    key={chip.id}
+                                    onPress={() => toggleChip(chip.id)}
                                     className={
-                                        chip.active
-                                            ? 'text-sm text-status font-poppins-medium text-white'
-                                            : 'text-sm text-status font-poppins-medium text-text'
+                                        active
+                                            ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                            : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
                                     }
                                 >
-                                    {chip.label}
-                                </AppText>
-                                {chip.active && <Feather name="x" size={14} color="#fff" />}
-                            </AppPressable>
-                        ))}
+                                    <AppText
+                                        className={
+                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                        }
+                                    >
+                                        {chip.label}
+                                    </AppText>
+                                    {active && <Feather name="x" size={14} color="#fff" />}
+                                </AppPressable>
+                            )
+                        })}
                     </View>
 
                     {/* ── Sort & advanced filter row ────────────── */}
@@ -125,40 +153,42 @@ export default function SearchScreen() {
                     </View>
 
                     {/* ── Results count ─────────────────────────── */}
-                    <AppText className="mb-4 text-title font-poppins-bold text-brand">211 Results Found</AppText>
+                    {totalCount != null && <AppText className="mb-4 text-title font-poppins-bold text-brand">{totalCount} Results Found</AppText>}
+
+                    {/* ── Loading state ─────────────────────────── */}
+                    {isLoading && (
+                        <View className="items-center py-10">
+                            <ActivityIndicator size="large" />
+                        </View>
+                    )}
 
                     {/* ── Service cards ─────────────────────────── */}
-                    <View className="mb-6 gap-4">
-                        {SERVICES.map((service) => (
-                            <ServiceCard key={service.id} service={service} />
-                        ))}
-                    </View>
+                    {!isLoading && (
+                        <View className="mb-6 gap-4">
+                            {businesses.map((business) => (
+                                <ServiceCard key={business.id} business={business} />
+                            ))}
 
-                    {/* ── Explore more section ──────────────────── */}
-                    {/*<AppText className="mb-3 text-title font-poppins-bold text-brand">Explore more in Grooming</AppText>*/}
+                            {/* ── Load more ───────────────────── */}
+                            {meta?.hasNextPage && (
+                                <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
+                                    {isFetching ? (
+                                        <ActivityIndicator size="small" />
+                                    ) : (
+                                        <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
+                                    )}
+                                </AppPressable>
+                            )}
+
+                            {/* ── Empty state ─────────────────── */}
+                            {businesses.length === 0 && !isLoading && (
+                                <View className="items-center py-10">
+                                    <AppText className="text-subtitle text-text-muted">No results found</AppText>
+                                </View>
+                            )}
+                        </View>
+                    )}
                 </ScrollView>
-
-                {/* Horizontal scroll outside of main ScrollView padding for edge-to-edge */}
-                {/*<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="px-screen gap-3 pb-6">*/}
-                {/*    {EXPLORE_ITEMS.map((item) => (*/}
-                {/*        <View key={item.id} className="overflow-hidden rounded-2xl" style={{ width: 180, height: 200 }}>*/}
-                {/*            <View className="flex-1 bg-[#C4C4C4]" />*/}
-                {/*            <View className="absolute bottom-0 left-0 right-0 p-3">*/}
-                {/*                <AppText className="text-base font-poppins-bold text-white">{item.title}</AppText>*/}
-                {/*                <View className="mt-1 flex-row items-center gap-2">*/}
-                {/*                    <View className="flex-row items-center gap-1">*/}
-                {/*                        <View className="h-3 w-3 rounded-full bg-[#F5C518]" />*/}
-                {/*                        <View className="h-3 w-3 rounded-full bg-brand" />*/}
-                {/*                        <AppText className="text-caption text-white">({item.rating})</AppText>*/}
-                {/*                    </View>*/}
-                {/*                    <View className="rounded-pill bg-orange px-2 py-0.5">*/}
-                {/*                        <AppText className="text-caption font-poppins-semibold text-white">{item.category}</AppText>*/}
-                {/*                    </View>*/}
-                {/*                </View>*/}
-                {/*            </View>*/}
-                {/*        </View>*/}
-                {/*    ))}*/}
-                {/*</ScrollView>*/}
             </SafeAreaView>
         </View>
     )

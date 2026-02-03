@@ -3,6 +3,7 @@ import { View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppText } from '@/components/ui/AppText'
+import type { BusinessCardDto } from '@/store/features/search/search.types'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -12,33 +13,22 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export interface ServiceCardProps {
-    name: string
-    category: string
-    rating: number
-    reviewCount: number
-    location: string
-    hours: string
-    priceRange: string
-    bookmarked: boolean
-    avatarColor: string
-    initial: string
-}
+export function ServiceCard({ business }: { business: BusinessCardDto }) {
+    const initial = business.name.charAt(0).toUpperCase()
 
-export function ServiceCard({ service }: { service: ServiceCardProps }) {
     return (
         <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
             {/* Row 1: Avatar + Name + Category + Bookmark */}
             <View className="mb-2 flex-row items-center">
-                <View className="mr-3 items-center justify-center rounded-xl" style={{ width: 56, height: 56, backgroundColor: service.avatarColor }}>
-                    <AppText className="text-title font-poppins-bold text-white">{service.initial}.</AppText>
+                <View className="mr-3 items-center justify-center rounded-xl bg-[#A3C9A8]" style={{ width: 56, height: 56 }}>
+                    <AppText className="text-title font-poppins-bold text-white">{initial}.</AppText>
                 </View>
 
                 <View className="flex-1">
                     <View className="flex-row items-center gap-2">
-                        <AppText className="text-subtitle font-poppins-bold text-text">{service.name}</AppText>
+                        <AppText className="text-subtitle font-poppins-bold text-text">{business.name}</AppText>
                         <View className="rounded-pill bg-orange px-3 py-0.5">
-                            <AppText className="text-caption font-poppins-semibold text-white">{service.category}</AppText>
+                            <AppText className="text-caption font-poppins-semibold text-white">{business.category.title}</AppText>
                         </View>
                     </View>
 
@@ -46,33 +36,41 @@ export function ServiceCard({ service }: { service: ServiceCardProps }) {
                     <View className="mt-0.5 flex-row items-center gap-1">
                         <View className="h-3 w-3 rounded-full bg-[#F5C518]" />
                         <View className="h-3 w-3 rounded-full bg-brand" />
-                        <AppText className="text-status text-text">({service.rating})</AppText>
-                        <AppText className="text-status text-text-muted">{service.reviewCount} reviews</AppText>
+                        <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                        <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
                     </View>
                 </View>
 
-                <Feather name={service.bookmarked ? 'bookmark' : 'bookmark'} size={22} color="#0C2A63" />
+                <Feather name="bookmark" size={22} color="#0C2A63" />
             </View>
 
-            {/* Row 3: Location | Hours | Fast replies */}
+            {/* Row 2: Location | Service type */}
             <View className="mb-2 flex-row items-center gap-3">
                 <View className="flex-row items-center gap-1">
                     <Feather name="map-pin" size={13} color="#e89f48" />
-                    <AppText className="text-status text-text">{service.location}</AppText>
+                    <AppText className="text-status text-text">{business.city}</AppText>
                 </View>
-                <AppText className="text-status text-border">|</AppText>
-                <View className="flex-row items-center gap-1">
-                    <Feather name="clock" size={13} color="#8D8C92" />
-                    <AppText className="text-status text-text">{service.hours}</AppText>
-                </View>
-                <AppText className="text-status text-border">|</AppText>
-                <View className="flex-row items-center gap-1">
-                    <Feather name="zap" size={13} color="#e89f48" />
-                    <AppText className="text-status text-text">Fast replies</AppText>
-                </View>
+                {business.serviceInStudio && (
+                    <>
+                        <AppText className="text-status text-border">|</AppText>
+                        <View className="flex-row items-center gap-1">
+                            <Feather name="home" size={13} color="#8D8C92" />
+                            <AppText className="text-status text-text">In Studio</AppText>
+                        </View>
+                    </>
+                )}
+                {business.serviceOnSite && (
+                    <>
+                        <AppText className="text-status text-border">|</AppText>
+                        <View className="flex-row items-center gap-1">
+                            <Feather name="truck" size={13} color="#8D8C92" />
+                            <AppText className="text-status text-text">On Site</AppText>
+                        </View>
+                    </>
+                )}
             </View>
 
-            {/* Row 4: Watch Reel · Call · Chat */}
+            {/* Row 3: Watch Reel · Call · Chat */}
             <View className="mb-3 flex-row items-center gap-2">
                 <View className="flex-row items-center gap-1">
                     <Feather name="video" size={13} color="#0C2A63" />
@@ -90,7 +88,7 @@ export function ServiceCard({ service }: { service: ServiceCardProps }) {
                 </View>
             </View>
 
-            {/* Row 5: Thumbnails + Price */}
+            {/* Row 4: Thumbnails + Price */}
             <View className="flex-row items-center gap-3">
                 <View className="flex-row items-center">
                     <View className="h-12 w-12 rounded-lg bg-[#D9D9D9]" />
@@ -101,8 +99,7 @@ export function ServiceCard({ service }: { service: ServiceCardProps }) {
                 </View>
 
                 <View className="flex-row items-baseline">
-                    <AppText className="text-subtitle font-poppins-bold text-orange">{service.priceRange}</AppText>
-                    <AppText className="text-status text-text-muted">/months</AppText>
+                    <AppText className="text-subtitle font-poppins-bold text-orange">${business.price}</AppText>
                 </View>
             </View>
         </View>
