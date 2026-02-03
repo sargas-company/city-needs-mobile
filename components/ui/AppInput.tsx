@@ -53,6 +53,8 @@ export const AppInput: React.FC<AppInputProps> = ({
     placeholderTextColor = Design.textPlaceholder,
     renderInput,
     keyboardType,
+    multiline,
+    numberOfLines,
     ...textInputProps
 }) => {
     const [isFocused, setIsFocused] = useState(false)
@@ -93,7 +95,8 @@ export const AppInput: React.FC<AppInputProps> = ({
 
             <View
                 className={cn(
-                    'flex-row items-center h-12 w-full rounded-input border bg-white px-control',
+                    'w-full rounded-input border bg-white px-control',
+                    multiline ? 'items-start py-3' : 'flex-row items-center h-12',
                     borderColorClass,
                     disabledClass,
                     inputWrapperClassName
@@ -118,6 +121,9 @@ export const AppInput: React.FC<AppInputProps> = ({
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         keyboardType={keyboardType}
+                        multiline={multiline}
+                        numberOfLines={numberOfLines}
+                        textAlignVertical={multiline ? 'top' : 'auto'}
                         {...textInputProps}
                     />
                 )}

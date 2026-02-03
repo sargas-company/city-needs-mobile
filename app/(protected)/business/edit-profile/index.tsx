@@ -425,7 +425,6 @@ const EditBusinessProfileScreen = () => {
                             required
                             multiline
                             numberOfLines={4}
-                            inputWrapperClassName="items-start h-auto"
                             inputClassName="min-h-[120px] text-[14px]"
                             editable={!isSaving}
                         />
