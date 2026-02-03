@@ -1,29 +1,39 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import { ReviewList } from '@/components/reviews/ReviewList'
+import type { Review } from '@/components/reviews/ReviewCard'
 import { AppText } from '@/components/ui/AppText'
-import { Avatar } from '@/components/ui/Avatar'
 import { AppPressable } from '@/components/ui/AppPressable'
+import { Avatar } from '@/components/ui/Avatar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-
-const mockBusiness = {
-    name: 'Grooming Center',
-    city: 'Saskatoon',
-    rating: 4.5,
-    price: '$25/hour',
-    time: '10:00 – 18:00',
-    category: 'Pets',
-    serviceType: 'On Site & Studio',
-    description:
-        'Grooming Center is a space dedicated to the care and comfort of your pets. Grooming Center is a space dedicated to the care and comfort of your pets. We specialize in professional grooming, offering a safe, gentle, and personalized experience for every animal. Our groomers work with all breeds, using high-quality tools and modern grooming techniques.',
-    provider: { name: 'Sarah Johnson', role: 'Manager' },
-    avatarUrl: null,
-}
+import type { BusinessHoursDto } from '@/store/features/profile/profile.types'
+import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
+import { useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
+import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
+import { useAppSelector } from '@/store/hooks'
 
 type TabKey = 'about' | 'reviews' | 'services'
+
+function getTodayHoursLabel(hours?: BusinessHoursDto[] | null): string {
+    if (!hours?.length) return '—'
+    const today = new Date().getDay()
+    const entry = hours.find((h) => h.weekday === today)
+    if (!entry || entry.isClosed) return 'Closed'
+    if (entry.is24h) return '24 hours'
+    if (entry.startTime && entry.endTime) return `${entry.startTime} – ${entry.endTime}`
+    return '—'
+}
+
+function getServiceTypeLabel(onSite?: boolean | null, inStudio?: boolean | null): string {
+    if (onSite && inStudio) return 'On Site & Studio'
+    if (onSite) return 'On Site'
+    if (inStudio) return 'In Studio'
+    return '—'
+}
 
 const cardShadow = {
     shadowColor: '#000',
@@ -59,11 +69,54 @@ const TabButton = ({ title, active, onPress }: { title: string; active: boolean;
 const BusinessProfileScreen = () => {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<TabKey>('about')
+    const [reviewsCursor, setReviewsCursor] = useState<string | null>(null)
 
-    const businessInitial = useMemo(() => (mockBusiness.name ? mockBusiness.name[0].toUpperCase() : '?'), [])
-    const providerInitial = useMemo(() => (mockBusiness.provider.name ? mockBusiness.provider.name[0].toUpperCase() : '?'), [])
+    const business = useAppSelector(selectBusiness)
+    const profileUser = useAppSelector(selectProfileUser)
 
-    const descriptionParagraphs = useMemo(() => mockBusiness.description.split('\n').filter(Boolean), [])
+    const { data: publicData } = useGetPublicBusinessQuery(business?.id!, { skip: !business?.id })
+
+    const isReviewsTab = activeTab === 'reviews'
+    const {
+        data: reviewsData,
+        isLoading: reviewsLoading,
+        isFetching: reviewsFetching,
+    } = useGetBusinessReviewsQuery({ businessId: business?.id!, cursor: reviewsCursor }, { skip: !business?.id || !isReviewsTab })
+
+    const businessName = business?.name ?? 'Business'
+    const businessCity = business?.address?.city ?? ''
+    const businessAvatarUrl = business?.logo?.url ?? null
+    const businessInitial = businessName[0].toUpperCase()
+    const ratingAvg = publicData?.ratingAvg ?? 0
+
+    const priceLabel = business?.price != null ? `$${business.price}` : '—'
+    const timeLabel = getTodayHoursLabel(business?.businessHours)
+    const categoryLabel = business?.category?.title ?? '—'
+    const serviceTypeLabel = getServiceTypeLabel(business?.serviceOnSite, business?.serviceInStudio)
+
+    const providerName = profileUser?.username ?? profileUser?.email ?? 'Owner'
+    const providerInitial = providerName[0].toUpperCase()
+
+    const descriptionParagraphs = useMemo(() => (business?.description ?? '').split('\n').filter(Boolean), [business?.description])
+
+    const reviews: Review[] = useMemo(
+        () =>
+            (reviewsData?.data ?? []).map((item) => ({
+                id: item.id,
+                authorName: item.authorName,
+                rating: item.rating,
+                comment: item.comment,
+                createdAt: item.createdAt,
+            })),
+        [reviewsData?.data]
+    )
+
+    const reviewsHasNextPage = reviewsData?.meta?.hasNextPage ?? false
+
+    const handleLoadMoreReviews = useCallback(() => {
+        const next = reviewsData?.meta?.nextCursor
+        if (next && !reviewsFetching) setReviewsCursor(next)
+    }, [reviewsData?.meta?.nextCursor, reviewsFetching])
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -82,7 +135,7 @@ const BusinessProfileScreen = () => {
                 <View className="mt-2 items-center">
                     <View className="relative">
                         <Avatar
-                            uri={mockBusiness.avatarUrl ?? undefined}
+                            uri={businessAvatarUrl ?? undefined}
                             size={110}
                             borderColor="#F6F7FB"
                             fallback={
@@ -97,21 +150,25 @@ const BusinessProfileScreen = () => {
                         </View>
                     </View>
 
-                    <AppText className="mt-4 text-center text-[22px] font-poppins-bold text-[#0C2A63]">{mockBusiness.name}</AppText>
+                    <AppText className="mt-4 text-center text-[22px] font-poppins-bold text-[#0C2A63]">{businessName}</AppText>
 
                     <View className="mt-2 flex-row items-center gap-2">
-                        <Feather name="map-pin" size={16} color="#FF4D4D" />
-                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">{mockBusiness.city}</AppText>
+                        {businessCity ? (
+                            <>
+                                <Feather name="map-pin" size={16} color="#FF4D4D" />
+                                <AppText className="text-[13px] font-poppins-medium text-[#171717]">{businessCity}</AppText>
+                            </>
+                        ) : null}
                         <Feather name="star" size={16} color="#e89f48" />
-                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({mockBusiness.rating})</AppText>
+                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg})</AppText>
                     </View>
                 </View>
 
                 <View className="mt-6 flex-row flex-wrap justify-between gap-3">
-                    <InfoCard icon="dollar-sign" label="Price" value={mockBusiness.price} />
-                    <InfoCard icon="clock" label="Time" value={mockBusiness.time} />
-                    <InfoCard icon="tag" label="Category" value={mockBusiness.category} />
-                    <InfoCard icon="layers" label="Service Type" value={mockBusiness.serviceType} />
+                    <InfoCard icon="dollar-sign" label="Price" value={priceLabel} />
+                    <InfoCard icon="clock" label="Time" value={timeLabel} />
+                    <InfoCard icon="tag" label="Category" value={categoryLabel} />
+                    <InfoCard icon="layers" label="Service Type" value={serviceTypeLabel} />
                 </View>
 
                 <View className="mt-8 flex-row items-center justify-center gap-10">
@@ -139,8 +196,8 @@ const BusinessProfileScreen = () => {
                                     />
 
                                     <View>
-                                        <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{mockBusiness.provider.name}</AppText>
-                                        <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">{mockBusiness.provider.role}</AppText>
+                                        <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{providerName}</AppText>
+                                        <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">Owner</AppText>
                                     </View>
                                 </View>
 
@@ -156,21 +213,30 @@ const BusinessProfileScreen = () => {
                         </View>
 
                         <View className="mt-4 rounded-2xl bg-white p-4" style={cardShadow}>
-                            {descriptionParagraphs.map((paragraph, idx) => (
-                                <AppText
-                                    key={idx}
-                                    className={`font-poppins-medium text-[14px] leading-[21px] text-[#171717] ${idx > 0 ? 'mt-3' : ''}`}
-                                >
-                                    {paragraph}
-                                </AppText>
-                            ))}
+                            {descriptionParagraphs.length > 0 ? (
+                                descriptionParagraphs.map((paragraph, idx) => (
+                                    <AppText
+                                        key={idx}
+                                        className={`font-poppins-medium text-[14px] leading-[21px] text-[#171717] ${idx > 0 ? 'mt-3' : ''}`}
+                                    >
+                                        {paragraph}
+                                    </AppText>
+                                ))
+                            ) : (
+                                <AppText className="font-poppins-medium text-[14px] text-[#8D8C92]">No description</AppText>
+                            )}
                         </View>
                     </View>
-                ) : (
-                    <View className="mt-6 rounded-2xl bg-white p-6" style={cardShadow}>
-                        <AppText className="text-center font-poppins-medium text-[14px] text-[#8D8C92]">No reviews yet</AppText>
+                ) : activeTab === 'reviews' ? (
+                    <View className="mt-6">
+                        <ReviewList
+                            reviews={reviews}
+                            isLoading={reviewsLoading || reviewsFetching}
+                            hasNextPage={reviewsHasNextPage}
+                            onLoadMore={handleLoadMoreReviews}
+                        />
                     </View>
-                )}
+                ) : null}
             </ScrollView>
         </SafeAreaView>
     )
