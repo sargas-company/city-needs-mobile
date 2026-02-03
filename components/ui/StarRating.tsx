@@ -31,9 +31,9 @@ export const StarRating: React.FC<StarRatingProps> = ({
         return 0
     }
 
-    const handlePress = (starIndex: number, isLeftHalf: boolean) => {
+    const handlePress = (starIndex: number) => {
         if (readonly || !onChange) return
-        onChange(isLeftHalf ? starIndex - 0.5 : starIndex)
+        onChange(starIndex)
     }
 
     return (
@@ -67,20 +67,9 @@ export const StarRating: React.FC<StarRatingProps> = ({
                 if (readonly) return <View key={starIndex}>{StarIcon}</View>
 
                 return (
-                    <View key={starIndex} style={{ width: size, height: size }}>
-                        {/* left half click */}
-                        <AppPressable
-                            onPress={() => handlePress(starIndex, true)}
-                            style={{ position: 'absolute', left: 0, top: 0, width: size / 2, height: size, zIndex: 10 }}
-                        />
-                        {/* right half click */}
-                        <AppPressable
-                            onPress={() => handlePress(starIndex, false)}
-                            style={{ position: 'absolute', right: 0, top: 0, width: size / 2, height: size, zIndex: 10 }}
-                        />
-
+                    <AppPressable key={starIndex} onPress={() => handlePress(starIndex)}>
                         {StarIcon}
-                    </View>
+                    </AppPressable>
                 )
             })}
         </View>
