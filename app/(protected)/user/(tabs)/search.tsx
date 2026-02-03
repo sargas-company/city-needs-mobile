@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, ScrollView, View } from 'react-native'
+import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -26,13 +26,24 @@ const FILTER_CHIPS: FilterChip[] = [
     { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }) },
 ]
 
+const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
+    { value: 'popular', label: 'Popular' },
+    { value: 'top_rated', label: 'Top Rated' },
+    { value: 'price_asc', label: 'Price: Low to High' },
+    { value: 'price_desc', label: 'Price: High to Low' },
+    { value: 'nearby', label: 'Nearby' },
+]
+
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
 export default function SearchScreen() {
     const [searchText, setSearchText] = useState('')
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
-    const [sort, _setSort] = useState<BusinessSort>('popular')
+    const [sort, setSort] = useState<BusinessSort>('popular')
+    const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
+
+    const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Popular'
 
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
@@ -82,6 +93,12 @@ export default function SearchScreen() {
             setCursor(meta.nextCursor)
         }
     }, [meta, isFetching])
+
+    const handleSortChange = useCallback((value: BusinessSort) => {
+        setSort(value)
+        setSortOpen(false)
+        setCursor(null)
+    }, [])
 
     return (
         <View className="flex-1 bg-white">
@@ -143,14 +160,33 @@ export default function SearchScreen() {
 
                     {/* ── Sort & advanced filter row ────────────── */}
                     <View className="mb-4 flex-row items-center justify-between">
-                        <AppPressable className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
-                            <AppText className="text-status font-poppins-medium text-white">Sort by</AppText>
+                        <AppPressable onPress={() => setSortOpen(true)} className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
+                            <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
                             <Feather name="chevron-down" size={16} color="#fff" />
                         </AppPressable>
                         <AppPressable className="items-center justify-center rounded-xl bg-orange p-2.5">
                             <Feather name="sliders" size={20} color="#fff" />
                         </AppPressable>
                     </View>
+
+                    {/* ── Sort dropdown modal ──────────────────── */}
+                    <Modal visible={sortOpen} transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
+                        <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
+                            <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
+                                {SORT_OPTIONS.map((option) => (
+                                    <Pressable
+                                        key={option.value}
+                                        onPress={() => handleSortChange(option.value)}
+                                        className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
+                                    >
+                                        <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
+                                            {option.label}
+                                        </AppText>
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </Pressable>
+                    </Modal>
 
                     {/* ── Results count ─────────────────────────── */}
                     {totalCount != null && <AppText className="mb-4 text-title font-poppins-bold text-brand">{totalCount} Results Found</AppText>}
@@ -192,4 +228,12 @@ export default function SearchScreen() {
             </SafeAreaView>
         </View>
     )
+}
+
+const dropdownShadow = {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
 }
