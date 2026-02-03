@@ -6,7 +6,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 import { selectProfileStatus, selectProfileUser, selectUserRole, selectVerification } from '@/store/features/profile/profile.selectors'
-import type { AppUser } from '@/store/features/profile/profile.types'
+import { UserRole, type AppUser } from '@/store/features/profile/profile.types'
 import { setProfileUser } from '@/store/features/profile/profile.slice'
 import { resolveApiData } from '@/store/features/auth/auth.thunks'
 
@@ -43,7 +43,7 @@ export const BusinessVerificationGuard = ({ children }: PropsWithChildren) => {
 
         if (profileStatus === 'loading' || profileStatus === 'idle') return false
 
-        if (role !== 'BUSINESS_OWNER') return false
+        if (role !== UserRole.BUSINESS_OWNER) return false
 
         if (onboardingStep !== null && onboardingStep !== undefined) return false
 

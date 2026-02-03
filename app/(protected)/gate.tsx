@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router'
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 import { selectIsEmailVerified, selectOnboardingStep, selectProfileUser, selectUserRole } from '@/store/features/profile/profile.selectors'
+import { UserRole } from '@/store/features/profile/profile.types'
 
 const Gate = () => {
     const router = useRouter()
@@ -16,12 +17,12 @@ const Gate = () => {
     const profileUser = useAppSelector(selectProfileUser)
 
     const redirectToRoleTabs = useCallback(() => {
-        if (role === 'END_USER') {
+        if (role === UserRole.END_USER) {
             router.replace('/(protected)/user/(tabs)')
             return
         }
 
-        if (role === 'BUSINESS_OWNER') {
+        if (role === UserRole.BUSINESS_OWNER) {
             router.replace('/(protected)/business/(tabs)')
             return
         }
@@ -54,7 +55,7 @@ const Gate = () => {
 
         const step = onboardingStep ?? 0
 
-        if (role === 'END_USER') {
+        if (role === UserRole.END_USER) {
             if (step === 1) {
                 router.replace('/(protected)/(onboarding)/customer/address')
                 return
@@ -65,7 +66,7 @@ const Gate = () => {
             }
         }
 
-        if (role === 'BUSINESS_OWNER') {
+        if (role === UserRole.BUSINESS_OWNER) {
             if (step === 1) {
                 router.replace('/(protected)/(onboarding)/provider/business-info')
                 return

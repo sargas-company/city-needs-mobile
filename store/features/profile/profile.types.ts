@@ -1,4 +1,7 @@
-export type UserRole = 'END_USER' | 'BUSINESS_OWNER' | 'ADMIN'
+export enum UserRole {
+    END_USER = 'END_USER',
+    BUSINESS_OWNER = 'BUSINESS_OWNER',
+}
 export type UserStatus = string
 export type BusinessStatus = string
 export type FileType = string

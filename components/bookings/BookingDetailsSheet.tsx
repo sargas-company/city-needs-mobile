@@ -7,10 +7,12 @@ import { Avatar } from '@/components/ui/Avatar'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppBottomSheet } from '@/components/layout/AppBottomSheet'
 import { BookingStatus, type Booking } from '@/components/bookings/BookingCard'
+import { UserRole } from '@/store/features/profile/profile.types'
 
 type Props = {
     isOpen: boolean
     booking: Booking | null
+    role?: UserRole
     onClose: () => void
     onConfirm?: () => void
     onCancel?: () => void
@@ -19,16 +21,28 @@ type Props = {
 
 type BookingActions = { primaryLabel: string | null; showCancel: boolean; showLeaveReview: boolean }
 
-function getBookingActions(status: BookingStatus, hasReview?: boolean): BookingActions {
+function getBookingActions(status: BookingStatus, role: UserRole, hasReview?: boolean): BookingActions {
+    if (role === UserRole.END_USER) {
+        switch (status) {
+            case BookingStatus.NEW:
+            case BookingStatus.CONFIRMED:
+                return { primaryLabel: null, showCancel: true, showLeaveReview: false }
+            case BookingStatus.COMPLETED:
+                return { primaryLabel: null, showCancel: false, showLeaveReview: !hasReview }
+            case BookingStatus.CANCELLED:
+            default:
+                return { primaryLabel: null, showCancel: false, showLeaveReview: false }
+        }
+    }
+
+    // BUSINESS_OWNER role
     switch (status) {
         case BookingStatus.NEW:
             return { primaryLabel: 'Confirm Booking', showCancel: true, showLeaveReview: false }
         case BookingStatus.CONFIRMED:
             return { primaryLabel: 'Complete Booking', showCancel: true, showLeaveReview: false }
         case BookingStatus.COMPLETED:
-            return { primaryLabel: null, showCancel: false, showLeaveReview: !hasReview }
         case BookingStatus.CANCELLED:
-            return { primaryLabel: null, showCancel: false, showLeaveReview: false }
         default:
             return { primaryLabel: null, showCancel: false, showLeaveReview: false }
     }
@@ -42,11 +56,11 @@ const iconButtonStyle = {
     elevation: 2,
 }
 
-export const BookingDetailsSheet = ({ isOpen, booking, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
+export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
     if (!booking) return null
 
     const { customer, serviceName, price, currency, dateLabel, timeLabel, status, hasReview } = booking
-    const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, hasReview)
+    const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, role, hasReview)
     const fullName = `${customer.firstName} ${customer.lastName}`
     const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 

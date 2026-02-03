@@ -9,10 +9,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useAppDispatch } from '@/store/hooks'
 import { selectRoleThunk } from '@/store/features/auth/auth.thunks'
+import { UserRole } from '@/store/features/profile/profile.types'
 import { AppButton } from '@/components/ui/AppButton'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
-const roleEnum = z.enum(['END_USER', 'BUSINESS_OWNER'] as const)
+const roleEnum = z.nativeEnum(UserRole)
 export type RoleValue = z.infer<typeof roleEnum>
 
 export const roleSchema = z
@@ -84,13 +85,13 @@ const RoleScreen = () => {
     const cards = useMemo(
         () => [
             {
-                value: 'BUSINESS_OWNER' as const,
+                value: UserRole.BUSINESS_OWNER,
                 title: 'Service Provider',
                 subtitle: 'Grow your business & get customers.',
                 icon: <MaterialIcons name="person" size={22} color="#FFFFFF" />,
             },
             {
-                value: 'END_USER' as const,
+                value: UserRole.END_USER,
                 title: 'Customer',
                 subtitle: 'Find & book local services.',
                 icon: <MaterialIcons name="work" size={22} color="#FFFFFF" />,

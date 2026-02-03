@@ -10,6 +10,7 @@ import { BookingDetailsSheet } from '@/components/bookings/BookingDetailsSheet'
 import { useCancelBookingMutation, useGetMyBookingsQuery, useUpdateBookingStatusMutation } from '@/store/features/bookings/bookingsApi'
 import type { ApiBookingStatus, BookingListItemDto } from '@/store/features/bookings/bookings.types'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { UserRole } from '@/store/features/profile/profile.types'
 
 const STATUS_MAP: Record<ApiBookingStatus, BookingStatus> = {
     PENDING: BookingStatus.NEW,
@@ -167,6 +168,7 @@ const BookingsScreen = () => {
             <BookingDetailsSheet
                 isOpen={isSheetOpen}
                 booking={selectedBooking}
+                role={UserRole.BUSINESS_OWNER}
                 onClose={closeSheet}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}

@@ -1,3 +1,6 @@
+import { UserRole } from '@/store/features/profile/profile.types'
+export { UserRole } from '@/store/features/profile/profile.types'
+
 export type AuthTokens = {
     accessToken: string
     refreshToken: string
@@ -10,8 +13,6 @@ export type LoginPayload = {
     email?: string
     password: string
 }
-
-export type UserRole = 'END_USER' | 'BUSINESS_OWNER'
 
 export type SignUpPayload = {
     username?: string

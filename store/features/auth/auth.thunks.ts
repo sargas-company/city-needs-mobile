@@ -8,7 +8,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
 import { getFirebaseLoginErrorMessage } from '@/services/auth'
-import type { AppUser } from '@/store/features/profile/profile.types'
+import { UserRole, type AppUser } from '@/store/features/profile/profile.types'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
 import { logout, setAuthError, setAuthStatus } from './auth.slice'
@@ -96,7 +96,7 @@ export const logoutThunk = createAsyncThunk<void, void, { dispatch: AppDispatch;
     dispatch(clearProfile())
 })
 
-export const selectRoleThunk = createAsyncThunk<void, 'END_USER' | 'BUSINESS_OWNER', { dispatch: AppDispatch; state: RootState }>(
+export const selectRoleThunk = createAsyncThunk<void, UserRole.END_USER | UserRole.BUSINESS_OWNER, { dispatch: AppDispatch; state: RootState }>(
     'auth/selectRole',
     async (role, { dispatch, rejectWithValue }) => {
         dispatch(setProfileStatus('loading'))
