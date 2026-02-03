@@ -9,9 +9,9 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { ReviewList } from '@/components/reviews/ReviewList'
-import type { Review } from '@/components/reviews/ReviewCard'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { initBookingFlow } from '@/store/features/booking-flow/bookingFlow.slice'
+import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppDispatch } from '@/store/hooks'
 
 // TODO: replace with real API data when GET /businesses/:id is ready
@@ -28,27 +28,6 @@ const mockBusiness = {
     provider: { name: 'Sarah Johnson', role: 'Manager', phone: '+1 306 555 0199' },
     avatarUrl: null,
 }
-
-// TODO: replace with real API data
-const mockReviews: Review[] = [
-    {
-        id: '1',
-        authorName: 'Dale Thiel',
-        authorAvatarUrl: null,
-        rating: 5,
-        comment:
-            'The staff were so gentle and caring with my dog, and the result was beyond expectations. Everything was clean, calm, and very professional.\nMy pup came back happy, relaxed, and looking amazing. I\u2019ll definitely be coming back and recommending this place to all my friends!',
-        createdAt: new Date(Date.now() - 11 * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: '2',
-        authorName: 'Emily Carter',
-        authorAvatarUrl: null,
-        rating: 5,
-        comment: 'Booking was easy, the staff were friendly and professional, and they handled my pet with so much care.',
-        createdAt: new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-]
 
 type TabKey = 'about' | 'reviews'
 
@@ -90,6 +69,33 @@ const BusinessDetailScreen = () => {
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
+    const [reviewCursor, setReviewCursor] = useState<string | null>(null)
+
+    const isReviewsTab = activeTab === 'reviews'
+    const {
+        data: reviewsData,
+        isLoading: reviewsLoading,
+        isFetching: reviewsFetching,
+    } = useGetBusinessReviewsQuery({ businessId: businessId!, cursor: reviewCursor }, { skip: !businessId || !isReviewsTab })
+
+    const reviews = useMemo(
+        () =>
+            (reviewsData?.data ?? []).map((item) => ({
+                id: item.id,
+                authorName: item.authorName,
+                rating: item.rating,
+                comment: item.comment,
+                createdAt: item.createdAt,
+            })),
+        [reviewsData?.data]
+    )
+    const reviewsHasNextPage = reviewsData?.meta?.hasNextPage ?? false
+    const reviewsNextCursor = reviewsData?.meta?.nextCursor ?? null
+
+    const loadMoreReviews = () => {
+        if (reviewsFetching || !reviewsHasNextPage || !reviewsNextCursor) return
+        setReviewCursor(reviewsNextCursor)
+    }
 
     const phoneRaw = mockBusiness.provider.phone.replace(/\s/g, '')
 
@@ -175,7 +181,7 @@ const BusinessDetailScreen = () => {
                 </View>
 
                 {/* Tab content */}
-                {activeTab === 'about' ? (
+                {activeTab === 'about' && (
                     <View className="mt-6">
                         <View className="rounded-2xl bg-white p-4" style={cardShadow}>
                             <AppText className="font-poppins-semibold text-[14px] text-[#0C2A63]">Provider Contact</AppText>
@@ -227,9 +233,15 @@ const BusinessDetailScreen = () => {
                             ))}
                         </View>
                     </View>
-                ) : (
+                )}
+                {activeTab === 'reviews' && (
                     <View className="mt-6">
-                        <ReviewList reviews={mockReviews} />
+                        <ReviewList
+                            reviews={reviews}
+                            isLoading={reviewsLoading || reviewsFetching}
+                            hasNextPage={reviewsHasNextPage}
+                            onLoadMore={loadMoreReviews}
+                        />
                     </View>
                 )}
             </ScrollView>

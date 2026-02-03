@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 
 import { AppText } from '@/components/ui/AppText'
 
@@ -7,9 +7,20 @@ import { ReviewCard, type Review } from './ReviewCard'
 
 type Props = {
     reviews: Review[]
+    isLoading?: boolean
+    hasNextPage?: boolean
+    onLoadMore?: () => void
 }
 
-export const ReviewList = ({ reviews }: Props) => {
+export const ReviewList = ({ reviews, isLoading, hasNextPage, onLoadMore }: Props) => {
+    if (isLoading && reviews.length === 0) {
+        return (
+            <View className="py-6 items-center">
+                <ActivityIndicator />
+            </View>
+        )
+    }
+
     if (reviews.length === 0) {
         return (
             <View className="py-6">
@@ -26,6 +37,18 @@ export const ReviewList = ({ reviews }: Props) => {
                     <ReviewCard review={review} />
                 </View>
             ))}
+
+            {hasNextPage && (
+                <View className="py-4 items-center">
+                    {isLoading ? (
+                        <ActivityIndicator />
+                    ) : (
+                        <AppText onPress={onLoadMore} className="font-poppins-medium text-[14px] text-brand">
+                            Load more
+                        </AppText>
+                    )}
+                </View>
+            )}
         </View>
     )
 }
