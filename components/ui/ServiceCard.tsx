@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { Image, Pressable, View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
@@ -6,6 +6,7 @@ import { FontAwesome } from '@expo/vector-icons'
 
 import { AppText } from '@/components/ui/AppText'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
+import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/store/features/saved-businesses/savedBusinessesApi'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -15,8 +16,20 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export function ServiceCard({ business }: { business: BusinessCardDto }) {
+export function ServiceCard({ business, isSaved = false }: { business: BusinessCardDto; isSaved?: boolean }) {
     const router = useRouter()
+    const [saved, setSaved] = useState(isSaved)
+    const [addSaved] = useAddSavedBusinessMutation()
+    const [removeSaved] = useRemoveSavedBusinessMutation()
+
+    const handleBookmarkPress = useCallback(() => {
+        setSaved((prev) => !prev)
+        if (saved) {
+            removeSaved({ businessId: business.id })
+        } else {
+            addSaved({ businessId: business.id })
+        }
+    }, [saved, business.id, addSaved, removeSaved])
 
     const initial = business.name.charAt(0).toUpperCase()
 
@@ -51,7 +64,9 @@ export function ServiceCard({ business }: { business: BusinessCardDto }) {
                         </View>
                     </View>
 
-                    <Feather name="bookmark" size={22} color="#0C2A63" />
+                    <Pressable onPress={handleBookmarkPress} hitSlop={8}>
+                        <FontAwesome name="bookmark" size={22} color={saved ? '#0C2A63' : '#CBCBCB'} />
+                    </Pressable>
                 </View>
 
                 {/* Row 2: Location | Service type */}
