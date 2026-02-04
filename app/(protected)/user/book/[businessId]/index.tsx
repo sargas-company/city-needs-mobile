@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -11,22 +11,43 @@ import { Avatar } from '@/components/ui/Avatar'
 import { ReviewList } from '@/components/reviews/ReviewList'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { initBookingFlow } from '@/store/features/booking-flow/bookingFlow.slice'
+import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
+import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppDispatch } from '@/store/hooks'
 
-// TODO: replace with real API data when GET /businesses/:id is ready
-const mockBusiness = {
-    name: 'Grooming Center',
-    city: 'Saskatoon',
-    rating: 4.5,
-    price: '$25/hour',
-    time: '10:00 – 18:00',
-    category: 'Pets',
-    serviceType: 'On Site & Studio',
-    description:
-        'Grooming Center is a space dedicated to the care and comfort of your pets. We specialize in professional grooming, offering a safe, gentle, and personalized experience for every animal. Our groomers work with all breeds, using high-quality tools and modern grooming techniques.',
-    provider: { name: 'Sarah Johnson', role: 'Manager', phone: '+1 306 555 0199' },
-    avatarUrl: null,
+const WEEKDAYS = [
+    { weekday: 1, label: 'Monday' },
+    { weekday: 2, label: 'Tuesday' },
+    { weekday: 3, label: 'Wednesday' },
+    { weekday: 4, label: 'Thursday' },
+    { weekday: 5, label: 'Friday' },
+    { weekday: 6, label: 'Saturday' },
+    { weekday: 0, label: 'Sunday' },
+]
+
+function getDayLabel(day?: BusinessHoursDayDto): string {
+    if (!day || day.hours.length === 0) return 'Closed'
+    if (day.hours.every((h) => h.isClosed)) return 'Closed'
+    if (day.hours.some((h) => h.is24h)) return 'Round the clock'
+
+    const slots = day.hours.filter((h) => !h.isClosed && h.startTime && h.endTime).map((h) => `${h.startTime} – ${h.endTime}`)
+
+    return slots.length > 0 ? slots.join(', ') : 'Closed'
+}
+
+function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
+    if (!days?.length) return '—'
+    const today = new Date().getDay()
+    const day = days.find((d) => d.weekday === today)
+    return getDayLabel(day)
+}
+
+function getServiceTypeLabel(onSite?: boolean | null, inStudio?: boolean | null): string {
+    if (onSite && inStudio) return 'On Site & Studio'
+    if (onSite) return 'On Site'
+    if (inStudio) return 'In Studio'
+    return '—'
 }
 
 type TabKey = 'about' | 'reviews'
@@ -39,9 +60,20 @@ const cardShadow = {
     elevation: 2,
 }
 
-const InfoCard = ({ icon, label, value }: { icon: React.ComponentProps<typeof Feather>['name']; label: string; value: string }) => {
+const InfoCard = ({
+    icon,
+    label,
+    value,
+    onPress,
+}: {
+    icon: React.ComponentProps<typeof Feather>['name']
+    label: string
+    value: string
+    onPress?: () => void
+}) => {
+    const Wrapper = onPress ? Pressable : View
     return (
-        <View className="w-[48%] rounded-2xl bg-white px-4 py-3" style={cardShadow}>
+        <Wrapper className="w-[48%] rounded-2xl bg-white px-4 py-3" style={cardShadow} {...(onPress ? { onPress } : {})}>
             <View className="flex-row items-center gap-2">
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-[#F0F3FB]">
                     <Feather name={icon} size={18} color="#0C2A63" />
@@ -49,7 +81,7 @@ const InfoCard = ({ icon, label, value }: { icon: React.ComponentProps<typeof Fe
                 <AppText className="font-poppins-medium text-[12px] text-[#8D8C92]">{label}</AppText>
             </View>
             <AppText className="mt-2 font-poppins-semibold text-[14px] text-[#0C2A63]">{value}</AppText>
-        </View>
+        </Wrapper>
     )
 }
 
@@ -62,6 +94,60 @@ const TabButton = ({ title, active, onPress }: { title: string; active: boolean;
     )
 }
 
+const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
+    const today = new Date().getDay()
+    const daysMap = useMemo(() => {
+        const map = new Map<number, BusinessHoursDayDto>()
+        days?.forEach((d) => map.set(d.weekday, d))
+        return map
+    }, [days])
+
+    return (
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+            <Pressable className="flex-1 items-center justify-center bg-black/40" onPress={onClose}>
+                <Pressable className="mx-6 w-[90%] rounded-3xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                    <View className="flex-row items-center justify-between mb-5">
+                        <AppText className="text-[18px] font-poppins-semibold text-[#0C2A63]">Working Hours</AppText>
+                        <Pressable onPress={onClose} className="h-9 w-9 items-center justify-center rounded-full bg-[#F0F3FB]">
+                            <Feather name="x" size={18} color="#0C2A63" />
+                        </Pressable>
+                    </View>
+
+                    {WEEKDAYS.map(({ weekday, label }) => {
+                        const isToday = weekday === today
+                        const day = daysMap.get(weekday)
+                        const timeText = getDayLabel(day)
+
+                        return (
+                            <View
+                                key={weekday}
+                                className={`flex-row items-center justify-between rounded-xl px-4 py-3 ${isToday ? 'bg-[#F0F3FB]' : ''}`}
+                            >
+                                <AppText
+                                    className={`text-[14px] ${isToday ? 'font-poppins-semibold text-[#0C2A63]' : 'font-poppins-medium text-[#171717]'}`}
+                                >
+                                    {isToday ? `${label} (Today)` : label}
+                                </AppText>
+                                <AppText
+                                    className={`text-[14px] ${
+                                        timeText === 'Closed'
+                                            ? 'font-poppins-medium text-[#FF4D4D]'
+                                            : isToday
+                                              ? 'font-poppins-semibold text-[#0C2A63]'
+                                              : 'font-poppins-medium text-[#171717]'
+                                    }`}
+                                >
+                                    {timeText}
+                                </AppText>
+                            </View>
+                        )
+                    })}
+                </Pressable>
+            </Pressable>
+        </Modal>
+    )
+}
+
 const BusinessDetailScreen = () => {
     const { businessId } = useLocalSearchParams<{ businessId: string }>()
     const router = useRouter()
@@ -70,6 +156,10 @@ const BusinessDetailScreen = () => {
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
     const [reviewCursor, setReviewCursor] = useState<string | null>(null)
+    const [hoursModalVisible, setHoursModalVisible] = useState(false)
+
+    const { data: publicData } = useGetPublicBusinessQuery(businessId!, { skip: !businessId })
+    const { data: businessHours } = useGetBusinessHoursQuery(businessId!, { skip: !businessId })
 
     const isReviewsTab = activeTab === 'reviews'
     const {
@@ -90,28 +180,37 @@ const BusinessDetailScreen = () => {
         [reviewsData?.data]
     )
     const reviewsHasNextPage = reviewsData?.meta?.hasNextPage ?? false
-    const reviewsNextCursor = reviewsData?.meta?.nextCursor ?? null
 
-    const loadMoreReviews = () => {
-        if (reviewsFetching || !reviewsHasNextPage || !reviewsNextCursor) return
-        setReviewCursor(reviewsNextCursor)
-    }
+    const handleLoadMoreReviews = useCallback(() => {
+        const next = reviewsData?.meta?.nextCursor
+        if (next && !reviewsFetching) setReviewCursor(next)
+    }, [reviewsData?.meta?.nextCursor, reviewsFetching])
 
-    const phoneRaw = mockBusiness.provider.phone.replace(/\s/g, '')
+    const businessName = publicData?.name ?? 'Business'
+    const businessCity = publicData?.address?.city ?? ''
+    const businessAvatarUrl = publicData?.logo?.url ?? null
+    const businessInitial = businessName[0].toUpperCase()
+    const ratingAvg = publicData?.ratingAvg ?? 0
+
+    const priceLabel = publicData?.price != null ? `$${publicData.price}` : '—'
+    const timeLabel = getTodayHoursLabel(businessHours)
+    const categoryLabel = publicData?.category?.title ?? '—'
+    const serviceTypeLabel = getServiceTypeLabel(publicData?.serviceOnSite, publicData?.serviceInStudio)
+
+    const phoneRaw = (publicData?.phone ?? '').replace(/\s/g, '')
 
     const handleCall = () => {
         setCallModalVisible(false)
-        Linking.openURL(`tel:${phoneRaw}`)
+        if (phoneRaw) Linking.openURL(`tel:${phoneRaw}`)
     }
 
     const handleSms = () => {
         setSmsModalVisible(false)
-        Linking.openURL(`sms:${phoneRaw}`)
+        if (phoneRaw) Linking.openURL(`sms:${phoneRaw}`)
     }
 
-    const businessInitial = useMemo(() => (mockBusiness.name ? mockBusiness.name[0].toUpperCase() : '?'), [])
-    const providerInitial = useMemo(() => (mockBusiness.provider.name ? mockBusiness.provider.name[0].toUpperCase() : '?'), [])
-    const descriptionParagraphs = useMemo(() => mockBusiness.description.split('\n').filter(Boolean), [])
+    const providerInitial = businessName[0].toUpperCase()
+    const descriptionParagraphs = useMemo(() => (publicData?.description ?? '').split('\n').filter(Boolean), [publicData?.description])
 
     const handleBookNow = () => {
         if (!businessId) return
@@ -141,7 +240,7 @@ const BusinessDetailScreen = () => {
                 <View className="mt-2 items-center">
                     <View className="relative">
                         <Avatar
-                            uri={mockBusiness.avatarUrl ?? undefined}
+                            uri={businessAvatarUrl ?? undefined}
                             size={110}
                             borderColor="#F6F7FB"
                             fallback={
@@ -156,22 +255,26 @@ const BusinessDetailScreen = () => {
                         </View>
                     </View>
 
-                    <AppText className="mt-4 text-center text-[22px] font-poppins-bold text-[#0C2A63]">{mockBusiness.name}</AppText>
+                    <AppText className="mt-4 text-center text-[22px] font-poppins-bold text-[#0C2A63]">{businessName}</AppText>
 
                     <View className="mt-2 flex-row items-center gap-2">
-                        <Feather name="map-pin" size={16} color="#FF4D4D" />
-                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">{mockBusiness.city}</AppText>
+                        {businessCity ? (
+                            <>
+                                <Feather name="map-pin" size={16} color="#FF4D4D" />
+                                <AppText className="text-[13px] font-poppins-medium text-[#171717]">{businessCity}</AppText>
+                            </>
+                        ) : null}
                         <Feather name="star" size={16} color="#e89f48" />
-                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({mockBusiness.rating})</AppText>
+                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg})</AppText>
                     </View>
                 </View>
 
                 {/* Info cards */}
                 <View className="mt-6 flex-row flex-wrap justify-between gap-3">
-                    <InfoCard icon="dollar-sign" label="Price" value={mockBusiness.price} />
-                    <InfoCard icon="clock" label="Time" value={mockBusiness.time} />
-                    <InfoCard icon="tag" label="Category" value={mockBusiness.category} />
-                    <InfoCard icon="layers" label="Service Type" value={mockBusiness.serviceType} />
+                    <InfoCard icon="dollar-sign" label="Price" value={priceLabel} />
+                    <InfoCard icon="clock" label="Time Today" value={timeLabel} onPress={() => setHoursModalVisible(true)} />
+                    <InfoCard icon="tag" label="Category" value={categoryLabel} />
+                    <InfoCard icon="layers" label="Service Type" value={serviceTypeLabel} />
                 </View>
 
                 {/* Tabs */}
@@ -200,8 +303,8 @@ const BusinessDetailScreen = () => {
                                     />
 
                                     <View>
-                                        <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{mockBusiness.provider.name}</AppText>
-                                        <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">{mockBusiness.provider.role}</AppText>
+                                        <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{businessName}</AppText>
+                                        <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">Owner</AppText>
                                     </View>
                                 </View>
 
@@ -223,14 +326,18 @@ const BusinessDetailScreen = () => {
                         </View>
 
                         <View className="mt-4 rounded-2xl bg-white p-4" style={cardShadow}>
-                            {descriptionParagraphs.map((paragraph, idx) => (
-                                <AppText
-                                    key={idx}
-                                    className={`font-poppins-medium text-[14px] leading-[21px] text-[#171717] ${idx > 0 ? 'mt-3' : ''}`}
-                                >
-                                    {paragraph}
-                                </AppText>
-                            ))}
+                            {descriptionParagraphs.length > 0 ? (
+                                descriptionParagraphs.map((paragraph, idx) => (
+                                    <AppText
+                                        key={idx}
+                                        className={`font-poppins-medium text-[14px] leading-[21px] text-[#171717] ${idx > 0 ? 'mt-3' : ''}`}
+                                    >
+                                        {paragraph}
+                                    </AppText>
+                                ))
+                            ) : (
+                                <AppText className="font-poppins-medium text-[14px] text-[#8D8C92]">No description</AppText>
+                            )}
                         </View>
                     </View>
                 )}
@@ -240,7 +347,7 @@ const BusinessDetailScreen = () => {
                             reviews={reviews}
                             isLoading={reviewsLoading || reviewsFetching}
                             hasNextPage={reviewsHasNextPage}
-                            onLoadMore={loadMoreReviews}
+                            onLoadMore={handleLoadMoreReviews}
                         />
                     </View>
                 )}
@@ -256,7 +363,7 @@ const BusinessDetailScreen = () => {
                 <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setCallModalVisible(false)}>
                     <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
                         <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Call Provider</AppText>
-                        <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{mockBusiness.provider.phone}</AppText>
+                        <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{publicData?.phone ?? ''}</AppText>
                         <View className="mt-6 gap-3">
                             <AppButton title="Call" onPress={handleCall} className="bg-[#0C2A63]" />
                         </View>
@@ -270,7 +377,7 @@ const BusinessDetailScreen = () => {
                     <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
                         <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Write a Message</AppText>
                         <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
-                            Write to {mockBusiness.provider.phone}
+                            Write to {publicData?.phone ?? ''}
                         </AppText>
                         <View className="mt-6">
                             <AppButton title="Message" onPress={handleSms} className="bg-[#0C2A63]" />
@@ -278,6 +385,8 @@ const BusinessDetailScreen = () => {
                     </Pressable>
                 </Pressable>
             </Modal>
+
+            <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
         </SafeAreaView>
     )
 }
