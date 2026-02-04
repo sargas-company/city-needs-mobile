@@ -10,8 +10,8 @@ export type MyReel = {
 }
 
 export type GetMyReelResponse = {
-    success: true
-    data: { reel: MyReel | null }
+    code?: number
+    reel: MyReel | null
 }
 
 export type UpsertMyReelArgs = {
@@ -21,13 +21,13 @@ export type UpsertMyReelArgs = {
 }
 
 export type UpsertMyReelResponse = {
-    success: true
-    data: { reel: MyReel }
+    code?: number
+    reel: MyReel
 }
 
 export type DeleteMyReelResponse = {
-    success: true
-    data: { deleted: true }
+    code?: number
+    deleted: true
 }
 
 export type ReelFeedBusiness = {

@@ -1,146 +1,118 @@
-import React from 'react'
-import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import React, { useCallback } from 'react'
+import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, View } from 'react-native'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
-import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
 
-import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-import { useGetMyReelQuery, useUpsertMyReelMutation, useDeleteMyReelMutation } from '@/store/features/reels/reelsApi'
+import { useGetMyReelQuery, useDeleteMyReelMutation } from '@/store/features/reels/reelsApi'
+import type { MyReel } from '@/store/features/reels/reels.types'
 
 export default function BusinessReelsScreen() {
-    const { data, isLoading, error, refetch } = useGetMyReelQuery()
-    const [upsertReel, { isLoading: isUploading }] = useUpsertMyReelMutation()
-    const [deleteReel, { isLoading: isDeleting }] = useDeleteMyReelMutation()
+    const router = useRouter()
+    const insets = useSafeAreaInsets()
+    const { data, isLoading, isFetching, error, refetch } = useGetMyReelQuery()
+    const [deleteReel] = useDeleteMyReelMutation()
 
-    const reel = data?.data?.reel ?? null
-    const isBusy = isUploading || isDeleting
+    // @ts-ignore
+    const reel = data?.reel ?? null
 
-    const handlePickVideo = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['videos'],
-            allowsMultipleSelection: false,
-            quality: 0.8,
-        })
-        if (result.canceled || !result.assets?.length) return
-
-        const asset = result.assets[0]
-        try {
-            await upsertReel({
-                uri: asset.uri,
-                name: asset.fileName ?? 'reel.mp4',
-                type: asset.mimeType ?? 'video/mp4',
-            }).unwrap()
-        } catch {
-            Alert.alert('Error', 'Failed to upload reel. Please try again.')
-        }
-    }
-
-    const handleDelete = () => {
-        Alert.alert('Delete reel', 'Are you sure you want to delete your reel?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Delete',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteReel().unwrap()
-                    } catch {
-                        Alert.alert('Error', 'Failed to delete reel.')
-                    }
+    const handleDelete = useCallback(
+        (item: MyReel) => {
+            Alert.alert('Delete reel', 'Are you sure you want to delete your reel?', [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteReel().unwrap()
+                        } catch {
+                            Alert.alert('Error', 'Failed to delete reel.')
+                        }
+                    },
                 },
-            },
-        ])
-    }
+            ])
+        },
+        [deleteReel]
+    )
 
-    if (isLoading) {
-        return (
-            <SafeAreaView className="flex-1 items-center justify-center bg-white">
-                <ActivityIndicator />
-            </SafeAreaView>
-        )
-    }
+    const renderReelCard = (item: MyReel) => (
+        <View key={item.id} className="flex-row items-center rounded-2xl border border-[#E5E7EB] bg-white px-5 py-4">
+            <View className="mr-3 h-10 w-10 items-center justify-center rounded-xl bg-[#EAF0FF]">
+                <Feather name="film" size={20} color="#0C2A63" />
+            </View>
 
-    if (error) {
-        return (
-            <SafeAreaView className="flex-1 items-center justify-center bg-white px-6">
-                <Feather name="alert-circle" size={40} color="#8E94A3" />
-                <AppText className="mt-4 text-center font-poppins-medium text-[14px] text-[#171717]">Failed to load reel</AppText>
-                <AppButton title="Retry" onPress={refetch} className="mt-4 w-full" variant="outline" />
-            </SafeAreaView>
-        )
-    }
+            <View className="flex-1">
+                <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">Business Reel</AppText>
+                <AppText className="mt-0.5 font-poppins text-[12px] text-[#8E94A3]">{new Date(item.createdAt).toLocaleDateString()}</AppText>
+            </View>
+
+            <Pressable onPress={() => handleDelete(item)} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                <Feather name="trash-2" size={20} color="#0C2A63" />
+            </Pressable>
+        </View>
+    )
+
+    const renderAddButton = () => (
+        <Pressable
+            onPress={() => router.push('/(protected)/business/reel/upload' as never)}
+            className="mt-4 items-center justify-center rounded-2xl border border-dashed border-[#C9CEDA] py-4"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        >
+            <View className="flex-row items-center gap-2">
+                <Feather name="plus" size={18} color="#0C2A63" />
+                <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">{reel ? 'Replace reel' : 'Add reel'}</AppText>
+            </View>
+        </Pressable>
+    )
+
+    const renderEmpty = () => (
+        <View className="flex-1 items-center justify-center px-6">
+            <View className="h-36 w-36 items-center justify-center rounded-2xl bg-[#EAF0FF]">
+                <Feather name="video" size={40} color="#0C2A63" />
+            </View>
+            <AppText className="mt-6 text-center text-[22px] font-poppins-semibold text-[#0C2A63]">No reel yet</AppText>
+            <AppText className="mt-2 max-w-[260px] text-center text-[14px] font-poppins text-[#8E94A3]">
+                Upload a short video to attract more customers
+            </AppText>
+        </View>
+    )
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <ScrollView
-                className="flex-1"
-                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140, flexGrow: 1 }}
-                showsVerticalScrollIndicator={false}
-            >
-                <AppText className="text-[18px] font-poppins-semibold text-[#0C2A63]">My Reel</AppText>
-                <AppText className="mt-1 text-[13px] font-poppins text-[#8E94A3]">Upload a short video to showcase your business</AppText>
+        <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
+            <View className="flex-1">
+                <View className="items-center justify-center px-6 pt-6 pb-4">
+                    <AppText className="text-[18px] font-poppins-semibold text-[#0C2A63]">My Reels</AppText>
+                </View>
 
-                {reel ? (
-                    <View className="mt-6">
-                        <View className="aspect-[9/16] w-full items-center justify-center overflow-hidden rounded-2xl bg-[#0C2A63]">
-                            <Feather name="play-circle" size={48} color="rgba(255,255,255,0.7)" />
-                            <AppText className="mt-2 text-[13px] font-poppins-medium text-white/70">Video uploaded</AppText>
-                        </View>
-
-                        <AppText className="mt-3 text-[12px] font-poppins text-[#8E94A3]">
-                            Uploaded {new Date(reel.createdAt).toLocaleDateString()}
-                        </AppText>
-
-                        <View className="mt-6 gap-3">
-                            <AppButton
-                                title="Replace video"
-                                onPress={handlePickVideo}
-                                loading={isUploading}
-                                disabled={isBusy}
-                                leftIcon={<Feather name="upload" size={18} color="#ffffff" />}
-                            />
-                            <AppButton
-                                title="Delete reel"
-                                onPress={handleDelete}
-                                variant="outline"
-                                loading={isDeleting}
-                                disabled={isBusy}
-                                leftIcon={<Feather name="trash-2" size={18} color="#0C2A63" />}
-                            />
+                {isLoading ? (
+                    <View className="flex-1 items-center justify-center">
+                        <ActivityIndicator />
+                    </View>
+                ) : error ? (
+                    <View className="flex-1 items-center justify-center px-6">
+                        <AppText className="text-center font-poppins-medium text-[14px] text-[#171717]">Failed to load reels</AppText>
+                    </View>
+                ) : !reel ? (
+                    <View className="flex-1">
+                        {renderEmpty()}
+                        <View className="px-6" style={{ paddingBottom: insets.bottom + 16 }}>
+                            {renderAddButton()}
                         </View>
                     </View>
                 ) : (
-                    <View className="flex-1 items-center justify-center">
-                        <View className="h-36 w-36 items-center justify-center rounded-2xl bg-[#EAF0FF]">
-                            <Feather name="video" size={40} color="#0C2A63" />
-                        </View>
-
-                        <AppText className="mt-6 text-center text-[22px] font-poppins-semibold text-[#0C2A63]">No reel yet</AppText>
-                        <AppText className="mt-2 max-w-[260px] text-center text-[14px] font-poppins text-[#8E94A3]">
-                            Upload a short video to attract more customers
-                        </AppText>
-
-                        <Pressable
-                            onPress={handlePickVideo}
-                            disabled={isBusy}
-                            className="mt-8 w-full items-center justify-center rounded-2xl border border-dashed border-[#C9CEDA] py-6"
-                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                        >
-                            {isUploading ? (
-                                <ActivityIndicator />
-                            ) : (
-                                <View className="items-center gap-2">
-                                    <Feather name="upload" size={24} color="#0C2A63" />
-                                    <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">Upload video</AppText>
-                                    <AppText className="text-[12px] font-poppins text-[#8E94A3]">MP4 or MOV, max 30MB</AppText>
-                                </View>
-                            )}
-                        </Pressable>
-                    </View>
+                    <ScrollView
+                        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: insets.bottom + 100 }}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} />}
+                    >
+                        {renderReelCard(reel)}
+                        {renderAddButton()}
+                    </ScrollView>
                 )}
-            </ScrollView>
+            </View>
         </SafeAreaView>
     )
 }
