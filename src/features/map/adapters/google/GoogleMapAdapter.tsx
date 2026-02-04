@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
 
 import { MapMarker, LatLng, Bounds, OnRegionChangeEnd, OnMarkerPress } from '../../types/map.types'
+import { mapStyle } from './mapStyle'
 
 interface GoogleMapAdapterProps {
     initialCenter: LatLng
@@ -119,6 +120,7 @@ export function GoogleMapAdapter({
         <MapView
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
+            customMapStyle={mapStyle}
             style={[styles.map, style]}
             initialRegion={getInitialRegion()}
             onRegionChangeComplete={handleRegionChangeComplete}
