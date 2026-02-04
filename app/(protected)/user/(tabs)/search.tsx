@@ -41,21 +41,24 @@ export default function SearchScreen() {
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
     const [city, setCity] = useState<City>('Saskatoon')
     const [cityOpen, setCityOpen] = useState(false)
-    const [sort, setSort] = useState<BusinessSort>('popular')
+    const [sort, setSort] = useState<BusinessSort | null>('popular')
     const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
 
-    const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Popular'
+    const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by'
 
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
-            sort,
             city,
             cursor: cursor ?? undefined,
         }
 
         if (searchText.trim()) {
             args.search = searchText.trim()
+        }
+
+        if (sort) {
+            args.sort = sort
         }
 
         for (const chip of FILTER_CHIPS) {
@@ -83,6 +86,7 @@ export default function SearchScreen() {
             }
             return next
         })
+        setSort(null)
         setCursor(null)
     }, [])
 
@@ -99,6 +103,7 @@ export default function SearchScreen() {
 
     const handleSortChange = useCallback((value: BusinessSort) => {
         setSort(value)
+        setActiveChips(new Set())
         setSortOpen(false)
         setCursor(null)
     }, [])
