@@ -16,9 +16,9 @@ export function PriceFilter({ value, onChange }: Props) {
         <View className="mb-5">
             <View className="mb-2 flex-row items-center justify-between">
                 <AppText className="text-subtitle font-poppins-semibold text-text">Price</AppText>
-                <View className="rounded-lg bg-brand/10 px-2 py-0.5">
-                    <AppText className="text-status font-poppins-medium text-brand">CAD</AppText>
-                </View>
+                {/*<View className="rounded-lg bg-brand/10 px-2 py-0.5">*/}
+                {/*    <AppText className="text-status font-poppins-medium text-brand">CAD</AppText>*/}
+                {/*</View>*/}
             </View>
 
             <AppText className="mb-2 text-body font-poppins-medium text-orange">Up to ${value.toLocaleString()}</AppText>

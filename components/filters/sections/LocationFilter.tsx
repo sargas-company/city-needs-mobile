@@ -17,8 +17,6 @@ type Props = {
 }
 
 const PROXIMITY_CHIPS: { id: ProximityOption; label: string }[] = [
-    { id: 'near_me', label: 'Near me' },
-    { id: 'in_my_area', label: 'In my area' },
     { id: 'within_5km', label: 'Within 5 km' },
     { id: 'within_1km', label: 'Within 1 km' },
 ]

@@ -11,7 +11,6 @@ import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-import { CITY_NAMES, type City } from '@/constants/cities'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useAppSelector } from '@/store/hooks'
 import { selectLocation } from '@/store/features/location/location.selectors'
@@ -43,8 +42,6 @@ const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
 export default function SearchScreen() {
     const [searchText, setSearchText] = useState('')
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
-    const [city, setCity] = useState<City>('Saskatoon')
-    const [cityOpen, setCityOpen] = useState(false)
     const [sort, setSort] = useState<BusinessSort | null>('popular')
     const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
@@ -57,9 +54,11 @@ export default function SearchScreen() {
 
     const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by'
 
+    const displayCity = appliedFilters ? (appliedFilters.city ?? 'All Cities') : 'Saskatoon'
+
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
-            city,
+            city: appliedFilters ? undefined : 'Saskatoon',
             cursor: cursor ?? undefined,
         }
 
@@ -83,7 +82,7 @@ export default function SearchScreen() {
         }
 
         return args
-    }, [searchText, activeChips, sort, city, cursor, appliedFilters, userLocation])
+    }, [searchText, activeChips, sort, cursor, appliedFilters, userLocation])
 
     const { data, isLoading, isFetching } = useSearchBusinessesQuery(queryArgs)
 
@@ -123,12 +122,6 @@ export default function SearchScreen() {
         setCursor(null)
     }, [])
 
-    const handleCityChange = useCallback((value: City) => {
-        setCity(value)
-        setCityOpen(false)
-        setCursor(null)
-    }, [])
-
     const handleApplyFilters = useCallback((values: FilterValues) => {
         setAppliedFilters(values)
         setCursor(null)
@@ -142,34 +135,14 @@ export default function SearchScreen() {
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-screen">
                     {/* ── Location row ─────────────────────────── */}
                     <View className="mb-3 flex-row items-center justify-between">
-                        <AppPressable onPress={() => setCityOpen(true)}>
+                        <View>
                             <AppText className="text-status text-text-muted">Location</AppText>
                             <View className="flex-row items-center gap-1">
                                 <Feather name="map-pin" size={16} color="#e89f48" />
-                                <AppText className="text-subtitle font-poppins-semibold text-text">{city}</AppText>
-                                <Feather name="chevron-down" size={16} color="#e89f48" />
+                                <AppText className="text-subtitle font-poppins-semibold text-text">{displayCity}</AppText>
                             </View>
-                        </AppPressable>
+                        </View>
                     </View>
-
-                    {/* ── City picker modal ────────────────────── */}
-                    <Modal visible={cityOpen} transparent animationType="fade" onRequestClose={() => setCityOpen(false)}>
-                        <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setCityOpen(false)}>
-                            <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
-                                {CITY_NAMES.map((name) => (
-                                    <Pressable
-                                        key={name}
-                                        onPress={() => handleCityChange(name)}
-                                        className={`rounded-xl px-4 py-3 ${name === city ? 'bg-[#F0F3FB]' : ''}`}
-                                    >
-                                        <AppText className={`font-poppins-medium text-[14px] ${name === city ? 'text-brand' : 'text-text'}`}>
-                                            {name}
-                                        </AppText>
-                                    </Pressable>
-                                ))}
-                            </View>
-                        </Pressable>
-                    </Modal>
 
                     {/* ── Search bar row ────────────────────────── */}
                     <View className="mb-3 flex-row items-center gap-3">
