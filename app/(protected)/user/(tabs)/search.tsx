@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,10 +7,14 @@ import { AppInput } from '@/components/ui/AppInput'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
+import { FilterModal } from '@/components/filters/FilterModal'
+import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { CITY_NAMES, type City } from '@/constants/cities'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
+import { useAppSelector } from '@/store/hooks'
+import { selectLocation } from '@/store/features/location/location.selectors'
 import type { BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
 // ── Filter chip config ──────────────────────────────────────────────────────────
@@ -44,6 +48,12 @@ export default function SearchScreen() {
     const [sort, setSort] = useState<BusinessSort | null>('popular')
     const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
+    const [filterOpen, setFilterOpen] = useState(false)
+    const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
+
+    const userLocation = useAppSelector(selectLocation)
+    const appliedFiltersRef = useRef(appliedFilters)
+    appliedFiltersRef.current = appliedFilters
 
     const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by'
 
@@ -67,8 +77,13 @@ export default function SearchScreen() {
             }
         }
 
+        if (appliedFilters) {
+            const filterArgs = filterValuesToSearchArgs(appliedFilters, userLocation)
+            Object.assign(args, filterArgs)
+        }
+
         return args
-    }, [searchText, activeChips, sort, city, cursor])
+    }, [searchText, activeChips, sort, city, cursor, appliedFilters, userLocation])
 
     const { data, isLoading, isFetching } = useSearchBusinessesQuery(queryArgs)
 
@@ -111,6 +126,11 @@ export default function SearchScreen() {
     const handleCityChange = useCallback((value: City) => {
         setCity(value)
         setCityOpen(false)
+        setCursor(null)
+    }, [])
+
+    const handleApplyFilters = useCallback((values: FilterValues) => {
+        setAppliedFilters(values)
         setCursor(null)
     }, [])
 
@@ -197,7 +217,7 @@ export default function SearchScreen() {
                             <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
                             <Feather name="chevron-down" size={16} color="#fff" />
                         </AppPressable>
-                        <AppPressable className="items-center justify-center rounded-xl bg-orange p-2.5">
+                        <AppPressable onPress={() => setFilterOpen(true)} className="items-center justify-center rounded-xl bg-orange p-2.5">
                             <Feather name="sliders" size={20} color="#fff" />
                         </AppPressable>
                     </View>
@@ -259,6 +279,13 @@ export default function SearchScreen() {
                     )}
                 </ScrollView>
             </SafeAreaView>
+
+            <FilterModal
+                visible={filterOpen}
+                onClose={() => setFilterOpen(false)}
+                onApply={handleApplyFilters}
+                initialValues={appliedFiltersRef.current ?? undefined}
+            />
         </View>
     )
 }

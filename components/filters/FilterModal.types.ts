@@ -1,0 +1,91 @@
+import type { City } from '@/constants/cities'
+import type { SearchBusinessesArgs } from '@/store/features/search/search.types'
+
+export type ProximityOption = 'near_me' | 'in_my_area' | 'within_5km' | 'within_1km'
+
+export type FilterValues = {
+    categoryId: string | null
+    city: City | null
+    proximity: ProximityOption | null
+    priceMax: number
+    availabilityDate: string | null
+    availabilityHour: number
+    availabilityMinute: number
+    availabilityPeriod: 'AM' | 'PM'
+}
+
+export const DEFAULT_FILTER_VALUES: FilterValues = {
+    categoryId: null,
+    city: null,
+    proximity: null,
+    priceMax: 4000,
+    availabilityDate: null,
+    availabilityHour: 12,
+    availabilityMinute: 0,
+    availabilityPeriod: 'AM',
+}
+
+export type FilterModalProps = {
+    visible: boolean
+    onClose: () => void
+    onApply: (values: FilterValues) => void
+    initialValues?: Partial<FilterValues>
+}
+
+/**
+ * Convert FilterValues + user GPS coords into SearchBusinessesArgs params.
+ */
+export function filterValuesToSearchArgs(filters: FilterValues, userLocation: { lat: number; lng: number } | null): Partial<SearchBusinessesArgs> {
+    const args: Partial<SearchBusinessesArgs> = {}
+
+    if (filters.categoryId) {
+        args.categoryId = filters.categoryId
+    }
+
+    if (filters.city) {
+        args.city = filters.city
+    }
+
+    if (filters.priceMax < 4000) {
+        args.priceMax = filters.priceMax
+    }
+
+    if (filters.proximity && userLocation) {
+        args.lat = userLocation.lat
+        args.lng = userLocation.lng
+
+        switch (filters.proximity) {
+            case 'near_me':
+                args.sort = 'nearby'
+                break
+            case 'in_my_area':
+                args.withinKm = 5
+                break
+            case 'within_5km':
+                args.withinKm = 5
+                break
+            case 'within_1km':
+                args.withinKm = 1
+                break
+        }
+    }
+
+    if (filters.availabilityDate) {
+        args.availabilityDate = filters.availabilityDate
+
+        const hour24 =
+            filters.availabilityPeriod === 'AM'
+                ? filters.availabilityHour === 12
+                    ? 0
+                    : filters.availabilityHour
+                : filters.availabilityHour === 12
+                  ? 12
+                  : filters.availabilityHour + 12
+
+        const hh = String(hour24).padStart(2, '0')
+        const mm = String(filters.availabilityMinute).padStart(2, '0')
+        args.availabilityTime = `${hh}:${mm}`
+    }
+
+    return args
+}
