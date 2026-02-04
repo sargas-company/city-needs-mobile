@@ -9,6 +9,7 @@ import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { CITY_NAMES, type City } from '@/constants/cities'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import type { BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
@@ -39,6 +40,8 @@ const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
 export default function SearchScreen() {
     const [searchText, setSearchText] = useState('')
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
+    const [city, setCity] = useState<City>('Saskatoon')
+    const [cityOpen, setCityOpen] = useState(false)
     const [sort, setSort] = useState<BusinessSort>('popular')
     const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
@@ -48,6 +51,7 @@ export default function SearchScreen() {
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
             sort,
+            city,
             cursor: cursor ?? undefined,
         }
 
@@ -62,7 +66,7 @@ export default function SearchScreen() {
         }
 
         return args
-    }, [searchText, activeChips, sort, cursor])
+    }, [searchText, activeChips, sort, city, cursor])
 
     const { data, isLoading, isFetching } = useSearchBusinessesQuery(queryArgs)
 
@@ -100,6 +104,12 @@ export default function SearchScreen() {
         setCursor(null)
     }, [])
 
+    const handleCityChange = useCallback((value: City) => {
+        setCity(value)
+        setCityOpen(false)
+        setCursor(null)
+    }, [])
+
     return (
         <View className="flex-1 bg-white">
             <WaveHeader />
@@ -108,15 +118,34 @@ export default function SearchScreen() {
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-screen">
                     {/* ── Location row ─────────────────────────── */}
                     <View className="mb-3 flex-row items-center justify-between">
-                        <View>
+                        <AppPressable onPress={() => setCityOpen(true)}>
                             <AppText className="text-status text-text-muted">Location</AppText>
                             <View className="flex-row items-center gap-1">
                                 <Feather name="map-pin" size={16} color="#e89f48" />
-                                <AppText className="text-subtitle font-poppins-semibold text-text">Saskatoon</AppText>
+                                <AppText className="text-subtitle font-poppins-semibold text-text">{city}</AppText>
                                 <Feather name="chevron-down" size={16} color="#e89f48" />
                             </View>
-                        </View>
+                        </AppPressable>
                     </View>
+
+                    {/* ── City picker modal ────────────────────── */}
+                    <Modal visible={cityOpen} transparent animationType="fade" onRequestClose={() => setCityOpen(false)}>
+                        <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setCityOpen(false)}>
+                            <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
+                                {CITY_NAMES.map((name) => (
+                                    <Pressable
+                                        key={name}
+                                        onPress={() => handleCityChange(name)}
+                                        className={`rounded-xl px-4 py-3 ${name === city ? 'bg-[#F0F3FB]' : ''}`}
+                                    >
+                                        <AppText className={`font-poppins-medium text-[14px] ${name === city ? 'text-brand' : 'text-text'}`}>
+                                            {name}
+                                        </AppText>
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </Pressable>
+                    </Modal>
 
                     {/* ── Search bar row ────────────────────────── */}
                     <View className="mb-3 flex-row items-center gap-3">
