@@ -29,7 +29,6 @@ const FILTER_CHIPS: FilterChip[] = [
 
 const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
     { value: 'popular', label: 'Popular' },
-    { value: 'top_rated', label: 'Top Rated' },
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
     { value: 'nearby', label: 'Nearby' },
