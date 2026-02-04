@@ -1,7 +1,8 @@
 import React from 'react'
-import { Pressable, View, ViewStyle } from 'react-native'
+import { Image, Pressable, View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
+import { FontAwesome } from '@expo/vector-icons'
 
 import { AppText } from '@/components/ui/AppText'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
@@ -24,22 +25,27 @@ export function ServiceCard({ business }: { business: BusinessCardDto }) {
             <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
                 {/* Row 1: Avatar + Name + Category + Bookmark */}
                 <View className="mb-2 flex-row items-center">
-                    <View className="mr-3 items-center justify-center rounded-xl bg-[#A3C9A8]" style={{ width: 56, height: 56 }}>
-                        <AppText className="text-title font-poppins-bold text-white">{initial}.</AppText>
-                    </View>
+                    {business.logoUrl ? (
+                        <Image source={{ uri: business.logoUrl }} className="mr-3 rounded-xl" style={{ width: 56, height: 56 }} />
+                    ) : (
+                        <View className="mr-3 items-center justify-center rounded-xl bg-[#A3C9A8]" style={{ width: 56, height: 56 }}>
+                            <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>
+                        </View>
+                    )}
 
                     <View className="flex-1">
                         <View className="flex-row items-center gap-2">
-                            <AppText className="text-subtitle font-poppins-bold text-text">{business.name}</AppText>
-                            <View className="rounded-pill bg-orange px-3 py-0.5">
-                                <AppText className="text-caption font-poppins-semibold text-white">{business.category.title}</AppText>
+                            <AppText className="text-lg font-poppins-semibold  text-text">{business.name}</AppText>
+                            <View className="rounded-pill bg-orange px-2 py-0.5">
+                                <AppText className="text-xs font-poppins-semibold text-white">{business.category.title}</AppText>
                             </View>
                         </View>
 
                         {/* Rating */}
                         <View className="mt-0.5 flex-row items-center gap-1">
-                            <View className="h-3 w-3 rounded-full bg-[#F5C518]" />
-                            <View className="h-3 w-3 rounded-full bg-brand" />
+                            {/*<View className="h-3 w-3 rounded-full bg-[#F5C518]" />*/}
+                            {/*<View className="h-3 w-3 rounded-full bg-brand" />*/}
+                            <FontAwesome name="star" size={14} color={'#E8A230'} />
                             <AppText className="text-status text-text">({business.ratingAvg})</AppText>
                             <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
                         </View>
