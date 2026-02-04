@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Modal, ScrollView, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppPressable } from '@/components/ui/AppPressable'
@@ -14,6 +14,7 @@ import { TimeFilter } from './sections/TimeFilter'
 import { DEFAULT_FILTER_VALUES, type FilterModalProps, type FilterValues } from './FilterModal.types'
 
 export function FilterModal({ visible, onClose, onApply, initialValues }: FilterModalProps) {
+    const insets = useSafeAreaInsets()
     const [values, setValues] = useState<FilterValues>({ ...DEFAULT_FILTER_VALUES, ...initialValues })
 
     // Reinitialize when modal opens
@@ -38,51 +39,49 @@ export function FilterModal({ visible, onClose, onApply, initialValues }: Filter
 
     return (
         <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-            <View className="flex-1 bg-white">
-                <SafeAreaView className="flex-1">
-                    {/* Header */}
-                    <View className="flex-row items-center border-b border-border/30 px-4 pb-3 pt-2">
-                        <AppPressable onPress={onClose} className="mr-3 p-1">
-                            <Feather name="arrow-left" size={24} color="#171717" />
-                        </AppPressable>
-                        <AppText className="text-title font-poppins-semibold text-text">Filter</AppText>
-                    </View>
+            <View className="flex-1 bg-white" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+                {/* Header */}
+                <View className="flex-row items-center border-b border-border/30 px-4 pb-3 pt-2">
+                    <AppPressable onPress={onClose} className="mr-3 p-1">
+                        <Feather name="arrow-left" size={24} color="#171717" />
+                    </AppPressable>
+                    <AppText className="text-title font-poppins-semibold text-text">Filter</AppText>
+                </View>
 
-                    {/* Content */}
-                    <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                        <CategoryFilter value={values.categoryId} onChange={(v) => update('categoryId', v)} />
+                {/* Content */}
+                <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                    <CategoryFilter value={values.categoryId} onChange={(v) => update('categoryId', v)} />
 
-                        <LocationFilter
-                            city={values.city}
-                            onCityChange={(v) => update('city', v)}
-                            proximity={values.proximity}
-                            onProximityChange={(v) => update('proximity', v)}
-                        />
+                    <LocationFilter
+                        city={values.city}
+                        onCityChange={(v) => update('city', v)}
+                        proximity={values.proximity}
+                        onProximityChange={(v) => update('proximity', v)}
+                    />
 
-                        <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} />
+                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} />
 
-                        <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} />
+                    <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} />
 
-                        <TimeFilter
-                            hour={values.availabilityHour}
-                            minute={values.availabilityMinute}
-                            period={values.availabilityPeriod}
-                            onHourChange={(v) => update('availabilityHour', v)}
-                            onMinuteChange={(v) => update('availabilityMinute', v)}
-                            onPeriodChange={(v) => update('availabilityPeriod', v)}
-                        />
-                    </ScrollView>
+                    <TimeFilter
+                        hour={values.availabilityHour}
+                        minute={values.availabilityMinute}
+                        period={values.availabilityPeriod}
+                        onHourChange={(v) => update('availabilityHour', v)}
+                        onMinuteChange={(v) => update('availabilityMinute', v)}
+                        onPeriodChange={(v) => update('availabilityPeriod', v)}
+                    />
+                </ScrollView>
 
-                    {/* Footer */}
-                    <View className="flex-row gap-3 border-t border-border/30 px-4 pb-2 pt-3">
-                        <AppPressable onPress={handleReset} className="flex-1 items-center rounded-pill border border-orange py-3">
-                            <AppText className="text-body font-poppins-semibold text-orange">Reset Filter</AppText>
-                        </AppPressable>
-                        <AppPressable onPress={handleApply} className="flex-1 items-center rounded-pill bg-orange py-3">
-                            <AppText className="text-body font-poppins-semibold text-white">Apply</AppText>
-                        </AppPressable>
-                    </View>
-                </SafeAreaView>
+                {/* Footer */}
+                <View className="flex-row gap-3 border-t border-border/30 px-4 pb-2 pt-3">
+                    <AppPressable onPress={handleReset} className="flex-1 items-center rounded-pill border border-orange py-3">
+                        <AppText className="text-body font-poppins-semibold text-orange">Reset Filter</AppText>
+                    </AppPressable>
+                    <AppPressable onPress={handleApply} className="flex-1 items-center rounded-pill bg-orange py-3">
+                        <AppText className="text-body font-poppins-semibold text-white">Apply</AppText>
+                    </AppPressable>
+                </View>
             </View>
         </Modal>
     )
