@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { FlatList, type NativeScrollEvent, type NativeSyntheticEvent, View } from 'react-native'
+import { type NativeScrollEvent, type NativeSyntheticEvent, ScrollView, View } from 'react-native'
 
 import { AppText } from '@/components/ui/AppText'
 
@@ -30,7 +30,7 @@ function WheelColumn<T extends string | number>({
     onSelect: (value: T) => void
     formatLabel?: (value: T) => string
 }) {
-    const listRef = useRef<FlatList<T>>(null)
+    const scrollRef = useRef<ScrollView>(null)
     const isUserScroll = useRef(true)
 
     const selectedIndex = data.indexOf(selectedValue)
@@ -41,8 +41,8 @@ function WheelColumn<T extends string | number>({
             return
         }
         const idx = data.indexOf(selectedValue)
-        if (idx >= 0 && listRef.current) {
-            listRef.current.scrollToOffset({ offset: idx * ITEM_HEIGHT, animated: false })
+        if (idx >= 0 && scrollRef.current) {
+            scrollRef.current.scrollTo({ y: idx * ITEM_HEIGHT, animated: false })
         }
         // Only run on mount
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,23 +58,6 @@ function WheelColumn<T extends string | number>({
         },
         [data, onSelect]
     )
-
-    const renderItem = useCallback(
-        ({ item, index }: { item: T; index: number }) => {
-            const isSelected = index === selectedIndex
-            const label = formatLabel ? formatLabel(item) : String(item)
-            return (
-                <View style={{ height: ITEM_HEIGHT, justifyContent: 'center', alignItems: 'center' }}>
-                    <AppText className={isSelected ? 'text-[18px] font-poppins-semibold text-text' : 'text-[14px] font-poppins text-text-muted'}>
-                        {label}
-                    </AppText>
-                </View>
-            )
-        },
-        [selectedIndex, formatLabel]
-    )
-
-    const getItemLayout = useCallback((_: unknown, index: number) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }), [])
 
     return (
         <View style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS, flex: 1, overflow: 'hidden' }}>
@@ -92,12 +75,8 @@ function WheelColumn<T extends string | number>({
                 }}
                 pointerEvents="none"
             />
-            <FlatList
-                ref={listRef}
-                data={data}
-                keyExtractor={(item) => String(item)}
-                renderItem={renderItem}
-                getItemLayout={getItemLayout}
+            <ScrollView
+                ref={scrollRef}
                 showsVerticalScrollIndicator={false}
                 snapToInterval={ITEM_HEIGHT}
                 decelerationRate="fast"
@@ -106,7 +85,22 @@ function WheelColumn<T extends string | number>({
                     paddingTop: ITEM_HEIGHT,
                     paddingBottom: ITEM_HEIGHT,
                 }}
-            />
+                nestedScrollEnabled
+            >
+                {data.map((item, index) => {
+                    const isSelected = index === selectedIndex
+                    const label = formatLabel ? formatLabel(item) : String(item)
+                    return (
+                        <View key={String(item)} style={{ height: ITEM_HEIGHT, justifyContent: 'center', alignItems: 'center' }}>
+                            <AppText
+                                className={isSelected ? 'text-[18px] font-poppins-semibold text-text' : 'text-[14px] font-poppins text-text-muted'}
+                            >
+                                {label}
+                            </AppText>
+                        </View>
+                    )
+                })}
+            </ScrollView>
         </View>
     )
 }
