@@ -1,17 +1,22 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
+import { Map } from '@/src/features/map'
+
+/**
+ * MapScreen: Main map view for users to explore businesses
+ * Default center: Rome, Italy (41.9028, 12.4964)
+ */
 export default function MapScreen() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Welcome Map</Text>
-            <Text style={styles.subtitle}>Description</Text>
+            <Map initialCenter={{ lat: 41.9028, lng: 12.4964 }} initialZoom={13} showUserLocation={true} />
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
-    title: { fontSize: 28, fontWeight: '700' },
-    subtitle: { marginTop: 8, fontSize: 14, color: '#666' },
+    container: {
+        flex: 1,
+    },
 })

@@ -13,6 +13,9 @@
             "supportsTablet": true,
             "infoPlist": {
                 "NSLocationWhenInUseUsageDescription": "We use your location to show nearby providers and personalize results."
+            },
+            "config": {
+                "googleMapsApiKey": ""
             }
         },
         "android": {
@@ -24,7 +27,12 @@
             },
             "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
             "edgeToEdgeEnabled": true,
-            "predictiveBackGestureEnabled": false
+            "predictiveBackGestureEnabled": false,
+            "config": {
+                "googleMaps": {
+                    "apiKey": ""
+                }
+            }
         },
         "web": {
             "output": "static",

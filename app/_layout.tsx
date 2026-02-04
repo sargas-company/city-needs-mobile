@@ -18,6 +18,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuthThunk } from '@/store/features/auth/auth.thunks'
 import { persistor, store } from '@/store'
 import { useAppDispatch } from '@/store/hooks'
+import { MapProvider } from '@/src/features/map'
 
 if (__DEV__) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -45,14 +46,16 @@ const RootNavigation = () => {
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack>
-                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-                <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
+            <MapProvider engine="google">
+                <Stack>
+                    <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                    <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+                    <Stack.Screen name="+not-found" />
+                </Stack>
+                <StatusBar style="auto" />
+            </MapProvider>
         </ThemeProvider>
     )
 }
