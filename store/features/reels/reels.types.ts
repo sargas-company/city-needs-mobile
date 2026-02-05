@@ -35,6 +35,9 @@ export type ReelFeedBusiness = {
     name: string
     categoryId: string
     logoUrl: string | null
+    ratingAvg: number
+    ratingCount: number
+    city: string
 }
 
 export type ReelFeedItem = {
@@ -44,15 +47,11 @@ export type ReelFeedItem = {
     business: ReelFeedBusiness
 }
 
-export type GetReelsFeedData = {
+export type GetReelsFeedResponse = {
+    code?: number
     items: ReelFeedItem[]
     nextCursor: string | null
     hasNextPage: boolean
-}
-
-export type GetReelsFeedResponse = {
-    success: true
-    data: GetReelsFeedData
 }
 
 export type GetReelsFeedArgs = {

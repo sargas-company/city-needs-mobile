@@ -77,21 +77,23 @@ export const reelsApi = baseApi.injectEndpoints({
                 const cursor = ctx.arg?.cursor ?? null
 
                 if (!cursor) {
-                    currentCache.data = newResp.data
+                    currentCache.items = newResp.items
+                    currentCache.nextCursor = newResp.nextCursor
+                    currentCache.hasNextPage = newResp.hasNextPage
                     return
                 }
 
-                const existingIds = new Set(currentCache.data.items.map((x) => x.id))
-                const appended = newResp.data.items.filter((x) => !existingIds.has(x.id))
+                const existingIds = new Set(currentCache.items.map((x) => x.id))
+                const appended = newResp.items.filter((x) => !existingIds.has(x.id))
 
-                currentCache.data.items.push(...appended)
-                currentCache.data.nextCursor = newResp.data.nextCursor
-                currentCache.data.hasNextPage = newResp.data.hasNextPage
+                currentCache.items.push(...appended)
+                currentCache.nextCursor = newResp.nextCursor
+                currentCache.hasNextPage = newResp.hasNextPage
             },
 
             providesTags: (result) =>
-                result?.data.items
-                    ? [...result.data.items.map(({ id }) => ({ type: 'Reels' as const, id })), { type: 'Reels', id: 'FEED' }]
+                result?.items
+                    ? [...result.items.map(({ id }) => ({ type: 'Reels' as const, id })), { type: 'Reels', id: 'FEED' }]
                     : [{ type: 'Reels', id: 'FEED' }],
         }),
     }),

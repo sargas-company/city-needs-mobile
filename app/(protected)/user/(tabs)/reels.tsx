@@ -1,39 +1,160 @@
-import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import { useRouter } from 'expo-router'
+import React, { useCallback, useMemo, useState } from 'react'
+import { ActivityIndicator, ScrollView, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Feather from '@expo/vector-icons/Feather'
 
-const TEST_BUSINESS_ID = '445eb7ad-b5d1-4cc0-841b-36c00e5debee'
+import { AppInput } from '@/components/ui/AppInput'
+import { AppPressable } from '@/components/ui/AppPressable'
+import { AppText } from '@/components/ui/AppText'
+import { ReelCard } from '@/components/reels/ReelCard'
+import { WaveHeader } from '@/components/layout/WaveHeader'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { useGetReelsFeedQuery } from '@/store/features/reels/reelsApi'
+import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
+import type { GetReelsFeedArgs } from '@/store/features/reels/reels.types'
 
 export default function ReelsScreen() {
-    const router = useRouter()
+    const [searchText, setSearchText] = useState('')
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+    const [cursor, setCursor] = useState<string | null>(null)
+
+    const { data: categories } = useGetCategoriesQuery()
+
+    const queryArgs = useMemo<GetReelsFeedArgs>(() => {
+        const args: GetReelsFeedArgs = {
+            cursor: cursor ?? undefined,
+        }
+
+        if (searchText.trim()) {
+            args.search = searchText.trim()
+        }
+
+        if (selectedCategoryId) {
+            args.categoryId = selectedCategoryId
+        }
+
+        return args
+    }, [searchText, selectedCategoryId, cursor])
+
+    const { data, isLoading, isFetching } = useGetReelsFeedQuery(queryArgs)
+
+    const reels = data?.items ?? []
+    const feedData = data
+
+    const handleSearchChange = useCallback((text: string) => {
+        setSearchText(text)
+        setCursor(null)
+    }, [])
+
+    const handleCategoryPress = useCallback((categoryId: string | null) => {
+        setSelectedCategoryId(categoryId)
+        setCursor(null)
+    }, [])
+
+    const loadMore = useCallback(() => {
+        if (feedData?.hasNextPage && feedData.nextCursor && !isFetching) {
+            setCursor(feedData.nextCursor)
+        }
+    }, [feedData, isFetching])
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Welcome Reels</Text>
-            <Text style={styles.subtitle}>Description</Text>
+        <View className="flex-1 bg-white">
+            <WaveHeader />
 
-            <TouchableOpacity style={styles.testButton} onPress={() => router.push(`/(protected)/user/book/${TEST_BUSINESS_ID}`)}>
-                <Text style={styles.testButtonText}>Test: Open Business</Text>
-            </TouchableOpacity>
+            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
+                <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-screen">
+                    {/* ── Search bar ────────────────────────────── */}
+                    <View className="mb-3">
+                        <AppInput
+                            leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
+                            clearable
+                            value={searchText}
+                            onChangeText={handleSearchChange}
+                            placeholder="Search reels..."
+                        />
+                    </View>
 
-            {/*<TouchableOpacity style={styles.testButton}>*/}
-            {/*    <Text*/}
-            {/*        style={styles.testButtonText}*/}
-            {/*        onPress={() => {*/}
-            {/*            router.replace(`/(protected)/user/book/${TEST_BUSINESS_ID}/leave-review`)*/}
-            {/*        }}*/}
-            {/*    >*/}
-            {/*        Suc*/}
-            {/*    </Text>*/}
-            {/*</TouchableOpacity>*/}
+                    {/* ── Category chips ────────────────────────── */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4" contentContainerClassName="gap-2">
+                        <AppPressable
+                            onPress={() => handleCategoryPress(null)}
+                            className={
+                                selectedCategoryId === null
+                                    ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                    : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                            }
+                        >
+                            <AppText
+                                className={
+                                    selectedCategoryId === null
+                                        ? 'text-status font-poppins-medium text-white'
+                                        : 'text-status font-poppins-medium text-text'
+                                }
+                            >
+                                All
+                            </AppText>
+                        </AppPressable>
+
+                        {categories?.map((cat) => {
+                            const active = selectedCategoryId === cat.id
+                            return (
+                                <AppPressable
+                                    key={cat.id}
+                                    onPress={() => handleCategoryPress(cat.id)}
+                                    className={
+                                        active
+                                            ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                            : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                                    }
+                                >
+                                    <AppText
+                                        className={
+                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                        }
+                                    >
+                                        {cat.title}
+                                    </AppText>
+                                    {active && <Feather name="x" size={14} color="#fff" />}
+                                </AppPressable>
+                            )
+                        })}
+                    </ScrollView>
+
+                    {/* ── Loading state ─────────────────────────── */}
+                    {isLoading && (
+                        <View className="items-center py-10">
+                            <ActivityIndicator size="large" />
+                        </View>
+                    )}
+
+                    {/* ── Reel cards ────────────────────────────── */}
+                    {!isLoading && (
+                        <View className="mb-6 gap-4">
+                            {reels.map((reel) => (
+                                <ReelCard key={reel.id} reel={reel} />
+                            ))}
+
+                            {/* ── Load more ───────────────────── */}
+                            {feedData?.hasNextPage && (
+                                <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
+                                    {isFetching ? (
+                                        <ActivityIndicator size="small" />
+                                    ) : (
+                                        <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
+                                    )}
+                                </AppPressable>
+                            )}
+
+                            {/* ── Empty state ─────────────────── */}
+                            {reels.length === 0 && (
+                                <View className="items-center py-10">
+                                    <AppText className="text-subtitle text-text-muted">No reels found</AppText>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                </ScrollView>
+            </SafeAreaView>
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
-    title: { fontSize: 28, fontWeight: '700' },
-    subtitle: { marginTop: 8, fontSize: 14, color: '#666' },
-    testButton: { marginTop: 24, backgroundColor: '#0286FF', borderRadius: 24, paddingHorizontal: 20, paddingVertical: 12 },
-    testButtonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-})
