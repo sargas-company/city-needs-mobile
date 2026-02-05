@@ -16,9 +16,9 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export function ServiceCard({ business, isSaved = false }: { business: BusinessCardDto; isSaved?: boolean }) {
+export function ServiceCard({ business }: { business: BusinessCardDto }) {
     const router = useRouter()
-    const [saved, setSaved] = useState(isSaved)
+    const [saved, setSaved] = useState(business.isSaved)
     const [addSaved] = useAddSavedBusinessMutation()
     const [removeSaved] = useRemoveSavedBusinessMutation()
 
