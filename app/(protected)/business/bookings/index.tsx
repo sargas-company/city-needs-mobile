@@ -43,7 +43,7 @@ function mapToBooking(item: BusinessBookingListItemDto): Booking {
             lastName: nameParts.slice(1).join(' ') || '',
             avatarUrl: null,
         },
-        services: item.services.map((s) => ({ name: s })),
+        services: item.services.map((s) => ({ name: s.name, price: s.price })),
         totalPrice: item.totalPrice,
         dateLabel: formatDateLabel(item.startAt),
         timeLabel: formatTimeLabel(item.startAt),

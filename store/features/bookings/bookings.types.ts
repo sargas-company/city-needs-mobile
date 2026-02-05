@@ -80,7 +80,7 @@ export type BusinessBookingListItemDto = {
     startAt: string
     endAt: string
     createdAt: string
-    services: string[]
+    services: BookingServiceItemDto[]
     totalPrice: number
 }
 
