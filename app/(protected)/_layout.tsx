@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useRouter, usePathname } from 'expo-router'
 import { useEffect } from 'react'
 import { View, Text } from 'react-native'
 
@@ -10,8 +10,10 @@ import { WAVE_HEIGHT } from '@/constants/layout'
 
 export default function ProtectedLayout() {
     const router = useRouter()
+    const pathname = usePathname()
     const status = useAppSelector(selectAuthStatus)
     const isAuth = useAppSelector(selectIsAuth)
+    const isMapScreen = pathname === '/user/map'
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -33,7 +35,7 @@ export default function ProtectedLayout() {
 
     return (
         <BusinessVerificationGuard>
-            <WaveHeader height={WAVE_HEIGHT} showLogo />
+            {!isMapScreen && <WaveHeader height={WAVE_HEIGHT} showLogo />}
 
             <Stack
                 screenOptions={{

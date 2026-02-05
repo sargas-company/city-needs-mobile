@@ -31,6 +31,8 @@ export type BusinessCardDto = {
     logoUrl: string | null
     price: number
     city: string
+    lat: number | null
+    lng: number | null
     category: BusinessCategoryDto
     ratingAvg: number
     ratingCount: number
