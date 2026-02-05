@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image, View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { FontAwesome } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import * as VideoThumbnails from 'expo-video-thumbnails'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -22,6 +23,28 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
     const { business } = reel
 
     const initial = business.name.charAt(0).toUpperCase()
+
+    const [thumbUri, setThumbUri] = useState<string | null>(null)
+
+    useEffect(() => {
+        let cancelled = false
+
+        const run = async () => {
+            try {
+                const { uri } = await VideoThumbnails.getThumbnailAsync(reel.videoUrl, { time: 500 })
+                setThumbUri(uri)
+
+                if (!cancelled) setThumbUri(uri)
+            } catch {
+                if (!cancelled) setThumbUri(null)
+            }
+        }
+
+        run()
+        return () => {
+            cancelled = true
+        }
+    }, [reel.id, reel.videoUrl])
 
     return (
         <AppPressable onPress={() => router.push(`/(protected)/user/reel/${reel.id}?videoUrl=${encodeURIComponent(reel.videoUrl)}`)}>
@@ -57,12 +80,16 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
 
                 {/* Row 2: Video thumbnail with play overlay */}
                 <View className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
-                    <Image source={{ uri: reel.videoUrl }} className="h-full w-full" resizeMode="cover" style={{ backgroundColor: '#D9D9D9' }} />
-                    <View className="absolute inset-0 items-center justify-center">
-                        <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>
-                            <Feather name="play" size={24} color="#fff" />
-                        </View>
-                    </View>
+                    {thumbUri ? (
+                        <Image source={{ uri: thumbUri }} className="h-full w-4/12 rounded-xl" resizeMode="cover" />
+                    ) : (
+                        <View className="h-full w-4/12 rounded-xl" style={{ backgroundColor: '#D9D9D9' }} />
+                    )}
+                    {/*<View className="absolute inset-0 items-center justify-center">*/}
+                    {/*    <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>*/}
+                    {/*        <Feather name="play" size={24} color="#fff" />*/}
+                    {/*    </View>*/}
+                    {/*</View>*/}
                 </View>
             </View>
         </AppPressable>
