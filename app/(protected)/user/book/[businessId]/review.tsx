@@ -45,8 +45,7 @@ const ReviewScreen = () => {
     const { data: servicesData } = useGetPublicBusinessServicesQuery(businessId!)
     const [createBooking] = useCreateBookingMutation()
 
-    const allServices = servicesData?.data ?? []
-
+    const allServices = useMemo(() => servicesData?.data ?? [], [servicesData])
     const selectedServices = useMemo(
         () => allServices.filter((s) => bookingFlow.selectedServiceIds.includes(s.id)),
         [allServices, bookingFlow.selectedServiceIds]
