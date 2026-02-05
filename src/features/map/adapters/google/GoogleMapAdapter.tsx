@@ -2,6 +2,7 @@ import React, { useRef, useCallback } from 'react'
 import { StyleSheet, ViewStyle } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
 
+import { MapMarkerPin } from '../../components/MapMarkerPin'
 import { MapMarker, LatLng, Bounds, OnRegionChangeEnd, OnMarkerPress } from '../../types/map.types'
 import { mapStyle } from './mapStyle'
 
@@ -139,12 +140,12 @@ export function GoogleMapAdapter({
                         latitude: marker.position.lat,
                         longitude: marker.position.lng,
                     }}
-                    title={marker.title}
-                    description={marker.description}
+                    tracksViewChanges={false}
                     onPress={() => handleMarkerPress(marker.id)}
-                    // Optionally highlight selected marker
                     opacity={selectedMarkerId && selectedMarkerId !== marker.id ? 0.6 : 1}
-                />
+                >
+                    <MapMarkerPin />
+                </Marker>
             ))}
         </MapView>
     )

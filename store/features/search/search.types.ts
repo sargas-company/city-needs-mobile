@@ -31,8 +31,6 @@ export type BusinessCardDto = {
     logoUrl: string | null
     price: number
     city: string
-    lat: number | null
-    lng: number | null
     category: BusinessCategoryDto
     ratingAvg: number
     ratingCount: number
@@ -40,6 +38,8 @@ export type BusinessCardDto = {
     serviceInStudio: boolean
     distanceMeters?: number
     isSaved: boolean
+    lat?: number
+    lng?: number
 }
 
 export type BusinessesCursorMeta = {
