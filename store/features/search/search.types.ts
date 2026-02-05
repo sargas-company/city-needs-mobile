@@ -37,6 +37,7 @@ export type BusinessCardDto = {
     serviceOnSite: boolean
     serviceInStudio: boolean
     distanceMeters?: number
+    isSaved: boolean
 }
 
 export type BusinessesCursorMeta = {

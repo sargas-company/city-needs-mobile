@@ -56,13 +56,16 @@ const iconButtonStyle = {
     elevation: 2,
 }
 
+function formatPrice(cents: number): string {
+    return `$${(cents / 100).toFixed(2)}`
+}
+
 export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
     if (!booking) return null
 
-    const { customer, serviceName, price, currency, dateLabel, timeLabel, status, hasReview } = booking
+    const { customer, services, totalPrice, dateLabel, timeLabel, status, hasReview } = booking
     const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, role, hasReview)
     const fullName = `${customer.firstName} ${customer.lastName}`
-    const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
     return (
         <AppBottomSheet isOpen={isOpen && !!booking} onClose={onClose}>
@@ -109,13 +112,19 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
                     </View>
                 </View>
 
-                {/* Service + Price */}
-                <View className="mb-3 flex-row items-end justify-between">
-                    <View>
-                        <AppText className="text-[12px] text-text-muted">Service</AppText>
-                        <AppText className="font-poppins-semibold text-[15px] text-brand">{serviceName}</AppText>
+                {/* Services */}
+                <View className="mb-3">
+                    <AppText className="text-[12px] text-text-muted">Services</AppText>
+                    {services.map((s, i) => (
+                        <View key={i} className="mt-1 flex-row items-center justify-between">
+                            <AppText className="font-poppins-medium text-[14px] text-brand">{s.name}</AppText>
+                            {s.price != null && <AppText className="font-poppins-medium text-[14px] text-brand">{formatPrice(s.price)}</AppText>}
+                        </View>
+                    ))}
+                    <View className="mt-2 flex-row items-center justify-between border-t border-[#E5E7EB] pt-2">
+                        <AppText className="font-poppins-semibold text-[15px] text-brand">Total</AppText>
+                        <AppText className="font-poppins-semibold text-[16px] text-brand">{formatPrice(totalPrice)}</AppText>
                     </View>
-                    <AppText className="font-poppins-semibold text-[16px] text-brand">{displayPrice}</AppText>
                 </View>
 
                 {/* Date + Time */}

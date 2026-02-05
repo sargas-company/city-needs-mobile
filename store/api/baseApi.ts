@@ -26,6 +26,7 @@ export const baseApi = createApi({
         'Availability',
         'Reviews',
         'Businesses',
+        'Reels',
     ],
     endpoints: () => ({}),
 })

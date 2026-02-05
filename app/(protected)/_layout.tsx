@@ -45,6 +45,14 @@ export default function ProtectedLayout() {
             >
                 <Stack.Screen name="gate" />
                 <Stack.Screen name="(onboarding)" />
+                <Stack.Screen
+                    name="user/reel/[id]"
+                    options={{
+                        presentation: 'fullScreenModal',
+                        animation: 'fade',
+                        contentStyle: { backgroundColor: '#000000' },
+                    }}
+                />
             </Stack>
         </BusinessVerificationGuard>
     )

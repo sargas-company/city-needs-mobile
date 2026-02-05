@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Modal, Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
+import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -15,6 +16,7 @@ import type { BusinessHoursDayDto } from '@/store/features/public-business/publi
 import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppSelector } from '@/store/hooks'
+import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 type TabKey = 'about' | 'reviews' | 'services'
 
@@ -181,6 +183,7 @@ const BusinessProfileScreen = () => {
     const providerName = profileUser?.username ?? profileUser?.email ?? 'Owner'
     const providerInitial = providerName[0].toUpperCase()
 
+    const businessPhotos = publicData?.photos ?? []
     const descriptionParagraphs = useMemo(() => (business?.description ?? '').split('\n').filter(Boolean), [business?.description])
 
     const reviews: Review[] = useMemo(
@@ -239,11 +242,11 @@ const BusinessProfileScreen = () => {
                     <View className="mt-2 flex-row items-center gap-2">
                         {businessCity ? (
                             <>
-                                <Feather name="map-pin" size={16} color="#FF4D4D" />
+                                <Feather name="map-pin" size={16} color="#e89f48" />
                                 <AppText className="text-[13px] font-poppins-medium text-[#171717]">{businessCity}</AppText>
                             </>
                         ) : null}
-                        <Feather name="star" size={16} color="#e89f48" />
+                        <DoubleStar />
                         <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg})</AppText>
                     </View>
                 </View>
@@ -295,6 +298,23 @@ const BusinessProfileScreen = () => {
                                 </View>
                             </View>
                         </View>
+
+                        {businessPhotos.length > 0 && (
+                            <View className="mt-4">
+                                <AppText className="mb-3 font-poppins-semibold text-[14px] text-[#0C2A63]">Photos</AppText>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-1">
+                                    {businessPhotos.map((photo) => (
+                                        <View key={photo.id} className="mx-1">
+                                            <Image
+                                                source={{ uri: photo.url }}
+                                                style={{ width: 140, height: 140, borderRadius: 16 }}
+                                                contentFit="cover"
+                                            />
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                        )}
 
                         <View className="mt-4 rounded-2xl bg-white p-4" style={cardShadow}>
                             {descriptionParagraphs.length > 0 ? (

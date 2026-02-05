@@ -34,7 +34,9 @@ function formatTimeLabel(iso: string): string {
 function mapToBooking(item: BusinessBookingListItemDto): Booking {
     const name = item.userName ?? 'Customer'
     const nameParts = name.split(' ')
-    const serviceName = item.services.length > 0 ? item.services.join(', ') : 'Booking'
+
+    console.warn(item)
+    console.log(item)
 
     return {
         id: item.id,
@@ -42,11 +44,10 @@ function mapToBooking(item: BusinessBookingListItemDto): Booking {
         customer: {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
-            avatarUrl: null,
+            avatarUrl: item.userAvatar?.url ?? null,
         },
-        serviceName,
-        price: item.totalPrice,
-        currency: 'USD',
+        services: item.services.map((s) => ({ name: s.name, price: s.price })),
+        totalPrice: item.totalPrice,
         dateLabel: formatDateLabel(item.startAt),
         timeLabel: formatTimeLabel(item.startAt),
         status: STATUS_MAP[item.status] ?? BookingStatus.NEW,

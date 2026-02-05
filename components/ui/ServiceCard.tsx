@@ -7,6 +7,7 @@ import { FontAwesome } from '@expo/vector-icons'
 import { AppText } from '@/components/ui/AppText'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/store/features/saved-businesses/savedBusinessesApi'
+import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -16,9 +17,9 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export function ServiceCard({ business, isSaved = false }: { business: BusinessCardDto; isSaved?: boolean }) {
+export function ServiceCard({ business }: { business: BusinessCardDto }) {
     const router = useRouter()
-    const [saved, setSaved] = useState(isSaved)
+    const [saved, setSaved] = useState(business.isSaved)
     const [addSaved] = useAddSavedBusinessMutation()
     const [removeSaved] = useRemoveSavedBusinessMutation()
 
@@ -58,7 +59,7 @@ export function ServiceCard({ business, isSaved = false }: { business: BusinessC
                         <View className="mt-0.5 flex-row items-center gap-1">
                             {/*<View className="h-3 w-3 rounded-full bg-[#F5C518]" />*/}
                             {/*<View className="h-3 w-3 rounded-full bg-brand" />*/}
-                            <FontAwesome name="star" size={14} color={'#E8A230'} />
+                            <DoubleStar />
                             <AppText className="text-status text-text">({business.ratingAvg})</AppText>
                             <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
                         </View>

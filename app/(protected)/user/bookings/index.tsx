@@ -41,14 +41,9 @@ function formatTimeLabel(iso: string): string {
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
 }
 
-function getDurationMinutes(startAt: string, endAt: string): number {
-    return Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60_000)
-}
-
 function mapToBooking(item: BookingListItemDto): Booking {
     const name = item.businessName ?? 'Booking'
     const nameParts = name.split(' ')
-    const duration = getDurationMinutes(item.startAt, item.endAt)
 
     return {
         id: item.id,
@@ -56,11 +51,10 @@ function mapToBooking(item: BookingListItemDto): Booking {
         customer: {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
-            avatarUrl: null,
+            avatarUrl: item.businessLogo?.url ?? null,
         },
-        serviceName: name,
-        price: duration,
-        currency: 'min',
+        services: item.services.map((s) => ({ name: s.name, price: s.price })),
+        totalPrice: item.totalPrice,
         dateLabel: formatDateLabel(item.startAt),
         timeLabel: formatTimeLabel(item.startAt),
         status: STATUS_MAP[item.status] ?? BookingStatus.NEW,
