@@ -35,13 +35,16 @@ function mapToBooking(item: BusinessBookingListItemDto): Booking {
     const name = item.userName ?? 'Customer'
     const nameParts = name.split(' ')
 
+    console.warn(item)
+    console.log(item)
+
     return {
         id: item.id,
         businessId: '',
         customer: {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
-            avatarUrl: null,
+            avatarUrl: item.userAvatar?.url ?? null,
         },
         services: item.services.map((s) => ({ name: s.name, price: s.price })),
         totalPrice: item.totalPrice,
