@@ -1,8 +1,8 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import MoonGray from '@/assets/images/moon_gray.svg'
-import MoonYellow from '@/assets/images/moon_yellow.svg'
+import MoonGray from '@/assets/images/moon/moon_gray.svg'
+import MoonYellow from '@/assets/images/moon/moon_yellow.svg'
 
 import { AppPressable } from './AppPressable'
 

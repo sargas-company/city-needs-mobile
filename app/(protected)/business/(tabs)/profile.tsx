@@ -16,6 +16,7 @@ import type { BusinessHoursDayDto } from '@/store/features/public-business/publi
 import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppSelector } from '@/store/hooks'
+import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 type TabKey = 'about' | 'reviews' | 'services'
 
@@ -241,11 +242,11 @@ const BusinessProfileScreen = () => {
                     <View className="mt-2 flex-row items-center gap-2">
                         {businessCity ? (
                             <>
-                                <Feather name="map-pin" size={16} color="#FF4D4D" />
+                                <Feather name="map-pin" size={16} color="#e89f48" />
                                 <AppText className="text-[13px] font-poppins-medium text-[#171717]">{businessCity}</AppText>
                             </>
                         ) : null}
-                        <Feather name="star" size={16} color="#e89f48" />
+                        <DoubleStar />
                         <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg})</AppText>
                     </View>
                 </View>

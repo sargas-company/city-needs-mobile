@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Image, View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
-import { FontAwesome } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import * as VideoThumbnails from 'expo-video-thumbnails'
 
@@ -9,6 +8,7 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import type { ReelFeedItem } from '@/store/features/reels/reels.types'
+import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -70,7 +70,7 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
 
                         {/* Rating + City */}
                         <View className="mt-0.5 flex-row items-center gap-1">
-                            <FontAwesome name="star" size={14} color="#E8A230" />
+                            <DoubleStar />
                             <AppText className="text-status text-text">({business.ratingAvg})</AppText>
                             <Feather name="map-pin" size={13} color="#e89f48" />
                             <AppText className="text-status text-text">{business.address.city}</AppText>

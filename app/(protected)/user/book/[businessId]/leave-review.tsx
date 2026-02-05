@@ -11,6 +11,7 @@ import { StarRating } from '@/components/ui/StarRating'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useCreateReviewMutation } from '@/store/features/reviews/reviewsApi'
+import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 const LeaveReviewScreen = () => {
     const router = useRouter()
@@ -83,11 +84,12 @@ const LeaveReviewScreen = () => {
                     <View className="mt-2 flex-row items-center gap-2">
                         {businessCity ? (
                             <>
-                                <Feather name="map-pin" size={16} color="#FF4D4D" />
+                                <Feather name="map-pin" size={16} color="#e89f48" />
                                 <AppText className="text-[13px] font-poppins-medium text-[#171717]">{businessCity}</AppText>
                             </>
                         ) : null}
-                        <Feather name="star" size={16} color="#e89f48" />
+                        <DoubleStar />
+
                         <AppText className="text-[13px] font-poppins-medium text-[#171717]">({businessRating})</AppText>
                     </View>
                 </View>
