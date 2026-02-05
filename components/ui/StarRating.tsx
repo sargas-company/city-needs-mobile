@@ -1,6 +1,8 @@
 import React from 'react'
 import { View } from 'react-native'
-import { FontAwesome } from '@expo/vector-icons'
+
+import MoonGray from '@/assets/images/moon_gray.svg'
+import MoonYellow from '@/assets/images/moon_yellow.svg'
 
 import { AppPressable } from './AppPressable'
 
@@ -8,21 +10,11 @@ type StarRatingProps = {
     rating: number
     maxStars?: number
     size?: number
-    color?: string
-    emptyColor?: string
     onChange?: (rating: number) => void
     readonly?: boolean
 }
 
-export const StarRating: React.FC<StarRatingProps> = ({
-    rating,
-    maxStars = 5,
-    size = 32,
-    color = '#E8A230',
-    emptyColor = '#E8A230',
-    onChange,
-    readonly = false,
-}) => {
+export const StarRating: React.FC<StarRatingProps> = ({ rating, maxStars = 5, size = 32, onChange, readonly = false }) => {
     const stars = Array.from({ length: maxStars }, (_, i) => i + 1)
 
     const getFill = (starIndex: number) => {
@@ -41,12 +33,10 @@ export const StarRating: React.FC<StarRatingProps> = ({
             {stars.map((starIndex) => {
                 const fill = getFill(starIndex)
 
-                const StarIcon = (
+                const MoonIcon = (
                     <View style={{ width: size, height: size }}>
-                        {/* empty (outline) as base */}
-                        <FontAwesome name="star-o" size={size} color={emptyColor} />
+                        <MoonGray width={size} height={size} />
 
-                        {/* overlay filled part */}
                         {fill > 0 && (
                             <View
                                 style={{
@@ -58,17 +48,17 @@ export const StarRating: React.FC<StarRatingProps> = ({
                                     overflow: 'hidden',
                                 }}
                             >
-                                <FontAwesome name="star" size={size} color={color} />
+                                <MoonYellow width={size} height={size} />
                             </View>
                         )}
                     </View>
                 )
 
-                if (readonly) return <View key={starIndex}>{StarIcon}</View>
+                if (readonly) return <View key={starIndex}>{MoonIcon}</View>
 
                 return (
                     <AppPressable key={starIndex} onPress={() => handlePress(starIndex)}>
-                        {StarIcon}
+                        {MoonIcon}
                     </AppPressable>
                 )
             })}
