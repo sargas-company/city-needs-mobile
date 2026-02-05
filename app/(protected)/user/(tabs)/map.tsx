@@ -1,7 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { FilterModal } from '@/components/filters/FilterModal'
+import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { CITIES } from '@/constants/cities'
 import { BusinessMapCard } from '@/src/features/map/components/BusinessMapCard'
 import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
@@ -36,24 +38,37 @@ export default function MapScreen() {
     // Map center for search: user location or default city
     const defaultCenter: LatLng = userLocation ?? CITIES.Saskatoon.center
     const [mapCenter, setMapCenter] = useState<LatLng>(defaultCenter)
+    const [searchText, setSearchText] = useState('')
+    const [filterOpen, setFilterOpen] = useState(false)
+    const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
+    const appliedFiltersRef = useRef(appliedFilters)
 
-    const queryArgs: SearchBusinessesArgs = useMemo(
-        () => ({
-            // lat: mapCenter.lat,
-            // lng: mapCenter.lng,
-            // withinKm: 5,
+    const queryArgs: SearchBusinessesArgs = useMemo(() => {
+        const args: SearchBusinessesArgs = {
+            city: appliedFilters ? undefined : 'Saskatoon',
             limit: 50,
-            // sort: 'nearby',
-        }),
-        []
-    )
+        }
+        if (searchText.trim()) {
+            args.search = searchText.trim()
+        }
+        if (appliedFilters) {
+            Object.assign(args, filterValuesToSearchArgs(appliedFilters, userLocation))
+        } else {
+            args.lat = mapCenter.lat
+            args.lng = mapCenter.lng
+            args.withinKm = 5
+            args.sort = 'nearby'
+        }
+        return args
+    }, [searchText, appliedFilters, userLocation, mapCenter])
 
     const insets = useSafeAreaInsets()
     const { data } = useSearchBusinessesQuery(queryArgs)
     const businesses = useMemo(() => data?.data ?? [], [data?.data])
     const markers = useMemo(() => businessesToMarkers(businesses), [businesses])
 
-    const [searchText, setSearchText] = useState('')
+    appliedFiltersRef.current = appliedFilters
+
     const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
     const selectedBusiness = useMemo(
         () => (selectedBusinessId ? businesses.find((b) => b.id === selectedBusinessId) : null),
@@ -72,10 +87,14 @@ export default function MapScreen() {
         setSelectedBusinessId(null)
     }, [])
 
+    const handleApplyFilters = useCallback((values: FilterValues) => {
+        setAppliedFilters(values)
+    }, [])
+
     return (
         <View style={styles.container}>
             <View style={[styles.searchBarContainer, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
-                <MapSearchBar value={searchText} onChangeText={setSearchText} onSettingsPress={() => {}} placeholder="Search" />
+                <MapSearchBar value={searchText} onChangeText={setSearchText} onSettingsPress={() => setFilterOpen(true)} placeholder="Search" />
             </View>
 
             <Map
@@ -87,6 +106,13 @@ export default function MapScreen() {
                 onRegionChangeEnd={handleRegionChangeEnd}
                 showUserLocation={true}
                 userLocation={userLocation}
+            />
+
+            <FilterModal
+                visible={filterOpen}
+                onClose={() => setFilterOpen(false)}
+                onApply={handleApplyFilters}
+                initialValues={appliedFiltersRef.current ?? undefined}
             />
 
             {/* Single business card overlay */}
