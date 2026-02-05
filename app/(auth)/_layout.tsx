@@ -43,6 +43,7 @@ export default function AuthLayout() {
                 }}
             >
                 <Stack.Screen name="reset-password" options={{ contentStyle: { paddingTop: 0 } }} />
+                <Stack.Screen name="reset-password-success" options={{ contentStyle: { paddingTop: 0 } }} />
             </Stack>
         </View>
     )

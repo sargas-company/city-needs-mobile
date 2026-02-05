@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
+import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
 import { FormInput } from '@/components/ui/FormInput'
@@ -17,8 +18,8 @@ const resetSchema = z.object({
 type ResetFormValues = z.infer<typeof resetSchema>
 
 const ResetPassword = () => {
+    const router = useRouter()
     const [submitError, setSubmitError] = useState<string | null>(null)
-    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
     const [requestReset, { isLoading }] = useRequestPasswordResetMutation()
 
     const {
@@ -35,11 +36,10 @@ const ResetPassword = () => {
 
     const onSubmit = async (values: ResetFormValues) => {
         setSubmitError(null)
-        setSubmitSuccess(null)
         try {
-            const response = await requestReset({ email: values.email.trim() }).unwrap()
-            setSubmitSuccess(response?.message ?? 'If this email exists, a password reset link has been sent')
+            await requestReset({ email: values.email.trim() }).unwrap()
             reset({ email: '' })
+            router.push('/(auth)/reset-password-success')
         } catch (err) {
             const message = (err as { data?: { message?: string } })?.data?.message ?? 'Failed to send reset email'
             setSubmitError(message)
@@ -80,7 +80,6 @@ const ResetPassword = () => {
                         />
 
                         {submitError ? <AppText className="text-sm text-danger">{submitError}</AppText> : null}
-                        {submitSuccess ? <AppText className="text-sm text-brand">{submitSuccess}</AppText> : null}
 
                         <Pressable
                             onPress={handleSubmit(onSubmit)}
