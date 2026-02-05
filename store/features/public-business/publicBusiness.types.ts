@@ -12,6 +12,7 @@ export type PublicBusinessDto = {
 
     address?: AddressDto | null
     logo?: FileDto | null
+    photos?: FileDto[]
 
     price?: number | null
     serviceOnSite?: boolean | null
