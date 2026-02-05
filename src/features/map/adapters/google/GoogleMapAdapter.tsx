@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
 
 import { MapMarkerPin } from '../../components/MapMarkerPin'
+import { UserLocationPin } from '../../components/UserLocationPin'
 import { MapMarker, LatLng, Bounds, OnRegionChangeEnd, OnMarkerPress } from '../../types/map.types'
 import { mapStyle } from './mapStyle'
 
@@ -14,6 +15,7 @@ interface GoogleMapAdapterProps {
     onMarkerPress?: OnMarkerPress
     onRegionChangeEnd?: OnRegionChangeEnd
     showUserLocation?: boolean
+    userLocation?: LatLng | null
     style?: ViewStyle
 }
 
@@ -29,6 +31,7 @@ export function GoogleMapAdapter({
     onMarkerPress,
     onRegionChangeEnd,
     showUserLocation = false,
+    userLocation,
     style,
 }: GoogleMapAdapterProps) {
     const mapRef = useRef<MapView>(null)
@@ -125,7 +128,7 @@ export function GoogleMapAdapter({
             style={[styles.map, style]}
             initialRegion={getInitialRegion()}
             onRegionChangeComplete={handleRegionChangeComplete}
-            showsUserLocation={showUserLocation}
+            showsUserLocation={!userLocation && showUserLocation}
             showsMyLocationButton={false}
             showsCompass={true}
             showsScale={false}
@@ -133,6 +136,19 @@ export function GoogleMapAdapter({
             scrollEnabled={true}
             zoomEnabled={true}
         >
+            {userLocation && (
+                <Marker
+                    coordinate={{
+                        latitude: userLocation.lat,
+                        longitude: userLocation.lng,
+                    }}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                    tracksViewChanges={true}
+                >
+                    <UserLocationPin />
+                </Marker>
+            )}
+
             {markers.map((marker) => (
                 <Marker
                     key={marker.id}

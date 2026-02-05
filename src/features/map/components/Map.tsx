@@ -38,9 +38,14 @@ export interface MapProps {
     onRegionChangeEnd?: OnRegionChangeEnd
 
     /**
-     * Show user's current location
+     * Show user's current location (native blue dot when no userLocation)
      */
     showUserLocation?: boolean
+
+    /**
+     * Custom user location marker (brand color, pulse). When provided, uses our pin instead of native dot.
+     */
+    userLocation?: LatLng | null
 
     /**
      * Custom style for the map container
@@ -66,6 +71,7 @@ export function Map({
     onMarkerPress,
     onRegionChangeEnd,
     showUserLocation = false,
+    userLocation,
     style,
 }: MapProps) {
     const engine = useMapEngine()
@@ -85,6 +91,7 @@ export function Map({
                     onMarkerPress={onMarkerPress}
                     onRegionChangeEnd={onRegionChangeEnd}
                     showUserLocation={showUserLocation}
+                    userLocation={userLocation}
                     style={style}
                 />
             )

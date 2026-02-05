@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CITIES } from '@/constants/cities'
 import { BusinessMapCard } from '@/src/features/map/components/BusinessMapCard'
+import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
 import { Map, MapMarker, type Bounds, type LatLng } from '@/src/features/map'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import type { SearchBusinessesArgs } from '@/store/features/search/search.types'
@@ -44,7 +45,7 @@ export default function MapScreen() {
             limit: 50,
             // sort: 'nearby',
         }),
-        [mapCenter]
+        []
     )
 
     const insets = useSafeAreaInsets()
@@ -52,6 +53,7 @@ export default function MapScreen() {
     const businesses = useMemo(() => data?.data ?? [], [data?.data])
     const markers = useMemo(() => businessesToMarkers(businesses), [businesses])
 
+    const [searchText, setSearchText] = useState('')
     const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
     const selectedBusiness = useMemo(
         () => (selectedBusinessId ? businesses.find((b) => b.id === selectedBusinessId) : null),
@@ -72,6 +74,10 @@ export default function MapScreen() {
 
     return (
         <View style={styles.container}>
+            <View style={[styles.searchBarContainer, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+                <MapSearchBar value={searchText} onChangeText={setSearchText} onSettingsPress={() => {}} placeholder="Search" />
+            </View>
+
             <Map
                 initialCenter={mapCenter}
                 initialZoom={7}
@@ -80,6 +86,7 @@ export default function MapScreen() {
                 onMarkerPress={handleMarkerPress}
                 onRegionChangeEnd={handleRegionChangeEnd}
                 showUserLocation={true}
+                userLocation={userLocation}
             />
 
             {/* Single business card overlay */}
@@ -95,6 +102,13 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    searchBarContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
     },
     cardContainer: {
         position: 'absolute',
