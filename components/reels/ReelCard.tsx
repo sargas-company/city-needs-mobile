@@ -50,7 +50,7 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
                             <FontAwesome name="star" size={14} color="#E8A230" />
                             <AppText className="text-status text-text">({business.ratingAvg})</AppText>
                             <Feather name="map-pin" size={13} color="#e89f48" />
-                            <AppText className="text-status text-text">{business.city}</AppText>
+                            <AppText className="text-status text-text">{business.address.city}</AppText>
                         </View>
                     </View>
                 </View>

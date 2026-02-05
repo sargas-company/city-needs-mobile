@@ -30,14 +30,23 @@ export type DeleteMyReelResponse = {
     deleted: true
 }
 
+export type ReelFeedBusinessAddress = {
+    countryCode: string
+    city: string
+    state: string
+    addressLine1: string
+    addressLine2: string | null
+    zip: string
+}
+
 export type ReelFeedBusiness = {
     id: string
     name: string
     categoryId: string
-    logoUrl: string | null
     ratingAvg: number
     ratingCount: number
-    city: string
+    logoUrl: string | null
+    address: ReelFeedBusinessAddress
 }
 
 export type ReelFeedItem = {
