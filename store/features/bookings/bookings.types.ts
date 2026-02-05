@@ -1,5 +1,12 @@
 export type ApiBookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
 
+export type BookingServiceItemDto = {
+    id: string
+    name: string
+    price: number
+    duration: number
+}
+
 export type BookingListItemDto = {
     id: string
     businessId: string
@@ -9,6 +16,8 @@ export type BookingListItemDto = {
     endAt: string
     createdAt: string
     hasReview?: boolean
+    services: BookingServiceItemDto[]
+    totalPrice: number
 }
 
 export type BookingResponseDto = {

@@ -12,13 +12,17 @@ export enum BookingStatus {
     CANCELLED = 'cancelled',
 }
 
+export type BookingService = {
+    name: string
+    price?: number
+}
+
 export type Booking = {
     id: string
     businessId: string
     customer: { firstName: string; lastName: string; avatarUrl?: string | null }
-    serviceName: string
-    price: number
-    currency: string
+    services: BookingService[]
+    totalPrice: number
     dateLabel: string
     timeLabel: string
     status: BookingStatus
@@ -45,12 +49,14 @@ const cardShadow = {
     elevation: 2,
 }
 
+function formatPrice(cents: number): string {
+    return `$${(cents / 100).toFixed(2)}`
+}
+
 export const BookingCard = ({ booking, onPress }: Props) => {
-    const { customer, serviceName, price, currency, dateLabel, timeLabel, status } = booking
+    const { customer, services, totalPrice, dateLabel, timeLabel, status } = booking
     const fullName = `${customer.firstName} ${customer.lastName}`
     const badge = statusConfig[status]
-
-    const displayPrice = currency === 'USD' ? `$${price}` : `${price} ${currency}`
 
     const content = (
         <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
@@ -77,13 +83,21 @@ export const BookingCard = ({ booking, onPress }: Props) => {
                 </View>
             </View>
 
-            {/* Middle: Service + Price */}
-            <View className="mt-3 flex-row items-center justify-between">
-                <View>
-                    <AppText className="text-[12px] text-text-muted">Service</AppText>
-                    <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">{serviceName}</AppText>
-                </View>
-                <AppText className="font-poppins-semibold text-[16px] text-[#0C2A63]">{displayPrice}</AppText>
+            {/* Services */}
+            <View className="mt-3">
+                <AppText className="text-[12px] text-text-muted">Services</AppText>
+                {services.map((s, i) => (
+                    <View key={i} className="mt-1 flex-row items-center justify-between">
+                        <AppText className="font-poppins-medium text-[14px] text-[#0C2A63]">{s.name}</AppText>
+                        {s.price != null && <AppText className="font-poppins-medium text-[14px] text-[#0C2A63]">{formatPrice(s.price)}</AppText>}
+                    </View>
+                ))}
+            </View>
+
+            {/* Total */}
+            <View className="mt-2 flex-row items-center justify-between border-t border-[#E5E7EB] pt-2">
+                <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">Total</AppText>
+                <AppText className="font-poppins-semibold text-[16px] text-[#0C2A63]">{formatPrice(totalPrice)}</AppText>
             </View>
 
             {/* Bottom: Date + Time */}
