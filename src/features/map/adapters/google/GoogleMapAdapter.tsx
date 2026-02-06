@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from 'react'
 import { StyleSheet, ViewStyle } from 'react-native'
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
+import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps'
 
 import { MapMarkerPin } from '../../components/MapMarkerPin'
 import { UserLocationPin } from '../../components/UserLocationPin'
@@ -16,6 +16,7 @@ interface GoogleMapAdapterProps {
     onRegionChangeEnd?: OnRegionChangeEnd
     showUserLocation?: boolean
     userLocation?: LatLng | null
+    searchRadiusKm?: 1 | 5 | null
     style?: ViewStyle
 }
 
@@ -32,6 +33,7 @@ export function GoogleMapAdapter({
     onRegionChangeEnd,
     showUserLocation = false,
     userLocation,
+    searchRadiusKm,
     style,
 }: GoogleMapAdapterProps) {
     const mapRef = useRef<MapView>(null)
@@ -136,6 +138,19 @@ export function GoogleMapAdapter({
             scrollEnabled={true}
             zoomEnabled={true}
         >
+            {userLocation && searchRadiusKm && (
+                <Circle
+                    center={{
+                        latitude: userLocation.lat,
+                        longitude: userLocation.lng,
+                    }}
+                    radius={searchRadiusKm * 1000}
+                    fillColor="rgba(231, 159, 72, 0.08)"
+                    strokeColor="#E79F48"
+                    strokeWidth={3}
+                />
+            )}
+
             {userLocation && (
                 <Marker
                     coordinate={{

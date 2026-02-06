@@ -48,6 +48,11 @@ export interface MapProps {
     userLocation?: LatLng | null
 
     /**
+     * Search radius in km (1 or 5). When set with userLocation, draws a circle around user pin.
+     */
+    searchRadiusKm?: 1 | 5 | null
+
+    /**
      * Custom style for the map container
      */
     style?: ViewStyle
@@ -72,6 +77,7 @@ export function Map({
     onRegionChangeEnd,
     showUserLocation = false,
     userLocation,
+    searchRadiusKm,
     style,
 }: MapProps) {
     const engine = useMapEngine()
@@ -92,6 +98,7 @@ export function Map({
                     onRegionChangeEnd={onRegionChangeEnd}
                     showUserLocation={showUserLocation}
                     userLocation={userLocation}
+                    searchRadiusKm={searchRadiusKm}
                     style={style}
                 />
             )

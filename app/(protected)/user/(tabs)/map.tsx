@@ -83,6 +83,8 @@ export default function MapScreen() {
         setAppliedFilters(values)
     }, [])
 
+    const searchRadiusKm: 1 | 5 | null = appliedFilters?.proximity === 'within_5km' ? 5 : appliedFilters?.proximity === 'within_1km' ? 1 : null
+
     return (
         <View style={styles.container}>
             <View style={[styles.searchBarContainer, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
@@ -98,6 +100,7 @@ export default function MapScreen() {
                 onRegionChangeEnd={handleRegionChangeEnd}
                 showUserLocation={true}
                 userLocation={userLocation}
+                searchRadiusKm={searchRadiusKm}
             />
 
             <FilterModal
