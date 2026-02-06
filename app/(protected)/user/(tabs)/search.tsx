@@ -31,11 +31,11 @@ const FILTER_CHIPS: FilterChip[] = [
     { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }), requiresSearch: true },
 ]
 
-const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
+const SORT_OPTIONS: { value: BusinessSort | null; label: string }[] = [
+    { value: null, label: 'None' },
     { value: 'popular', label: 'Popular' },
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
-    // { value: 'nearby', label: 'Nearby' },
 ]
 
 // ── SearchScreen ───────────────────────────────────────────────────────────────
@@ -53,7 +53,9 @@ export default function SearchScreen() {
     const appliedFiltersRef = useRef(appliedFilters)
     appliedFiltersRef.current = appliedFilters
 
-    const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by'
+    const sortLabel = sort ? (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by') : 'Sort by'
+    // "popular" sort is incompatible with top-rated and best-price chips
+    const isPopularDisabled = activeChips.has('top-rated') || activeChips.has('best-price')
 
     const displayCity = appliedFilters ? (appliedFilters.city ?? 'All Cities') : 'Saskatoon'
 
@@ -107,7 +109,10 @@ export default function SearchScreen() {
             }
             return next
         })
-        setSort(null)
+        // top-rated and best-price are incompatible with "popular" sort
+        if (chipId === 'top-rated' || chipId === 'best-price') {
+            setSort((prev) => (prev === 'popular' ? null : prev))
+        }
         setCursor(null)
     }, [])
 
@@ -132,9 +137,8 @@ export default function SearchScreen() {
         }
     }, [meta, isFetching])
 
-    const handleSortChange = useCallback((value: BusinessSort) => {
+    const handleSortChange = useCallback((value: BusinessSort | null) => {
         setSort(value)
-        setActiveChips(new Set())
         setSortOpen(false)
         setCursor(null)
     }, [])
@@ -221,17 +225,24 @@ export default function SearchScreen() {
                     <Modal visible={sortOpen} transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
                         <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
                             <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
-                                {SORT_OPTIONS.map((option) => (
-                                    <Pressable
-                                        key={option.value}
-                                        onPress={() => handleSortChange(option.value)}
-                                        className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
-                                    >
-                                        <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
-                                            {option.label}
-                                        </AppText>
-                                    </Pressable>
-                                ))}
+                                {SORT_OPTIONS.map((option) => {
+                                    const disabled = option.value === 'popular' && isPopularDisabled
+                                    return (
+                                        <Pressable
+                                            key={option.label}
+                                            disabled={disabled}
+                                            onPress={() => handleSortChange(option.value)}
+                                            className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
+                                            style={disabled ? { opacity: 0.4 } : undefined}
+                                        >
+                                            <AppText
+                                                className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}
+                                            >
+                                                {option.label}
+                                            </AppText>
+                                        </Pressable>
+                                    )
+                                })}
                             </View>
                         </Pressable>
                     </Modal>
