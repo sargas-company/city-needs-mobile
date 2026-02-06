@@ -21,19 +21,21 @@ type FilterChip = {
     id: string
     label: string
     getParams: () => Partial<SearchBusinessesArgs>
+    /** If true, chip is only available when searching for services */
+    requiresSearch?: boolean
 }
 
 const FILTER_CHIPS: FilterChip[] = [
     { id: 'open-now', label: 'Open Now', getParams: () => ({ openNow: true }) },
     { id: 'top-rated', label: 'Top Rated', getParams: () => ({ topRated: true }) },
-    { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }) },
+    { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }), requiresSearch: true },
 ]
 
 const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
     { value: 'popular', label: 'Popular' },
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'nearby', label: 'Nearby' },
+    // { value: 'nearby', label: 'Nearby' },
 ]
 
 // ── SearchScreen ───────────────────────────────────────────────────────────────
@@ -71,6 +73,8 @@ export default function SearchScreen() {
 
         for (const chip of FILTER_CHIPS) {
             if (activeChips.has(chip.id)) {
+                // Skip service-specific chips when no search
+                if (chip.requiresSearch && !searchText.trim()) continue
                 Object.assign(args, chip.getParams())
             }
         }
@@ -96,6 +100,9 @@ export default function SearchScreen() {
             if (next.has(chipId)) {
                 next.delete(chipId)
             } else {
+                // top-rated and best-price are mutually exclusive
+                if (chipId === 'top-rated') next.delete('best-price')
+                if (chipId === 'best-price') next.delete('top-rated')
                 next.add(chipId)
             }
             return next
@@ -107,6 +114,16 @@ export default function SearchScreen() {
     const handleSearchChange = useCallback((text: string) => {
         setSearchText(text)
         setCursor(null)
+        // Deactivate service-specific chips when search is cleared
+        if (!text.trim()) {
+            setActiveChips((prev) => {
+                const next = new Set(prev)
+                for (const chip of FILTER_CHIPS) {
+                    if (chip.requiresSearch) next.delete(chip.id)
+                }
+                return next.size === prev.size ? prev : next
+            })
+        }
     }, [])
 
     const loadMore = useCallback(() => {
@@ -161,14 +178,19 @@ export default function SearchScreen() {
                     <View className="mb-3 flex-row flex-wrap gap-2">
                         {FILTER_CHIPS.map((chip) => {
                             const active = activeChips.has(chip.id)
+                            const disabled = chip.requiresSearch && !searchText.trim()
                             return (
                                 <AppPressable
                                     key={chip.id}
+                                    disabled={disabled}
+                                    disabledClassName=""
                                     onPress={() => toggleChip(chip.id)}
                                     className={
                                         active
                                             ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                            : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                                            : disabled
+                                              ? 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5 opacity-40'
+                                              : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
                                     }
                                 >
                                     <AppText
