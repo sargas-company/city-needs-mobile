@@ -7,8 +7,7 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import type { ProximityOption } from '@/components/filters/FilterModal.types'
 import { CITY_NAMES, type City } from '@/constants/cities'
-import { useAppSelector } from '@/store/hooks'
-import { selectLocation } from '@/store/features/location/location.selectors'
+import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 
 type Props = {
     city: City | null
@@ -23,9 +22,8 @@ const PROXIMITY_CHIPS: { id: ProximityOption; label: string }[] = [
 ]
 
 export function LocationFilter({ city, onCityChange, proximity, onProximityChange }: Props) {
-    const userLocation = useAppSelector(selectLocation)
-
-    const hasLocation = !!userLocation
+    const { location } = useEnsureLocation()
+    const hasLocation = !!location
 
     const cityItems = useMemo(() => [{ label: 'All Cities', value: '' }, ...CITY_NAMES.map((c) => ({ label: c, value: c }))], [])
 
