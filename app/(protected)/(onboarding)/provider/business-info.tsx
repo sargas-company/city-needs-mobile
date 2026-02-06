@@ -17,6 +17,7 @@ import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
 import { submitBusinessProfileThunk } from '@/store/features/onboarding/onboarding.thunks'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
 import { AppText } from '@/components/ui/AppText'
+import { ISO_WEEKDAYS } from '@/constants/isoWeekday'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const ProviderBusinessInfo = () => {
@@ -36,15 +37,14 @@ const ProviderBusinessInfo = () => {
             phone: '',
             email: '',
             price: '',
-            businessHours: [
-                { weekday: 0, isEnabled: true, startTime: '09:00', endTime: '18:00' },
-                { weekday: 1, isEnabled: true, startTime: '09:00', endTime: '18:00' },
-                { weekday: 2, isEnabled: true, startTime: '09:00', endTime: '18:00' },
-                { weekday: 3, isEnabled: true, startTime: '09:00', endTime: '18:00' },
-                { weekday: 4, isEnabled: true, startTime: '09:00', endTime: '18:00' },
-                { weekday: 5, isEnabled: false },
-                { weekday: 6, isEnabled: false },
-            ],
+            businessHours: ISO_WEEKDAYS.map(({ weekday }) => ({
+                weekday,
+                isEnabled: weekday <= 5,
+                isClosed: weekday > 5,
+                is24h: false,
+                startTime: weekday <= 5 ? '09:00' : null,
+                endTime: weekday <= 5 ? '18:00' : null,
+            })),
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',

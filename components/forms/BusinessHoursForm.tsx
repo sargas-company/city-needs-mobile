@@ -40,11 +40,13 @@ export const BusinessHoursForm = () => {
     const toggleEnabled = (index: number, value: boolean) => {
         setValue(buildPath(index, 'isEnabled'), value, { shouldDirty: true })
         if (!value) {
+            setValue(buildPath(index, 'isClosed'), true, { shouldDirty: true })
             setValue(buildPath(index, 'is24h'), false, { shouldDirty: true })
             setValue(buildPath(index, 'startTime'), null, { shouldDirty: true })
             setValue(buildPath(index, 'endTime'), null, { shouldDirty: true })
             return
         }
+        setValue(buildPath(index, 'isClosed'), false, { shouldDirty: true })
         const currentStart = days[index]?.startTime
         const currentEnd = days[index]?.endTime
         if (!currentStart) {

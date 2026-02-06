@@ -27,7 +27,10 @@ import type { UpdateBusinessProfileDto } from '@/store/features/business/busines
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
 import type { AppUser, BusinessHoursDto } from '@/store/features/profile/profile.types'
 import { setProfileUser } from '@/store/features/profile/profile.slice'
+import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
+import { publicBusinessApi, useGetBusinessHoursQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { ISO_WEEKDAYS } from '@/constants/isoWeekday'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const mockBusinessInfoDefaults: BusinessInfoFormValues = {
@@ -38,15 +41,14 @@ const mockBusinessInfoDefaults: BusinessInfoFormValues = {
     phone: '+1 (306) 555-1234',
     email: 'info@groomingcenter.com',
     price: '25',
-    businessHours: [
-        { weekday: 0, isEnabled: true, startTime: '10:00', endTime: '18:00' },
-        { weekday: 1, isEnabled: true, startTime: '10:00', endTime: '18:00' },
-        { weekday: 2, isEnabled: true, startTime: '10:00', endTime: '18:00' },
-        { weekday: 3, isEnabled: true, startTime: '10:00', endTime: '18:00' },
-        { weekday: 4, isEnabled: true, startTime: '10:00', endTime: '18:00' },
-        { weekday: 5, isEnabled: false },
-        { weekday: 6, isEnabled: false },
-    ],
+    businessHours: ISO_WEEKDAYS.map(({ weekday }) => ({
+        weekday,
+        isEnabled: weekday <= 5,
+        isClosed: weekday > 5,
+        is24h: false,
+        startTime: weekday <= 5 ? '10:00' : null,
+        endTime: weekday <= 5 ? '18:00' : null,
+    })),
 }
 
 const mockAddressDefaults: AddressFormValues = {
@@ -76,24 +78,42 @@ const parsePriceToInt = (val?: string | null) => {
     return Number.isFinite(num) ? num : undefined
 }
 
+/** Convert API hours (per-day with slots) to flat DTO for form. Uses first slot per day. */
+const businessHoursDayDtoToFlat = (daysApi: BusinessHoursDayDto[]): BusinessHoursDto[] => {
+    return ISO_WEEKDAYS.map(({ weekday }) => {
+        const day = daysApi.find((d) => d.weekday === weekday)
+        const slot = day?.hours?.find((h) => !h.isClosed) ?? day?.hours?.[0]
+        if (!slot) {
+            return { weekday, isClosed: true, is24h: false, startTime: null, endTime: null }
+        }
+        return {
+            weekday,
+            isClosed: slot.isClosed,
+            is24h: slot.is24h ?? false,
+            startTime: slot.is24h ? null : (slot.startTime ?? null),
+            endTime: slot.is24h ? null : (slot.endTime ?? null),
+        }
+    })
+}
+
 const buildBusinessHoursDefaults = (days?: BusinessHoursDto[] | null): BusinessHoursFormItem[] => {
-    const fallbackDay = (weekday: number): BusinessHoursFormItem => ({
-        weekday,
-        isEnabled: weekday < 5,
-        isClosed: weekday >= 5,
+    const fallbackDay = (isoWeekday: number): BusinessHoursFormItem => ({
+        weekday: isoWeekday,
+        isEnabled: isoWeekday <= 5,
+        isClosed: isoWeekday > 5,
         is24h: false,
-        startTime: weekday < 5 ? '10:00' : null,
-        endTime: weekday < 5 ? '18:00' : null,
+        startTime: isoWeekday <= 5 ? '10:00' : null,
+        endTime: isoWeekday <= 5 ? '18:00' : null,
     })
 
-    const mapDay = (weekday: number): BusinessHoursFormItem => {
-        const src = days?.find((d) => d.weekday === weekday)
-        if (!src) return fallbackDay(weekday)
+    const mapDay = (isoWeekday: number): BusinessHoursFormItem => {
+        const src = days?.find((d) => d.weekday === isoWeekday)
+        if (!src) return fallbackDay(isoWeekday)
         const isClosed = src.isClosed ?? false
         const isEnabled = !isClosed
         const is24h = src.is24h ?? false
         return {
-            weekday,
+            weekday: isoWeekday,
             isEnabled,
             isClosed,
             is24h,
@@ -102,7 +122,7 @@ const buildBusinessHoursDefaults = (days?: BusinessHoursDto[] | null): BusinessH
         }
     }
 
-    return Array.from({ length: 7 }, (_, idx) => mapDay(idx))
+    return ISO_WEEKDAYS.map(({ weekday }) => mapDay(weekday))
 }
 
 type PickedImage = {
@@ -117,6 +137,7 @@ const EditBusinessProfileScreen = () => {
     const business = useAppSelector(selectBusiness)
     const profileUser = useAppSelector(selectProfileUser)
 
+    const { data: businessHoursApi } = useGetBusinessHoursQuery(business?.id ?? '', { skip: !business?.id })
     const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError } = useGetCategoriesQuery()
 
     const [updateMyBusinessProfile, { isLoading: isUpdateProfileLoading }] = useUpdateMyBusinessProfileMutation()
@@ -128,6 +149,7 @@ const EditBusinessProfileScreen = () => {
     const [submitError, setSubmitError] = useState<string | null>(null)
 
     const derivedBusinessDefaults = useMemo<BusinessInfoFormValues>(() => {
+        const hoursSource = businessHoursApi?.length ? businessHoursDayDtoToFlat(businessHoursApi) : (business?.businessHours ?? null)
         return {
             businessName: business?.name ?? mockBusinessInfoDefaults.businessName,
             categoryId: business?.categoryId ?? mockBusinessInfoDefaults.categoryId,
@@ -135,9 +157,9 @@ const EditBusinessProfileScreen = () => {
             phone: business?.phone ?? mockBusinessInfoDefaults.phone,
             email: business?.email ?? mockBusinessInfoDefaults.email,
             price: business?.price != null ? String(business.price) : mockBusinessInfoDefaults.price,
-            businessHours: buildBusinessHoursDefaults(business?.businessHours),
+            businessHours: buildBusinessHoursDefaults(hoursSource),
         }
-    }, [business])
+    }, [business, businessHoursApi])
 
     const businessForm = useForm<BusinessInfoFormValues>({
         resolver: zodResolver(businessInfoSchema),
@@ -204,10 +226,10 @@ const EditBusinessProfileScreen = () => {
     const mapBusinessHours = (days: BusinessHoursFormItem[]): BusinessHoursDto[] => {
         return days.map((day) => ({
             weekday: day.weekday,
-            isClosed: !day.isEnabled || day.isClosed,
+            isClosed: !day.isEnabled,
             is24h: day.is24h ?? false,
-            startTime: !day.isEnabled || day.isClosed || day.is24h ? null : (day.startTime ?? null),
-            endTime: !day.isEnabled || day.isClosed || day.is24h ? null : (day.endTime ?? null),
+            startTime: day.isEnabled && !(day.is24h ?? false) ? (day.startTime ?? null) : null,
+            endTime: day.isEnabled && !(day.is24h ?? false) ? (day.endTime ?? null) : null,
         }))
     }
 
@@ -231,6 +253,9 @@ const EditBusinessProfileScreen = () => {
 
         try {
             await updateMyBusinessProfile(dto).unwrap()
+            if (business?.id) {
+                dispatch(publicBusinessApi.util.invalidateTags([{ type: 'PublicBusiness', id: `${business.id}-hours` }]))
+            }
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
             const resolvedMe = resolveApiData<AppUser>(meResult)
             dispatch(setProfileUser(resolvedMe))

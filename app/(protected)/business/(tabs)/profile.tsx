@@ -11,6 +11,7 @@ import { AppText } from '@/components/ui/AppText'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { Avatar } from '@/components/ui/Avatar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { getTodayWeekdayISO, ISO_WEEKDAYS } from '@/constants/isoWeekday'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
@@ -20,22 +21,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 type TabKey = 'about' | 'reviews' | 'services'
-
-// API: 0 = Monday, 1 = Tuesday, …, 6 = Sunday
-const WEEKDAYS: { weekday: number; label: string }[] = [
-    { weekday: 0, label: 'Monday' },
-    { weekday: 1, label: 'Tuesday' },
-    { weekday: 2, label: 'Wednesday' },
-    { weekday: 3, label: 'Thursday' },
-    { weekday: 4, label: 'Friday' },
-    { weekday: 5, label: 'Saturday' },
-    { weekday: 6, label: 'Sunday' },
-]
-
-/** JS getDay(): 0=Sun, 1=Mon, …, 6=Sat → API: 0=Mon, …, 6=Sun */
-function getTodayWeekdayApi(): number {
-    return (new Date().getDay() + 6) % 7
-}
 
 function getDayLabel(day?: BusinessHoursDayDto): string {
     if (!day || day.hours.length === 0) return 'Closed'
@@ -49,8 +34,8 @@ function getDayLabel(day?: BusinessHoursDayDto): string {
 
 function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
     if (!days?.length) return '—'
-    const todayApi = getTodayWeekdayApi()
-    const day = days.find((d) => d.weekday === todayApi)
+    const todayIso = getTodayWeekdayISO()
+    const day = days.find((d) => d.weekday === todayIso)
     return `${getDayLabel(day)}`
 }
 
@@ -95,7 +80,7 @@ const InfoCard = ({
 }
 
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
-    const todayApi = getTodayWeekdayApi()
+    const todayIso = getTodayWeekdayISO()
     const daysMap = useMemo(() => {
         const map = new Map<number, BusinessHoursDayDto>()
         days?.forEach((d) => map.set(d.weekday, d))
@@ -113,8 +98,8 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
                         </Pressable>
                     </View>
 
-                    {WEEKDAYS.map(({ weekday, label }) => {
-                        const isToday = weekday === todayApi
+                    {ISO_WEEKDAYS.map(({ weekday, label }) => {
+                        const isToday = weekday === todayIso
                         const day = daysMap.get(weekday)
                         const timeText = getDayLabel(day)
 

@@ -63,10 +63,10 @@ export const submitBusinessProfileThunk = createAsyncThunk<void, BusinessInfoFor
                     .filter((day) => day.isEnabled)
                     .map((day) => ({
                         weekday: day.weekday,
-                        isClosed: day.isClosed ?? false,
+                        isClosed: false,
                         is24h: day.is24h ?? false,
-                        startTime: day.is24h || day.isClosed ? null : (day.startTime ?? null),
-                        endTime: day.is24h || day.isClosed ? null : (day.endTime ?? null),
+                        startTime: (day.is24h ?? false) ? null : (day.startTime ?? null),
+                        endTime: (day.is24h ?? false) ? null : (day.endTime ?? null),
                     })),
             }
 

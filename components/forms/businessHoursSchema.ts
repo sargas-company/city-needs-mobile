@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const businessHoursItemSchema = z
     .object({
-        weekday: z.number().min(0).max(6),
+        weekday: z.number().min(1).max(7), // ISO 8601: 1=Monday … 7=Sunday
         isEnabled: z.boolean(),
         isClosed: z.boolean().optional(),
         is24h: z.boolean().optional(),
@@ -17,7 +17,7 @@ export const businessHoursItemSchema = z
             return Boolean(data.startTime && data.endTime)
         },
         {
-            message: 'Укажите время работы',
+            message: 'Set up work time',
         }
     )
 
