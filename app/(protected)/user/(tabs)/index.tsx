@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
+import Feather from '@expo/vector-icons/Feather'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -10,6 +11,7 @@ import { WaveHeader } from '@/components/layout/WaveHeader'
 import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
+import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 
@@ -90,6 +92,9 @@ function HomeSection({ title, businesses, isLoading }: HomeSectionProps) {
 
 export default function HomeScreen() {
     const { location } = useEnsureLocation()
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+
+    const { data: categories } = useGetCategoriesQuery()
 
     // Suggested for you - top rated
     const { data: suggestedData, isLoading: suggestedLoading } = useSearchBusinessesQuery({
@@ -132,9 +137,60 @@ export default function HomeScreen() {
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1" contentContainerStyle={{ paddingBottom: 120 }}>
                     {/* Search bar */}
-                    <View className="mb-6">
+                    <View className="mb-4">
                         <MapSearchBar value="" onChangeText={() => {}} />
                     </View>
+
+                    {/* Category chips */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="mb-6"
+                        contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+                    >
+                        <AppPressable
+                            onPress={() => setSelectedCategoryId(null)}
+                            className={
+                                selectedCategoryId === null
+                                    ? 'flex-row items-center gap-1 rounded-2xl bg-orange px-3 py-2'
+                                    : 'flex-row items-center rounded-2xl border border-border bg-white px-3 py-2'
+                            }
+                        >
+                            <AppText
+                                className={
+                                    selectedCategoryId === null
+                                        ? 'text-status font-poppins-medium text-white'
+                                        : 'text-status font-poppins-medium text-text'
+                                }
+                            >
+                                All
+                            </AppText>
+                        </AppPressable>
+
+                        {categories?.map((cat) => {
+                            const active = selectedCategoryId === cat.id
+                            return (
+                                <AppPressable
+                                    key={cat.id}
+                                    onPress={() => setSelectedCategoryId(active ? null : cat.id)}
+                                    className={
+                                        active
+                                            ? 'flex-row items-center gap-1 rounded-2xl bg-orange px-3 py-2'
+                                            : 'flex-row items-center rounded-2xl border border-border bg-white px-3 py-2'
+                                    }
+                                >
+                                    <AppText
+                                        className={
+                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                        }
+                                    >
+                                        {cat.title}
+                                    </AppText>
+                                    {active && <Feather name="x" size={14} color="#fff" />}
+                                </AppPressable>
+                            )
+                        })}
+                    </ScrollView>
 
                     {/* Category cards section */}
                     <View className="mb-6 px-screen">
