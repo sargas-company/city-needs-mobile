@@ -13,7 +13,7 @@ import { DateFilter } from './sections/DateFilter'
 import { TimeFilter } from './sections/TimeFilter'
 import { DEFAULT_FILTER_VALUES, type FilterModalProps, type FilterValues } from './FilterModal.types'
 
-export function FilterModal({ visible, onClose, onApply, initialValues }: FilterModalProps) {
+export function FilterModal({ visible, onClose, onApply, initialValues, hasSearch = false }: FilterModalProps) {
     const insets = useSafeAreaInsets()
     const [values, setValues] = useState<FilterValues>({ ...DEFAULT_FILTER_VALUES, ...initialValues })
 
@@ -59,9 +59,9 @@ export function FilterModal({ visible, onClose, onApply, initialValues }: Filter
                         onProximityChange={(v) => update('proximity', v)}
                     />
 
-                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} />
+                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} disabled={!hasSearch} />
 
-                    <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} />
+                    <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} disabled={!hasSearch} />
 
                     <TimeFilter
                         hour={values.availabilityHour}
@@ -70,6 +70,7 @@ export function FilterModal({ visible, onClose, onApply, initialValues }: Filter
                         onHourChange={(v) => update('availabilityHour', v)}
                         onMinuteChange={(v) => update('availabilityMinute', v)}
                         onPeriodChange={(v) => update('availabilityPeriod', v)}
+                        disabled={!hasSearch}
                     />
                 </ScrollView>
 

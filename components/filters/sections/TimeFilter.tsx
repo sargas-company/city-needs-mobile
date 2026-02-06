@@ -10,6 +10,7 @@ type Props = {
     onHourChange: (h: number) => void
     onMinuteChange: (m: number) => void
     onPeriodChange: (p: 'AM' | 'PM') => void
+    disabled?: boolean
 }
 
 const ITEM_HEIGHT = 44
@@ -105,11 +106,11 @@ function WheelColumn<T extends string | number>({
     )
 }
 
-export function TimeFilter({ hour, minute, period, onHourChange, onMinuteChange, onPeriodChange }: Props) {
+export function TimeFilter({ hour, minute, period, onHourChange, onMinuteChange, onPeriodChange, disabled }: Props) {
     const formatMinute = useCallback((m: number) => String(m).padStart(2, '0'), [])
 
     return (
-        <View className="mb-5">
+        <View className="mb-5" style={disabled ? { opacity: 0.4 } : undefined} pointerEvents={disabled ? 'none' : 'auto'}>
             <AppText className="mb-2 text-subtitle font-poppins-semibold text-text">Time</AppText>
             <View className="flex-row">
                 <WheelColumn data={HOURS} selectedValue={hour} onSelect={onHourChange} />

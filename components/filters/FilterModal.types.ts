@@ -30,24 +30,28 @@ export type FilterModalProps = {
     onClose: () => void
     onApply: (values: FilterValues) => void
     initialValues?: Partial<FilterValues>
+    /** When false, service-specific filters (price, date, time) are disabled */
+    hasSearch?: boolean
 }
 
 /**
  * Convert FilterValues + user GPS coords into SearchBusinessesArgs params.
+ * Service-specific filters (price, date, time) are only applied when hasSearch is true.
  */
-export function filterValuesToSearchArgs(filters: FilterValues, userLocation: { lat: number; lng: number } | null): Partial<SearchBusinessesArgs> {
+export function filterValuesToSearchArgs(
+    filters: FilterValues,
+    userLocation: { lat: number; lng: number } | null,
+    hasSearch = false
+): Partial<SearchBusinessesArgs> {
     const args: Partial<SearchBusinessesArgs> = {}
 
+    // Business filters (always applied)
     if (filters.categoryId) {
         args.categoryId = filters.categoryId
     }
 
     if (filters.city) {
         args.city = filters.city
-    }
-
-    if (filters.priceMax < 4000) {
-        args.priceMax = filters.priceMax
     }
 
     if (filters.proximity && userLocation) {
@@ -73,21 +77,28 @@ export function filterValuesToSearchArgs(filters: FilterValues, userLocation: { 
         }
     }
 
-    if (filters.availabilityDate) {
-        args.availabilityDate = filters.availabilityDate
+    // Service filters (only applied when searching for services)
+    if (hasSearch) {
+        if (filters.priceMax < 4000) {
+            args.priceMax = filters.priceMax
+        }
 
-        const hour24 =
-            filters.availabilityPeriod === 'AM'
-                ? filters.availabilityHour === 12
-                    ? 0
-                    : filters.availabilityHour
-                : filters.availabilityHour === 12
-                  ? 12
-                  : filters.availabilityHour + 12
+        if (filters.availabilityDate) {
+            args.availabilityDate = filters.availabilityDate
 
-        const hh = String(hour24).padStart(2, '0')
-        const mm = String(filters.availabilityMinute).padStart(2, '0')
-        args.availabilityTime = `${hh}:${mm}`
+            const hour24 =
+                filters.availabilityPeriod === 'AM'
+                    ? filters.availabilityHour === 12
+                        ? 0
+                        : filters.availabilityHour
+                    : filters.availabilityHour === 12
+                      ? 12
+                      : filters.availabilityHour + 12
+
+            const hh = String(hour24).padStart(2, '0')
+            const mm = String(filters.availabilityMinute).padStart(2, '0')
+            args.availabilityTime = `${hh}:${mm}`
+        }
     }
 
     return args

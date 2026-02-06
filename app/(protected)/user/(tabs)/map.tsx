@@ -44,11 +44,12 @@ export default function MapScreen() {
 
     const queryArgs: SearchBusinessesArgs = useMemo(() => {
         const args: SearchBusinessesArgs = { limit: 50 }
-        if (searchText.trim()) {
+        const hasSearch = !!searchText.trim()
+        if (hasSearch) {
             args.search = searchText.trim()
         }
         if (appliedFilters) {
-            Object.assign(args, filterValuesToSearchArgs(appliedFilters, userLocation))
+            Object.assign(args, filterValuesToSearchArgs(appliedFilters, userLocation, hasSearch))
         }
         return args
     }, [searchText, appliedFilters, userLocation])
@@ -104,6 +105,7 @@ export default function MapScreen() {
                 onClose={() => setFilterOpen(false)}
                 onApply={handleApplyFilters}
                 initialValues={appliedFiltersRef.current ?? undefined}
+                hasSearch={!!searchText.trim()}
             />
 
             {/* Single business card overlay */}

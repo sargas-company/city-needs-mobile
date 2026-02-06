@@ -76,7 +76,8 @@ export default function SearchScreen() {
         }
 
         if (appliedFilters) {
-            const filterArgs = filterValuesToSearchArgs(appliedFilters, userLocation)
+            const hasSearch = !!searchText.trim()
+            const filterArgs = filterValuesToSearchArgs(appliedFilters, userLocation, hasSearch)
             Object.assign(args, filterArgs)
         }
 
@@ -257,6 +258,7 @@ export default function SearchScreen() {
                 onClose={() => setFilterOpen(false)}
                 onApply={handleApplyFilters}
                 initialValues={appliedFiltersRef.current ?? undefined}
+                hasSearch={!!searchText.trim()}
             />
         </View>
     )

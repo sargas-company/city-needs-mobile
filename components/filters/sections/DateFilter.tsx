@@ -8,6 +8,7 @@ import { AppText } from '@/components/ui/AppText'
 type Props = {
     value: string | null
     onChange: (value: string | null) => void
+    disabled?: boolean
 }
 
 const TODAY = new Date().toISOString().split('T')[0]
@@ -48,7 +49,7 @@ function getWeekendMarks(baseDate: string): MarkedDates {
     return marks
 }
 
-export function DateFilter({ value, onChange }: Props) {
+export function DateFilter({ value, onChange, disabled }: Props) {
     const [visibleMonth, setVisibleMonth] = React.useState(TODAY)
 
     const markedDates = useMemo<MarkedDates>(() => {
@@ -67,11 +68,12 @@ export function DateFilter({ value, onChange }: Props) {
     }, [value, visibleMonth])
 
     const handleDayPress = (day: DateData) => {
+        if (disabled) return
         onChange(day.dateString === value ? null : day.dateString)
     }
 
     return (
-        <View className="mb-5">
+        <View className="mb-5" style={disabled ? { opacity: 0.4 } : undefined} pointerEvents={disabled ? 'none' : 'auto'}>
             <AppText className="mb-2 text-subtitle font-poppins-semibold text-text">Date</AppText>
             <Calendar
                 minDate={TODAY}
