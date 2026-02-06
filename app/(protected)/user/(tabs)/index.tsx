@@ -17,6 +17,7 @@ import FoodImage from '@/assets/images/home-page/food.svg'
 import BeautyImage from '@/assets/images/home-page/beauty.svg'
 import RepairsImage from '@/assets/images/home-page/repairs.svg'
 import PetsImage from '@/assets/images/home-page/pets.svg'
+import NoDataImage from '@/assets/images/system/NoData.svg'
 
 type CategoryCardProps = {
     title: string
@@ -67,6 +68,11 @@ function HomeSection({ title, businesses, isLoading }: HomeSectionProps) {
             {isLoading ? (
                 <View className="items-center py-10">
                     <ActivityIndicator size="small" />
+                </View>
+            ) : businesses.length === 0 ? (
+                <View className="items-center py-6">
+                    <NoDataImage width={80} height={80} />
+                    <AppText className="mt-2 text-base font-poppins-semibold text-gray-400">No businesses found</AppText>
                 </View>
             ) : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
@@ -123,7 +129,7 @@ export default function HomeScreen() {
             <WaveHeader />
 
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-                <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                <ScrollView showsVerticalScrollIndicator={false} className="flex-1" contentContainerStyle={{ paddingBottom: 120 }}>
                     {/* Category cards section */}
                     <View className="mb-6 px-screen">
                         <View className="mb-3 flex-row items-center justify-between">
