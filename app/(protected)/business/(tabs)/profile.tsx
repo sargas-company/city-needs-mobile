@@ -11,11 +11,12 @@ import { AppText } from '@/components/ui/AppText'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { Avatar } from '@/components/ui/Avatar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
 import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
-import { useAppSelector } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 type TabKey = 'about' | 'reviews' | 'services'
@@ -152,6 +153,7 @@ const TabButton = ({ title, active, onPress }: { title: string; active: boolean;
 
 const BusinessProfileScreen = () => {
     const router = useRouter()
+    const dispatch = useAppDispatch()
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [reviewsCursor, setReviewsCursor] = useState<string | null>(null)
     const [hoursModalVisible, setHoursModalVisible] = useState(false)
@@ -205,6 +207,10 @@ const BusinessProfileScreen = () => {
         if (next && !reviewsFetching) setReviewsCursor(next)
     }, [reviewsData?.meta?.nextCursor, reviewsFetching])
 
+    const onLogout = async () => {
+        await dispatch(logoutThunk()).unwrap()
+    }
+
     return (
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView
@@ -212,7 +218,11 @@ const BusinessProfileScreen = () => {
                 contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
                 showsVerticalScrollIndicator={false}
             >
-                <View className="flex-row justify-end">
+                <View className="flex-row justify-between">
+                    <Pressable onPress={onLogout} className="flex-row items-center gap-2">
+                        <Feather name="log-out" size={18} color="#FF4D4D" />
+                        <AppText className="font-poppins-medium text-[13px] text-[#FF4D4D]">Log out</AppText>
+                    </Pressable>
                     <Pressable onPress={() => router.push('/(protected)/business/edit-profile' as never)} className="flex-row items-center gap-2">
                         <Feather name="edit-3" size={18} color="#0C2A63" />
                         <AppText className="font-poppins-medium text-[13px] text-[#0C2A63]">Edit Profile</AppText>
