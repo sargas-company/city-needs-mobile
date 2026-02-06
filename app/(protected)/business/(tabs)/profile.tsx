@@ -21,15 +21,21 @@ import { DoubleStar } from '@/components/ui/DoubleMoon'
 
 type TabKey = 'about' | 'reviews' | 'services'
 
-const WEEKDAYS = [
-    { weekday: 1, label: 'Monday' },
-    { weekday: 2, label: 'Tuesday' },
-    { weekday: 3, label: 'Wednesday' },
-    { weekday: 4, label: 'Thursday' },
-    { weekday: 5, label: 'Friday' },
-    { weekday: 6, label: 'Saturday' },
-    { weekday: 0, label: 'Sunday' },
+// API: 0 = Monday, 1 = Tuesday, …, 6 = Sunday
+const WEEKDAYS: { weekday: number; label: string }[] = [
+    { weekday: 0, label: 'Monday' },
+    { weekday: 1, label: 'Tuesday' },
+    { weekday: 2, label: 'Wednesday' },
+    { weekday: 3, label: 'Thursday' },
+    { weekday: 4, label: 'Friday' },
+    { weekday: 5, label: 'Saturday' },
+    { weekday: 6, label: 'Sunday' },
 ]
+
+/** JS getDay(): 0=Sun, 1=Mon, …, 6=Sat → API: 0=Mon, …, 6=Sun */
+function getTodayWeekdayApi(): number {
+    return (new Date().getDay() + 6) % 7
+}
 
 function getDayLabel(day?: BusinessHoursDayDto): string {
     if (!day || day.hours.length === 0) return 'Closed'
@@ -43,8 +49,8 @@ function getDayLabel(day?: BusinessHoursDayDto): string {
 
 function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
     if (!days?.length) return '—'
-    const today = new Date().getDay()
-    const day = days.find((d) => d.weekday === today)
+    const todayApi = getTodayWeekdayApi()
+    const day = days.find((d) => d.weekday === todayApi)
     return `${getDayLabel(day)}`
 }
 
@@ -89,7 +95,7 @@ const InfoCard = ({
 }
 
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
-    const today = new Date().getDay()
+    const todayApi = getTodayWeekdayApi()
     const daysMap = useMemo(() => {
         const map = new Map<number, BusinessHoursDayDto>()
         days?.forEach((d) => map.set(d.weekday, d))
@@ -108,7 +114,7 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
                     </View>
 
                     {WEEKDAYS.map(({ weekday, label }) => {
-                        const isToday = weekday === today
+                        const isToday = weekday === todayApi
                         const day = daysMap.get(weekday)
                         const timeText = getDayLabel(day)
 
