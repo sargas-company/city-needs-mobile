@@ -5,12 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { CITIES } from '@/constants/cities'
+import { useEnsureLocation } from '@/hooks/useEnsureLocation'
+import { Map, MapMarker, type Bounds, type LatLng } from '@/src/features/map'
 import { BusinessMapCard } from '@/src/features/map/components/BusinessMapCard'
 import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
-import { Map, MapMarker, type Bounds, type LatLng } from '@/src/features/map'
-import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import type { SearchBusinessesArgs } from '@/store/features/search/search.types'
-import { useEnsureLocation } from '@/hooks/useEnsureLocation'
+import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 
 /**
  * Converts businesses with lat/lng to MapMarker[].
