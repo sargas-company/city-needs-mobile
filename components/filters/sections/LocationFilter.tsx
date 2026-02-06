@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
+import Feather from '@expo/vector-icons/Feather'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -68,23 +69,26 @@ export function LocationFilter({ city, onCityChange, proximity, onProximityChang
             <View className="flex-row flex-wrap gap-2">
                 {PROXIMITY_CHIPS.map((chip) => {
                     const active = proximity === chip.id
-                    const disabled = !hasLocation
+                    // const disabled = !hasLocation
+                    const disabled = false
                     return (
                         <AppPressable
                             key={chip.id}
                             disabled={disabled}
+                            disabledClassName=""
                             onPress={() => onProximityChange(active ? null : chip.id)}
                             className={
                                 active
-                                    ? 'rounded-xl bg-orange px-3 py-2'
+                                    ? 'flex-row items-center gap-1 rounded-xl bg-orange px-3 py-2'
                                     : disabled
-                                      ? 'rounded-xl border border-border bg-white px-3 py-2 opacity-40'
-                                      : 'rounded-xl border border-border bg-white px-3 py-2'
+                                      ? 'flex-row items-center rounded-xl border border-border bg-white px-3 py-2 opacity-40'
+                                      : 'flex-row items-center rounded-xl border border-border bg-white px-3 py-2'
                             }
                         >
                             <AppText className={active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'}>
                                 {chip.label}
                             </AppText>
+                            {active && <Feather name="x" size={14} color="#fff" />}
                         </AppPressable>
                     )
                 })}
