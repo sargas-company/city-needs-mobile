@@ -36,11 +36,24 @@ function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
     return getDayLabel(day)
 }
 
-function getServiceTypeLabel(onSite?: boolean | null, inStudio?: boolean | null): string {
-    if (onSite && inStudio) return 'On Site & Studio'
-    if (onSite) return 'On Site'
-    if (inStudio) return 'In Studio'
+function getServiceTypeLabel(onSite?: boolean | string | null, inStudio?: boolean | string | null): string {
+    const on = onSite === true || onSite === 'true'
+    const inS = inStudio === true || inStudio === 'true'
+    if (on && inS) return 'On Site & Studio'
+    if (on) return 'On Site'
+    if (inS) return 'In Studio'
     return '—'
+}
+
+function getServiceFlagsFromBusiness(obj: Record<string, unknown> | null | undefined): { onSite: boolean; inStudio: boolean } {
+    const source = obj && typeof obj.data === 'object' && obj.data !== null ? (obj.data as Record<string, unknown>) : obj
+    if (!source) return { onSite: false, inStudio: false }
+    const onSite = source.serviceOnSite ?? source.service_on_site
+    const inStudio = source.serviceInStudio ?? source.service_in_studio
+    return {
+        onSite: onSite === true || onSite === 'true',
+        inStudio: inStudio === true || inStudio === 'true',
+    }
 }
 
 type TabKey = 'about' | 'reviews'
@@ -188,7 +201,8 @@ const BusinessDetailScreen = () => {
     const priceLabel = publicData?.price != null ? `$${publicData.price}` : '—'
     const timeLabel = getTodayHoursLabel(businessHours)
     const categoryLabel = publicData?.category?.title ?? '—'
-    const serviceTypeLabel = getServiceTypeLabel(publicData?.serviceOnSite, publicData?.serviceInStudio)
+    const serviceFlags = getServiceFlagsFromBusiness(publicData as Record<string, unknown> | undefined)
+    const serviceTypeLabel = getServiceTypeLabel(serviceFlags.onSite, serviceFlags.inStudio)
 
     const phoneRaw = (publicData?.phone ?? '').replace(/\s/g, '')
 
