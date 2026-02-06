@@ -60,12 +60,15 @@ export function filterValuesToSearchArgs(filters: FilterValues, userLocation: { 
                 break
             case 'in_my_area':
                 args.withinKm = 5
+                args.sort = 'nearby'
                 break
             case 'within_5km':
                 args.withinKm = 5
+                args.sort = 'nearby'
                 break
             case 'within_1km':
                 args.withinKm = 1
+                args.sort = 'nearby'
                 break
         }
     }

@@ -44,23 +44,15 @@ export default function MapScreen() {
     const appliedFiltersRef = useRef(appliedFilters)
 
     const queryArgs: SearchBusinessesArgs = useMemo(() => {
-        const args: SearchBusinessesArgs = {
-            city: appliedFilters ? undefined : 'Saskatoon',
-            limit: 50,
-        }
+        const args: SearchBusinessesArgs = { limit: 50 }
         if (searchText.trim()) {
             args.search = searchText.trim()
         }
         if (appliedFilters) {
             Object.assign(args, filterValuesToSearchArgs(appliedFilters, userLocation))
-        } else {
-            args.lat = mapCenter.lat
-            args.lng = mapCenter.lng
-            args.withinKm = 5
-            args.sort = 'nearby'
         }
         return args
-    }, [searchText, appliedFilters, userLocation, mapCenter])
+    }, [searchText, appliedFilters, userLocation])
 
     const insets = useSafeAreaInsets()
     const { data } = useSearchBusinessesQuery(queryArgs)
