@@ -16,9 +16,16 @@ type Props = {
 const ITEM_HEIGHT = 44
 const VISIBLE_ITEMS = 3
 
+const SLOT_STEP_MINUTES = 10
+
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 1)
-const MINUTES = Array.from({ length: 60 }, (_, i) => i)
+const MINUTES = Array.from({ length: 6 }, (_, i) => i * SLOT_STEP_MINUTES)
 const PERIODS: ('AM' | 'PM')[] = ['AM', 'PM']
+
+/** Snap minute to nearest slot step (backend requires alignment) */
+export function snapMinuteToSlotStep(minute: number, step = SLOT_STEP_MINUTES): number {
+    return Math.round(minute / step) * step
+}
 
 function WheelColumn<T extends string | number>({
     data,
@@ -108,13 +115,14 @@ function WheelColumn<T extends string | number>({
 
 export function TimeFilter({ hour, minute, period, onHourChange, onMinuteChange, onPeriodChange, disabled }: Props) {
     const formatMinute = useCallback((m: number) => String(m).padStart(2, '0'), [])
+    const minuteAligned = snapMinuteToSlotStep(minute)
 
     return (
         <View className="mb-5" style={disabled ? { opacity: 0.4 } : undefined} pointerEvents={disabled ? 'none' : 'auto'}>
             <AppText className="mb-2 text-subtitle font-poppins-semibold text-text">Time</AppText>
             <View className="flex-row">
                 <WheelColumn data={HOURS} selectedValue={hour} onSelect={onHourChange} />
-                <WheelColumn data={MINUTES} selectedValue={minute} onSelect={onMinuteChange} formatLabel={formatMinute} />
+                <WheelColumn data={MINUTES} selectedValue={minuteAligned} onSelect={onMinuteChange} formatLabel={formatMinute} />
                 <WheelColumn data={PERIODS} selectedValue={period} onSelect={onPeriodChange} />
             </View>
         </View>

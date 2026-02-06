@@ -95,8 +95,11 @@ export function filterValuesToSearchArgs(
                       ? 12
                       : filters.availabilityHour + 12
 
+            const slotStep = 10
+            const minuteAligned = Math.round(filters.availabilityMinute / slotStep) * slotStep
+
             const hh = String(hour24).padStart(2, '0')
-            const mm = String(filters.availabilityMinute).padStart(2, '0')
+            const mm = String(Math.min(50, minuteAligned)).padStart(2, '0')
             args.availabilityTime = `${hh}:${mm}`
         }
     }
