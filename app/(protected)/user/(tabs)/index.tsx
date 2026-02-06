@@ -1,6 +1,7 @@
 import React from 'react'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { SvgProps } from 'react-native-svg'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -10,6 +11,40 @@ import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
+
+// Category card images
+import FoodImage from '@/assets/images/home-page/front-view-female-confectioner-white-wear-holding-green-plate-pink-wall-food-meal-soup-greens-vegetable 1.svg'
+import BeautyImage from '@/assets/images/home-page/front-view-young-attractive-female-white-shirt-holding-tassels-manicure-accessories-green-surface 1.svg'
+import RepairsImage from '@/assets/images/home-page/front-view-male-builder-uniform-helmet-with-hammer-blue 1.svg'
+import PetsImage from '@/assets/images/home-page/friendly-smart-basenji-dog-giving-his-paw-close-up-isolated-white 1.svg'
+
+type CategoryCardProps = {
+    title: string
+    emoji: string
+    Image: React.FC<SvgProps>
+    bgColor: string
+}
+
+function CategoryCard({ title, emoji, Image, bgColor }: CategoryCardProps) {
+    return (
+        <AppPressable className="flex-1 overflow-hidden rounded-2xl" style={{ backgroundColor: bgColor, height: 100 }}>
+            <View className="flex-1 flex-row items-end p-3">
+                <AppText className="text-lg">{emoji}</AppText>
+                <AppText className="text-subtitle font-poppins-semibold text-white">{title}</AppText>
+            </View>
+            <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
+                <Image width={80} height={80} />
+            </View>
+        </AppPressable>
+    )
+}
+
+const CATEGORIES = [
+    { title: 'Food', emoji: '🍔', Image: FoodImage, bgColor: '#F5A3A8' },
+    { title: 'Beauty', emoji: '💄', Image: BeautyImage, bgColor: '#F4F2BA' },
+    { title: 'Repairs', emoji: '🔧', Image: RepairsImage, bgColor: '#F4B778' },
+    { title: 'Pets', emoji: '🐶', Image: PetsImage, bgColor: '#D8CFC8' },
+]
 
 type HomeSectionProps = {
     title: string
@@ -22,7 +57,7 @@ function HomeSection({ title, businesses, isLoading }: HomeSectionProps) {
         <View className="mb-6">
             {/* Section header */}
             <View className="mb-3 flex-row items-center justify-between px-screen">
-                <AppText className="text-title font-poppins-bold text-brand">{title}</AppText>
+                <AppText className="text-xl font-poppins-semibold text-brand">{title}</AppText>
                 <AppPressable>
                     <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
                 </AppPressable>
@@ -89,6 +124,45 @@ export default function HomeScreen() {
 
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                    {/* Category cards section */}
+                    <View className="mb-6 px-screen">
+                        <View className="mb-3 flex-row items-center justify-between">
+                            <AppText className="text-xl font-poppins-semibold text-brand">What service do you need?</AppText>
+                            <AppPressable>
+                                <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                            </AppPressable>
+                        </View>
+                        <View className="gap-3">
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[0]} />
+                                <CategoryCard {...CATEGORIES[1]} />
+                            </View>
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[2]} />
+                                <CategoryCard {...CATEGORIES[3]} />
+                            </View>
+                        </View>
+                    </View>
+
+                    <View className="mb-6 px-screen">
+                        <View className="mb-3 flex-row items-center justify-between">
+                            <AppText className="text-xl font-poppins-semibold text-brand">Top Picks Today</AppText>
+                            <AppPressable>
+                                <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                            </AppPressable>
+                        </View>
+                        <View className="gap-3">
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[3]} />
+                                <CategoryCard {...CATEGORIES[1]} />
+                            </View>
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[2]} />
+                                <CategoryCard {...CATEGORIES[0]} />
+                            </View>
+                        </View>
+                    </View>
+
                     <HomeSection title="Suggested For You" businesses={suggestedBusinesses} isLoading={suggestedLoading} />
 
                     <HomeSection title="Near You" businesses={nearbyBusinesses} isLoading={nearbyLoading || !location} />
