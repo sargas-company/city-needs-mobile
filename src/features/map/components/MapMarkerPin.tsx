@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
-const SIZE = 25
+const SIZE = 20
 const COLOR = '#E79F48'
 const BORDER_COLOR = '#FFFFFF'
 const BORDER_WIDTH = 2

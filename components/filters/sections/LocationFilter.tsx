@@ -24,6 +24,7 @@ const PROXIMITY_CHIPS: { id: ProximityOption; label: string }[] = [
 
 export function LocationFilter({ city, onCityChange, proximity, onProximityChange }: Props) {
     const userLocation = useAppSelector(selectLocation)
+
     const hasLocation = !!userLocation
 
     const cityItems = useMemo(() => [{ label: 'All Cities', value: '' }, ...CITY_NAMES.map((c) => ({ label: c, value: c }))], [])
@@ -69,8 +70,7 @@ export function LocationFilter({ city, onCityChange, proximity, onProximityChang
             <View className="flex-row flex-wrap gap-2">
                 {PROXIMITY_CHIPS.map((chip) => {
                     const active = proximity === chip.id
-                    // const disabled = !hasLocation
-                    const disabled = false
+                    const disabled = !hasLocation
                     return (
                         <AppPressable
                             key={chip.id}

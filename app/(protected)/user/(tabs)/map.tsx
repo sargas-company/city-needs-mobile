@@ -10,8 +10,7 @@ import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
 import { Map, MapMarker, type Bounds, type LatLng } from '@/src/features/map'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import type { SearchBusinessesArgs } from '@/store/features/search/search.types'
-import { useAppSelector } from '@/store/hooks'
-import { selectLocation } from '@/store/features/location/location.selectors'
+import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 
 /**
  * Converts businesses with lat/lng to MapMarker[].
@@ -33,7 +32,7 @@ function businessesToMarkers(businesses: { id: string; name: string; lat?: numbe
  * Map and data layer are separate: you can swap query or map component easily.
  */
 export default function MapScreen() {
-    const userLocation = useAppSelector(selectLocation)
+    const { location: userLocation } = useEnsureLocation()
 
     // Map center for search: user location or default city
     const defaultCenter: LatLng = userLocation ?? CITIES.Saskatoon.center

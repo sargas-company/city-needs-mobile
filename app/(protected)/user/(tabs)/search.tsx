@@ -12,8 +12,7 @@ import { filterValuesToSearchArgs, type FilterValues } from '@/components/filter
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
-import { useAppSelector } from '@/store/hooks'
-import { selectLocation } from '@/store/features/location/location.selectors'
+import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import type { BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
 // ── Filter chip config ──────────────────────────────────────────────────────────
@@ -48,7 +47,7 @@ export default function SearchScreen() {
     const [filterOpen, setFilterOpen] = useState(false)
     const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
 
-    const userLocation = useAppSelector(selectLocation)
+    const { location: userLocation } = useEnsureLocation()
     const appliedFiltersRef = useRef(appliedFilters)
     appliedFiltersRef.current = appliedFilters
 
