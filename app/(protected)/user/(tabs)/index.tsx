@@ -7,6 +7,7 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
+import { MapSearchBar } from '@/src/features/map/components/MapSearchBar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
@@ -130,6 +131,11 @@ export default function HomeScreen() {
 
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1" contentContainerStyle={{ paddingBottom: 120 }}>
+                    {/* Search bar */}
+                    <View className="mb-6">
+                        <MapSearchBar value="" onChangeText={() => {}} />
+                    </View>
+
                     {/* Category cards section */}
                     <View className="mb-6 px-screen">
                         <View className="mb-3 flex-row items-center justify-between">
