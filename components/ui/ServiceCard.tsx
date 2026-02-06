@@ -8,6 +8,7 @@ import { AppText } from '@/components/ui/AppText'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/store/features/saved-businesses/savedBusinessesApi'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
+import PeopleImage from '@/assets/images/people-reviews.svg'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -114,15 +115,9 @@ export function ServiceCard({ business }: { business: BusinessCardDto }) {
                     </View>
                 </View>
 
-                {/* Row 4: Thumbnails + Price */}
+                {/* Row 4: Reviews + Price */}
                 <View className="flex-row items-center gap-3">
-                    <View className="flex-row items-center">
-                        <View className="h-12 w-12 rounded-lg bg-[#D9D9D9]" />
-                        <View className="-ml-2 h-12 w-12 rounded-lg bg-[#C4C4C4]" />
-                        <View className="-ml-2 h-12 w-12 items-center justify-center rounded-lg bg-[#B0B0B0]">
-                            <Feather name="eye" size={16} color="#fff" />
-                        </View>
-                    </View>
+                    <PeopleImage />
 
                     <View className="flex-row items-baseline">
                         <AppText className="text-subtitle font-poppins-bold text-orange">${business.price}</AppText>

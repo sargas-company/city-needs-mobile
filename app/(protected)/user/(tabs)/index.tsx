@@ -13,10 +13,10 @@ import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 
 // Category card images
-import FoodImage from '@/assets/images/home-page/front-view-female-confectioner-white-wear-holding-green-plate-pink-wall-food-meal-soup-greens-vegetable 1.svg'
-import BeautyImage from '@/assets/images/home-page/front-view-young-attractive-female-white-shirt-holding-tassels-manicure-accessories-green-surface 1.svg'
-import RepairsImage from '@/assets/images/home-page/front-view-male-builder-uniform-helmet-with-hammer-blue 1.svg'
-import PetsImage from '@/assets/images/home-page/friendly-smart-basenji-dog-giving-his-paw-close-up-isolated-white 1.svg'
+import FoodImage from '@/assets/images/home-page/food.svg'
+import BeautyImage from '@/assets/images/home-page/beauty.svg'
+import RepairsImage from '@/assets/images/home-page/repairs.svg'
+import PetsImage from '@/assets/images/home-page/pets.svg'
 
 type CategoryCardProps = {
     title: string
