@@ -30,7 +30,7 @@ import { setProfileUser } from '@/store/features/profile/profile.slice'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
 import { publicBusinessApi, useGetBusinessHoursQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { ISO_WEEKDAYS } from '@/constants/isoWeekday'
+import { WEEKDAYS } from '@/constants/isoWeekday'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const mockBusinessInfoDefaults: BusinessInfoFormValues = {
@@ -41,13 +41,13 @@ const mockBusinessInfoDefaults: BusinessInfoFormValues = {
     phone: '+1 (306) 555-1234',
     email: 'info@groomingcenter.com',
     price: '25',
-    businessHours: ISO_WEEKDAYS.map(({ weekday }) => ({
+    businessHours: WEEKDAYS.map(({ weekday }) => ({
         weekday,
-        isEnabled: weekday <= 5,
-        isClosed: weekday > 5,
+        isEnabled: weekday < 5,
+        isClosed: weekday >= 5,
         is24h: false,
-        startTime: weekday <= 5 ? '10:00' : null,
-        endTime: weekday <= 5 ? '18:00' : null,
+        startTime: weekday < 5 ? '10:00' : null,
+        endTime: weekday < 5 ? '18:00' : null,
     })),
 }
 
@@ -80,7 +80,7 @@ const parsePriceToInt = (val?: string | null) => {
 
 /** Convert API hours (per-day with slots) to flat DTO for form. Uses first slot per day. */
 const businessHoursDayDtoToFlat = (daysApi: BusinessHoursDayDto[]): BusinessHoursDto[] => {
-    return ISO_WEEKDAYS.map(({ weekday }) => {
+    return WEEKDAYS.map(({ weekday }) => {
         const day = daysApi.find((d) => d.weekday === weekday)
         const slot = day?.hours?.find((h) => !h.isClosed) ?? day?.hours?.[0]
         if (!slot) {
@@ -97,23 +97,23 @@ const businessHoursDayDtoToFlat = (daysApi: BusinessHoursDayDto[]): BusinessHour
 }
 
 const buildBusinessHoursDefaults = (days?: BusinessHoursDto[] | null): BusinessHoursFormItem[] => {
-    const fallbackDay = (isoWeekday: number): BusinessHoursFormItem => ({
-        weekday: isoWeekday,
-        isEnabled: isoWeekday <= 5,
-        isClosed: isoWeekday > 5,
+    const fallbackDay = (weekday: number): BusinessHoursFormItem => ({
+        weekday,
+        isEnabled: weekday < 5,
+        isClosed: weekday >= 5,
         is24h: false,
-        startTime: isoWeekday <= 5 ? '10:00' : null,
-        endTime: isoWeekday <= 5 ? '18:00' : null,
+        startTime: weekday < 5 ? '10:00' : null,
+        endTime: weekday < 5 ? '18:00' : null,
     })
 
-    const mapDay = (isoWeekday: number): BusinessHoursFormItem => {
-        const src = days?.find((d) => d.weekday === isoWeekday)
-        if (!src) return fallbackDay(isoWeekday)
+    const mapDay = (weekday: number): BusinessHoursFormItem => {
+        const src = days?.find((d) => d.weekday === weekday)
+        if (!src) return fallbackDay(weekday)
         const isClosed = src.isClosed ?? false
         const isEnabled = !isClosed
         const is24h = src.is24h ?? false
         return {
-            weekday: isoWeekday,
+            weekday,
             isEnabled,
             isClosed,
             is24h,
@@ -122,7 +122,7 @@ const buildBusinessHoursDefaults = (days?: BusinessHoursDto[] | null): BusinessH
         }
     }
 
-    return ISO_WEEKDAYS.map(({ weekday }) => mapDay(weekday))
+    return WEEKDAYS.map(({ weekday }) => mapDay(weekday))
 }
 
 type PickedImage = {

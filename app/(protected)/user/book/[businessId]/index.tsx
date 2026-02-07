@@ -10,7 +10,7 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { ReviewList } from '@/components/reviews/ReviewList'
-import { getTodayWeekdayISO, ISO_WEEKDAYS } from '@/constants/isoWeekday'
+import { getTodayWeekday, WEEKDAYS } from '@/constants/isoWeekday'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { initBookingFlow } from '@/store/features/booking-flow/bookingFlow.slice'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
@@ -31,8 +31,8 @@ function getDayLabel(day?: BusinessHoursDayDto): string {
 
 function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
     if (!days?.length) return '—'
-    const todayIso = getTodayWeekdayISO()
-    const day = days.find((d) => d.weekday === todayIso)
+    const todayApi = getTodayWeekday()
+    const day = days.find((d) => d.weekday === todayApi)
     return getDayLabel(day)
 }
 
@@ -101,7 +101,7 @@ const TabButton = ({ title, active, onPress }: { title: string; active: boolean;
 }
 
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
-    const todayIso = getTodayWeekdayISO()
+    const todayApi = getTodayWeekday()
     const daysMap = useMemo(() => {
         const map = new Map<number, BusinessHoursDayDto>()
         days?.forEach((d) => map.set(d.weekday, d))
@@ -119,8 +119,8 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
                         </Pressable>
                     </View>
 
-                    {ISO_WEEKDAYS.map(({ weekday, label }) => {
-                        const isToday = weekday === todayIso
+                    {WEEKDAYS.map(({ weekday, label }) => {
+                        const isToday = weekday === todayApi
                         const day = daysMap.get(weekday)
                         const timeText = getDayLabel(day)
 

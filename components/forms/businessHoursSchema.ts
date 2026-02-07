@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const businessHoursItemSchema = z
     .object({
-        weekday: z.number().min(1).max(7), // ISO 8601: 1=Monday … 7=Sunday
+        weekday: z.number().min(0).max(6), // API: 0=Monday … 6=Sunday
         isEnabled: z.boolean(),
         isClosed: z.boolean().optional(),
         is24h: z.boolean().optional(),

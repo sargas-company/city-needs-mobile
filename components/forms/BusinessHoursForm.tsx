@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, Text, View, useWindowDimensions, ScrollView } from 'react-native'
 import { Path, useFormContext, useWatch } from 'react-hook-form'
 
+import { WEEKDAYS } from '@/constants/isoWeekday'
 import { BusinessHoursFormItem } from '@/components/forms/businessHoursSchema'
 import type { BusinessInfoFormValues } from '@/components/forms/businessInfoSchema'
 
@@ -10,7 +11,8 @@ import { WeekdayCard } from './WeekdayCard'
 
 type TimeField = 'startTime' | 'endTime'
 
-const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+/** Short labels in API order: 0=Mon … 6=Sun */
+const WEEK_LABELS_SHORT = WEEKDAYS.map((d) => d.label.slice(0, 3))
 
 export const BusinessHoursForm = () => {
     const {
@@ -83,7 +85,7 @@ export const BusinessHoursForm = () => {
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-2">
-                    {weekLabels.map((label, index) => {
+                    {WEEK_LABELS_SHORT.map((label, index) => {
                         const isActive = index === activeIndex
                         const isConfigured = days[index]?.isEnabled
                         return (
@@ -123,10 +125,11 @@ export const BusinessHoursForm = () => {
                 }}
                 renderItem={({ item, index }) => {
                     const dayError = (errors.businessHours?.[index] as { message?: string } | undefined)?.message
+                    const label = WEEKDAYS.find((d) => d.weekday === item.weekday)?.label.slice(0, 3) ?? WEEK_LABELS_SHORT[index]
                     return (
                         <View style={{ width: cardWidth, paddingRight: index === days.length - 1 ? 0 : 12 }}>
                             <WeekdayCard
-                                label={weekLabels[index]}
+                                label={label}
                                 isEnabled={item.isEnabled}
                                 is24h={item.is24h ?? false}
                                 startTime={item.startTime ?? null}

@@ -11,7 +11,7 @@ import { AppText } from '@/components/ui/AppText'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { Avatar } from '@/components/ui/Avatar'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-import { getTodayWeekdayISO, ISO_WEEKDAYS } from '@/constants/isoWeekday'
+import { getTodayWeekday, WEEKDAYS } from '@/constants/isoWeekday'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
@@ -34,8 +34,8 @@ function getDayLabel(day?: BusinessHoursDayDto): string {
 
 function getTodayHoursLabel(days?: BusinessHoursDayDto[]): string {
     if (!days?.length) return '—'
-    const todayIso = getTodayWeekdayISO()
-    const day = days.find((d) => d.weekday === todayIso)
+    const todayApi = getTodayWeekday()
+    const day = days.find((d) => d.weekday === todayApi)
     return `${getDayLabel(day)}`
 }
 
@@ -93,7 +93,7 @@ const InfoCard = ({
 }
 
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
-    const todayIso = getTodayWeekdayISO()
+    const todayApi = getTodayWeekday()
     const daysMap = useMemo(() => {
         const map = new Map<number, BusinessHoursDayDto>()
         days?.forEach((d) => map.set(d.weekday, d))
@@ -111,8 +111,8 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
                         </Pressable>
                     </View>
 
-                    {ISO_WEEKDAYS.map(({ weekday, label }) => {
-                        const isToday = weekday === todayIso
+                    {WEEKDAYS.map(({ weekday, label }) => {
+                        const isToday = weekday === todayApi
                         const day = daysMap.get(weekday)
                         const timeText = getDayLabel(day)
 
