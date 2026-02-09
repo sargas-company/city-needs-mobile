@@ -1,7 +1,7 @@
 {
     "expo": {
-        "name": "city-needs-front-end",
-        "slug": "city-needs-front-end",
+        "name": "City Needs",
+        "slug": "cityNeeds",
         "version": "1.0.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
@@ -12,11 +12,13 @@
         "ios": {
             "supportsTablet": true,
             "infoPlist": {
-                "NSLocationWhenInUseUsageDescription": "We use your location to show nearby providers and personalize results."
+                "NSLocationWhenInUseUsageDescription": "We use your location to show nearby providers and personalize results.",
+                "ITSAppUsesNonExemptEncryption": false
             },
             "config": {
                 "googleMapsApiKey": ""
-            }
+            },
+            "bundleIdentifier": "com.vadim.dev.cityNeeds"
         },
         "android": {
             "adaptiveIcon": {
@@ -57,6 +59,12 @@
         "experiments": {
             "typedRoutes": true,
             "reactCompiler": true
+        },
+        "extra": {
+            "router": {},
+            "eas": {
+                "projectId": "46c937e2-e8d6-458c-8053-020fdea31d8f"
+            }
         }
     }
 }
