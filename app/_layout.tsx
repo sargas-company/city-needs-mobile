@@ -1,5 +1,4 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
-import '@dev-plugins/async-storage'
 import { Provider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
