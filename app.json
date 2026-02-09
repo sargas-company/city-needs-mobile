@@ -18,7 +18,7 @@
             "config": {
                 "googleMapsApiKey": ""
             },
-            "bundleIdentifier": "com.vadim.dev.cityNeeds"
+            "bundleIdentifier": "com.cityneeds.app"
         },
         "android": {
             "adaptiveIcon": {
@@ -35,7 +35,7 @@
                     "apiKey": ""
                 }
             },
-            "package": "com.vadim.dev.cityNeeds",
+            "package": "com.cityneeds.app",
             "versionCode": 1
         },
         "web": {
