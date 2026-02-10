@@ -16,7 +16,7 @@
                 "ITSAppUsesNonExemptEncryption": false
             },
             "config": {
-                "googleMapsApiKey": ""
+                "googleMapsApiKey": "${GOOGLE_MAPS_API_KEY}"
             },
             "bundleIdentifier": "com.cityneeds.app"
         },
@@ -32,7 +32,7 @@
             "predictiveBackGestureEnabled": false,
             "config": {
                 "googleMaps": {
-                    "apiKey": ""
+                    "apiKey": "${GOOGLE_MAPS_API_KEY}"
                 }
             },
             "package": "com.cityneeds.app",
