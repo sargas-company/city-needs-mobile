@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react'
-import { Image, Pressable, View, ViewStyle } from 'react-native'
+import React, { memo, useCallback, useState } from 'react'
+import { Pressable, View, ViewStyle } from 'react-native'
+import { Image } from 'expo-image'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import { FontAwesome } from '@expo/vector-icons'
@@ -18,7 +19,7 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export function ServiceCard({ business }: { business: BusinessCardDto }) {
+export const ServiceCard = memo(function ServiceCard({ business }: { business: BusinessCardDto }) {
     const router = useRouter()
     const [saved, setSaved] = useState(business.isSaved)
     const [addSaved] = useAddSavedBusinessMutation()
@@ -41,7 +42,13 @@ export function ServiceCard({ business }: { business: BusinessCardDto }) {
                 {/* Row 1: Avatar + Name + Category + Bookmark */}
                 <View className="mb-2 flex-row items-center">
                     {business.logoUrl ? (
-                        <Image source={{ uri: business.logoUrl }} className="mr-3 rounded-xl" style={{ width: 56, height: 56 }} />
+                        <Image
+                            source={{ uri: business.logoUrl }}
+                            className="mr-3 rounded-xl"
+                            style={{ width: 56, height: 56 }}
+                            cachePolicy="memory-disk"
+                            transition={200}
+                        />
                     ) : (
                         <View className="mr-3 items-center justify-center rounded-xl bg-[#A3C9A8]" style={{ width: 56, height: 56 }}>
                             <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>
@@ -126,4 +133,4 @@ export function ServiceCard({ business }: { business: BusinessCardDto }) {
             </View>
         </Pressable>
     )
-}
+})
