@@ -16,12 +16,15 @@ export default function ProtectedLayout() {
     const isMapScreen = pathname === '/user/map'
 
     useEffect(() => {
+        // Only redirect when we're certain the user is unauthenticated.
+        // During bootstrap ('idle' or 'loading'), we wait for Firebase to restore the session.
         if (status === 'unauthenticated') {
             router.replace('/(auth)/sign-in')
         }
     }, [router, status])
 
-    if (status === 'loading') {
+    // Show loading while auth state is being determined (idle = pre-bootstrap, loading = during bootstrap)
+    if (status === 'idle' || status === 'loading') {
         return (
             <View className="flex-1 items-center justify-center bg-white">
                 <Text>Loading session...</Text>

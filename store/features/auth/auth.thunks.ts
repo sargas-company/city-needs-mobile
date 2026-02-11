@@ -6,7 +6,7 @@ import { login, logout as logoutService, signUp } from '@/services/auth/auth.ser
 import { LoginPayload, SignUpPayload } from '@/services/auth/auth.types'
 import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
-import { firebaseAuth } from '@/services/auth/firebase/firebase.config'
+import { firebaseAuth, waitForAuthReady } from '@/services/auth/firebase/firebase.config'
 import { getFirebaseLoginErrorMessage } from '@/services/auth'
 import { UserRole, type AppUser } from '@/store/features/profile/profile.types'
 
@@ -145,7 +145,10 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
         dispatch(setAuthStatus('loading'))
         dispatch(setProfileStatus('loading'))
         try {
-            const currentUser = firebaseAuth.currentUser
+            // Wait for Firebase to restore the session from AsyncStorage.
+            // Reading firebaseAuth.currentUser directly is unreliable because
+            // the restore is asynchronous and may not be complete yet.
+            const currentUser = await waitForAuthReady()
             if (currentUser) {
                 const idToken = await currentUser.getIdToken()
                 await setTokens({ accessToken: idToken, refreshToken: currentUser.refreshToken, tokenType: 'Bearer' })
