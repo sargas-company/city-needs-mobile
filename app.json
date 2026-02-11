@@ -15,9 +15,6 @@
                 "NSLocationWhenInUseUsageDescription": "We use your location to show nearby providers and personalize results.",
                 "ITSAppUsesNonExemptEncryption": false
             },
-            "config": {
-                "googleMapsApiKey": "${GOOGLE_MAPS_API_KEY}"
-            },
             "bundleIdentifier": "com.cityneeds.app"
         },
         "android": {
@@ -30,11 +27,6 @@
             "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
-            "config": {
-                "googleMaps": {
-                    "apiKey": "${GOOGLE_MAPS_API_KEY}"
-                }
-            },
             "package": "com.cityneeds.app",
             "versionCode": 1
         },
@@ -42,22 +34,6 @@
             "output": "static",
             "favicon": "./assets/images/favicon.png"
         },
-        "plugins": [
-            "expo-router",
-            [
-                "expo-splash-screen",
-                {
-                    "image": "./assets/images/splash-icon.png",
-                    "imageWidth": 200,
-                    "resizeMode": "contain",
-                    "backgroundColor": "#ffffff",
-                    "dark": {
-                        "backgroundColor": "#000000"
-                    }
-                }
-            ],
-            "expo-secure-store"
-        ],
         "experiments": {
             "typedRoutes": true,
             "reactCompiler": true
