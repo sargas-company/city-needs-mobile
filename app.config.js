@@ -7,6 +7,20 @@ module.exports = {
     ...baseConfig,
     expo: {
         ...baseConfig.expo,
+        ios: {
+            ...baseConfig.expo.ios,
+            config: {
+                googleMapsApiKey,
+            },
+        },
+        android: {
+            ...baseConfig.expo.android,
+            config: {
+                googleMaps: {
+                    apiKey: googleMapsApiKey,
+                },
+            },
+        },
         plugins: [
             'expo-router',
             [
@@ -22,12 +36,6 @@ module.exports = {
                 },
             ],
             'expo-secure-store',
-            [
-                'react-native-maps',
-                {
-                    googleMapsApiKey,
-                },
-            ],
         ],
     },
 }
