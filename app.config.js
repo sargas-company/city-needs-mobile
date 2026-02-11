@@ -1,26 +1,50 @@
-const baseConfig = require('./app.json')
-
 // Get the API key from environment variable (works in EAS builds with secrets)
 // Try both: GOOGLE_MAPS_API_KEY (secret) and EXPO_PUBLIC_GOOGLE_MAPS_API_KEY (plain text)
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || ''
 
 module.exports = {
-    ...baseConfig,
     expo: {
-        ...baseConfig.expo,
+        name: 'City Needs',
+        slug: 'cityNeeds',
+        version: '1.0.0',
+        orientation: 'portrait',
+        icon: './assets/images/icon.png',
+        scheme: 'cityneedsfrontend',
+        userInterfaceStyle: 'automatic',
+        jsEngine: 'hermes',
+        newArchEnabled: true,
         ios: {
-            ...baseConfig.expo.ios,
+            supportsTablet: true,
+            infoPlist: {
+                NSLocationWhenInUseUsageDescription: 'We use your location to show nearby providers and personalize results.',
+                ITSAppUsesNonExemptEncryption: false,
+            },
+            bundleIdentifier: 'com.cityneeds.app',
             config: {
                 googleMapsApiKey,
             },
         },
         android: {
-            ...baseConfig.expo.android,
+            adaptiveIcon: {
+                backgroundColor: '#E6F4FE',
+                foregroundImage: './assets/images/android-icon-foreground.png',
+                backgroundImage: './assets/images/android-icon-background.png',
+                monochromeImage: './assets/images/android-icon-monochrome.png',
+            },
+            permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION'],
+            edgeToEdgeEnabled: true,
+            predictiveBackGestureEnabled: false,
+            package: 'com.cityneeds.app',
+            versionCode: 1,
             config: {
                 googleMaps: {
                     apiKey: googleMapsApiKey,
                 },
             },
+        },
+        web: {
+            output: 'static',
+            favicon: './assets/images/favicon.png',
         },
         plugins: [
             'expo-router',
@@ -38,5 +62,15 @@ module.exports = {
             ],
             'expo-secure-store',
         ],
+        experiments: {
+            typedRoutes: true,
+            reactCompiler: true,
+        },
+        extra: {
+            router: {},
+            eas: {
+                projectId: '46c937e2-e8d6-458c-8053-020fdea31d8f',
+            },
+        },
     },
 }
