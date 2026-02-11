@@ -8,7 +8,7 @@ module.exports = {
         slug: 'cityNeeds',
         version: '1.0.0',
         orientation: 'portrait',
-        icon: './assets/images/icon.png',
+        icon: './assets/images/app-icon/apple-devices/icon-ios-1024x1024.png',
         scheme: 'cityneedsfrontend',
         userInterfaceStyle: 'automatic',
         jsEngine: 'hermes',
