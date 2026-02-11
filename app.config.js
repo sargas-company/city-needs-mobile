@@ -1,7 +1,8 @@
 const baseConfig = require('./app.json')
 
 // Get the API key from environment variable (works in EAS builds with secrets)
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? ''
+// Try both: GOOGLE_MAPS_API_KEY (secret) and EXPO_PUBLIC_GOOGLE_MAPS_API_KEY (plain text)
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || ''
 
 module.exports = {
     ...baseConfig,
