@@ -148,12 +148,17 @@ const primaryDisabled = isBusy || primaryMode === 'pending' || mustUploadFirst
 - `onboardingStep = null` (онбординг завершён)
 
 ### Continue
+- Если `uiState === 'verified'` (уже верифицирован):
+  - Просто переходит на главный экран (без API вызова)
 - Если файл загружен (`hasFileToSubmit = true`):
   - Вызывает `BUSINESS_VERIFICATION_SUBMIT`
   - Создаётся запись `BusinessVerification` со статусом `PENDING`
   - Пользователь переходит на главный экран
 - Если файл НЕ загружен:
-  - Просто переходит на главный экран (если это разрешено)
+  - Вызывает `BUSINESS_VERIFICATION_SKIP` (чтобы установить `onboardingStep = null`)
+  - Пользователь переходит на главный экран
+
+**Важно:** Continue без файла = Skip. Это нужно чтобы корректно завершить онбординг на бэкенде.
 
 ---
 
@@ -248,11 +253,12 @@ useEffect(() => {
 
 ### 9.3 Что делает Continue
 
-| Состояние | Действие |
-|-----------|----------|
-| Файл загружен (draft) | Submit → создаёт верификацию → переход |
-| Файл не загружен | Просто переход (если разрешено) |
-| Pending/Verified | Просто переход |
+| Состояние | API Action | Результат |
+|-----------|------------|-----------|
+| Файл загружен (draft) | `BUSINESS_VERIFICATION_SUBMIT` | Создаёт верификацию → переход |
+| Файл не загружен | `BUSINESS_VERIFICATION_SKIP` | Завершает онбординг → переход |
+| Verified | — (без API) | Просто переход |
+| Pending | — (кнопка disabled) | — |
 
 ---
 

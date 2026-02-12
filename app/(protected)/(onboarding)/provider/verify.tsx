@@ -171,10 +171,6 @@ const VerifyScreen = () => {
         }
     }
 
-    const handleContinue = () => {
-        router.replace('/(protected)/business/(tabs)')
-    }
-
     const renderFileRow = () => {
         if (!verifyFile) return null
 
@@ -224,9 +220,26 @@ const VerifyScreen = () => {
     const primaryDisabled = isBusy || primaryMode === 'pending' || mustUploadFirst
 
     const handlePrimaryPress = async () => {
-        if (primaryMode === 'continue') return handleContinue()
+        setLocalError(null)
+
+        if (primaryMode === 'continue') {
+            // If already verified, just navigate
+            if (uiState === 'verified') {
+                router.replace('/(protected)/business/(tabs)')
+                return
+            }
+            // Otherwise, call skip to properly complete the onboarding step
+            try {
+                await dispatch(skipVerificationThunk()).unwrap()
+                router.replace('/(protected)/business/(tabs)')
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to complete verification step'
+                setLocalError(message)
+            }
+            return
+        }
+
         if (primaryMode === 'submit') {
-            setLocalError(null)
             try {
                 await dispatch(submitVerificationThunk()).unwrap()
                 router.replace('/(protected)/business/(tabs)')
