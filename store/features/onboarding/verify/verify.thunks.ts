@@ -93,7 +93,7 @@ export const deleteVerificationFileThunk = createAsyncThunk<void, string, { stat
     }
 )
 
-export const submitVerificationThunk = createAsyncThunk<void, void, { state: RootState; rejectValue: string }>(
+export const submitVerificationThunk = createAsyncThunk<{ canUseApp: boolean }, void, { state: RootState; rejectValue: string }>(
     'verify/submitVerification',
     async (_, { dispatch, getState, rejectWithValue }) => {
         dispatch(setVerifyError(null))
@@ -117,10 +117,12 @@ export const submitVerificationThunk = createAsyncThunk<void, void, { state: Roo
                 })
             ).unwrap()
 
-            await refreshMeIntoProfile(dispatch)
+            const updatedMe = await refreshMeIntoProfile(dispatch)
             await dispatch(loadVerificationFileThunk()).unwrap()
 
             dispatch(setVerifyStatus('ready'))
+
+            return { canUseApp: updatedMe?.verification?.canUseApp ?? true }
         } catch (err) {
             const message = extractMessage(err, 'Failed to submit verification')
             dispatch(setVerifyError(message))

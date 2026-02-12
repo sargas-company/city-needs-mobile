@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Keyboard, Pressable, Text, View } from 'react-native'
+import { Keyboard, Linking, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
@@ -8,6 +8,7 @@ import { Feather } from '@expo/vector-icons'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus, selectVerification } from '@/store/features/profile/profile.selectors'
+import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import {
     deleteVerificationFileThunk,
     loadVerificationFileThunk,
@@ -49,6 +50,8 @@ const VerifyScreen = () => {
 
     const requiresVerification = verificationGate?.requiresVerification === true
     const graceExpired = verificationGate?.graceExpired === true
+    const canUseApp = verificationGate?.canUseApp !== false
+    const businessStatus = verificationGate?.status
 
     const lockStatus = (verifyFile as any)?.lock?.status as string | undefined
 
@@ -65,51 +68,37 @@ const VerifyScreen = () => {
     const isLocked = uiState === 'pending' || uiState === 'verified'
     const canUpload = !isLocked
     const canDelete = !!verifyFile?.id && !isLocked
-    const canSubmit = !!verifyFile?.id && !isLocked
     const canSkip = !isLocked && (!requiresVerification || !graceExpired)
     const showSkip = canSkip
 
     const title = useMemo(() => {
         if (!requiresVerification) return 'Verification not required'
-        switch (uiState) {
-            case 'pending':
-                return 'Verification in progress'
-            case 'verified':
-                return 'Business Verified'
-            case 'failed':
-                return 'Verification Failed'
-            default:
-                return 'Verify your business'
-        }
-    }, [uiState, requiresVerification])
+        // Check business status from gate as fallback
+        if (businessStatus === 'PENDING' || uiState === 'pending') return 'Verification in progress'
+        if (uiState === 'verified') return 'Business Verified'
+        if (uiState === 'failed') return 'Verification Failed'
+        return 'Verify your business'
+    }, [uiState, requiresVerification, businessStatus])
 
     const description = useMemo(() => {
         if (!requiresVerification) return 'Your category does not require verification.'
-        switch (uiState) {
-            case 'pending':
-                return 'Your document is being reviewed. This helps keep our community safe and trusted.'
-            case 'verified':
-                return 'Your business has been successfully verified.'
-            case 'failed':
-                return "We couldn't verify your document. Please upload a different document."
-            default:
-                return 'This helps build trust with users.'
-        }
-    }, [uiState, requiresVerification])
+        // Check business status from gate as fallback
+        if (businessStatus === 'PENDING' || uiState === 'pending')
+            return 'Your document is being reviewed. This helps keep our community safe and trusted.'
+        if (uiState === 'verified') return 'Your business has been successfully verified.'
+        if (uiState === 'failed') return "We couldn't verify your document. Please upload a different document."
+        return 'This helps build trust with users.'
+    }, [uiState, requiresVerification, businessStatus])
 
     const infoBadge = useMemo(() => {
         if (!requiresVerification) return 'You can continue without verification.'
-        switch (uiState) {
-            case 'pending':
-                return "Reviews usually take up to 24–48 hours. You'll be notified once it's completed."
-            case 'verified':
-                return 'Your profile is now trusted by users.'
-            case 'failed':
-                return 'Make sure the document is clear and valid.'
-            default:
-                return 'Upload 1 document (business reg, GST, license, utility bill).'
-        }
-    }, [uiState, requiresVerification])
+        // Check business status from gate as fallback
+        if (businessStatus === 'PENDING' || uiState === 'pending')
+            return "Reviews usually take up to 24–48 hours. You'll be notified once it's completed."
+        if (uiState === 'verified') return 'Your profile is now trusted by users.'
+        if (uiState === 'failed') return 'Make sure the document is clear and valid.'
+        return 'Upload 1 document (business reg, GST, license, utility bill).'
+    }, [uiState, requiresVerification, businessStatus])
 
     const pickDocument = async () => {
         setLocalError(null)
@@ -206,7 +195,8 @@ const VerifyScreen = () => {
         )
     }
 
-    const showUploadZone = !isLocked && (uiState === 'empty' || uiState === 'failed')
+    const isBusinessPending = businessStatus === 'PENDING'
+    const showUploadZone = !isLocked && !isBusinessPending && (uiState === 'empty' || uiState === 'failed')
     const showPrimary = true
 
     const hasFileToSubmit = !!verifyFile?.id && uiState === 'draft'
@@ -241,12 +231,28 @@ const VerifyScreen = () => {
 
         if (primaryMode === 'submit') {
             try {
-                await dispatch(submitVerificationThunk()).unwrap()
-                router.replace('/(protected)/business/(tabs)')
+                const result = await dispatch(submitVerificationThunk()).unwrap()
+                // Only navigate if user can use the app, otherwise stay on page to show pending state
+                if (result.canUseApp) {
+                    router.replace('/(protected)/business/(tabs)')
+                }
+                // If canUseApp is false, UI will automatically update to show pending state
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'Failed to submit verification'
                 setLocalError(message)
             }
+        }
+    }
+
+    const handleContactSupport = () => {
+        Linking.openURL('mailto:support@cityneeds.app?subject=Verification%20Help')
+    }
+
+    const handleSignOut = async () => {
+        try {
+            await dispatch(logoutThunk()).unwrap()
+        } catch {
+            // Logout failed, but we'll still try to navigate away
         }
     }
 
@@ -302,7 +308,16 @@ const VerifyScreen = () => {
                 {!!verifyError && <Text className="mb-2 text-sm font-semibold text-red-600">{verifyError}</Text>}
                 {!!localError && <Text className="mb-2 text-sm font-semibold text-red-600">{localError}</Text>}
 
-                {showPrimary ? (
+                {!canUseApp && (uiState === 'pending' || businessStatus === 'PENDING') ? (
+                    <View className="mt-auto items-center gap-4">
+                        <Pressable onPress={handleContactSupport}>
+                            <Text className="text-base text-[#0C2A63] underline">Need help? Contact Support</Text>
+                        </Pressable>
+                        <Pressable onPress={handleSignOut} disabled={isBusy}>
+                            <Text className={`text-base text-gray-500 ${isBusy ? 'opacity-60' : ''}`}>Sign out</Text>
+                        </Pressable>
+                    </View>
+                ) : showPrimary ? (
                     <View className="mt-auto">
                         <Pressable
                             onPress={handlePrimaryPress}

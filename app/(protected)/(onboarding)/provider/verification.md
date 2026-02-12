@@ -341,11 +341,53 @@ interface VerifyState {
 2. Continue заблокирован пока нет файла
 3. После загрузки файла Continue активен → отправка + переход
 
-### Сценарий 4: Статус Pending
+### Сценарий 4: Статус Pending + canUseApp = true
 1. Документ на проверке
-2. Все кнопки заблокированы кроме Continue (просто переход)
-3. Upload zone скрыта
+2. Upload zone скрыта
+3. Continue показывает "Verification Pending" (disabled)
+4. Пользователь может пользоваться приложением
 
-### Сценарий 5: Статус Verified
+### Сценарий 5: Статус Pending + canUseApp = false (Blocking State)
+1. Документ на проверке
+2. Upload zone скрыта
+3. Вместо кнопки Continue показываются:
+   - "Need help? Contact Support" → mailto:support@cityneeds.app
+   - "Sign out" → выход из аккаунта
+4. Пользователь НЕ может пользоваться приложением пока не пройдёт верификацию
+
+### Сценарий 6: Статус Verified
 1. Верификация пройдена
 2. Continue доступен → переход
+
+---
+
+## 13. Blocking State (Account Under Review)
+
+Когда `uiState === 'pending'` и `canUseApp === false`:
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│     Verification in progress        │
+│                                     │
+│  Your document is being reviewed.   │
+│  This helps keep our community      │
+│  safe and trusted.                  │
+│                                     │
+│  ┌───────────────────────────────┐  │
+│  │  document.pdf      [Pending]  │  │
+│  └───────────────────────────────┘  │
+│                                     │
+│  Reviews usually take 24-48 hours.  │
+│  You'll be notified once complete.  │
+│                                     │
+│     Need help? Contact Support      │
+│            Sign out                 │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Логика:**
+- После submit, thunk возвращает `{ canUseApp: boolean }`
+- Если `canUseApp = false` → не навигируем, UI обновляется автоматически
+- Показываем Contact Support и Sign out вместо кнопки Continue
