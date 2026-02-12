@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, FlatList, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
+import React, { memo, useCallback, useMemo, useState } from 'react'
+import { ActivityIndicator, FlatList, ListRenderItem, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
 import Feather from '@expo/vector-icons/Feather'
@@ -50,119 +50,92 @@ const CATEGORIES = [
     { title: 'Pets', emoji: '🐶', Image: PetsImage, bgColor: '#D8CFC8' },
 ]
 
-type HomeSectionProps = {
-    title: string
-    businesses: BusinessCardDto[]
-    isLoading: boolean
-    onLayout?: (y: number) => void
-}
-
-const keyExtractor = (item: BusinessCardDto) => item.id
-
-const HomeSection = memo(function HomeSection({ title, businesses, isLoading, onLayout }: HomeSectionProps) {
-    const renderItem = useCallback(
-        ({ item }: { item: BusinessCardDto }) => (
-            <View style={{ width: 320 }}>
-                <ServiceCard business={item} />
-            </View>
-        ),
-        []
-    )
-
+// Horizontal business card for sections
+const HorizontalBusinessCard = memo(function HorizontalBusinessCard({ business }: { business: BusinessCardDto }) {
     return (
-        <View className="mb-6" onLayout={onLayout ? (e) => onLayout(e.nativeEvent.layout.y) : undefined}>
-            {/* Section header */}
-            <View className="mb-3 flex-row items-center justify-between px-screen">
-                <AppText className="text-xl font-poppins-semibold text-brand">{title}</AppText>
-                <AppPressable>
-                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
-                </AppPressable>
-            </View>
-
-            {/* Horizontal scroll */}
-            {isLoading ? (
-                <View className="items-center py-10">
-                    <ActivityIndicator size="small" />
-                </View>
-            ) : businesses.length === 0 ? (
-                <View className="items-center py-6">
-                    <NoDataImage width={80} height={80} />
-                    <AppText className="mt-2 text-base font-poppins-semibold text-gray-400">No businesses found</AppText>
-                </View>
-            ) : (
-                <FlatList
-                    horizontal
-                    data={businesses}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
-                    initialNumToRender={3}
-                    maxToRenderPerBatch={5}
-                    removeClippedSubviews={true}
-                />
-            )}
+        <View style={{ width: 320 }}>
+            <ServiceCard business={business} />
         </View>
     )
 })
 
-type SectionKey = 'suggested' | 'nearby' | 'trending' | 'new'
+// Section types for FlatList
+type SectionItem =
+    | { type: 'header' }
+    | { type: 'categories' }
+    | { type: 'top-picks' }
+    | { type: 'section'; key: string; title: string; businesses: BusinessCardDto[]; isLoading: boolean }
+
+const keyExtractor = (item: SectionItem, index: number) => {
+    if (item.type === 'section') return `section-${item.key}`
+    return `${item.type}-${index}`
+}
+
+// Horizontal FlatList for business cards in a section
+const HorizontalBusinessList = memo(function HorizontalBusinessList({
+    businesses,
+    isLoading,
+}: {
+    businesses: BusinessCardDto[]
+    isLoading: boolean
+}) {
+    const renderItem = useCallback(({ item }: { item: BusinessCardDto }) => <HorizontalBusinessCard business={item} />, [])
+    const businessKeyExtractor = useCallback((item: BusinessCardDto) => item.id, [])
+
+    if (isLoading) {
+        return (
+            <View className="items-center py-10">
+                <ActivityIndicator size="small" />
+            </View>
+        )
+    }
+
+    if (businesses.length === 0) {
+        return (
+            <View className="items-center py-6">
+                <NoDataImage width={80} height={80} />
+                <AppText className="mt-2 text-base font-poppins-semibold text-gray-400">No businesses found</AppText>
+            </View>
+        )
+    }
+
+    return (
+        <FlatList
+            horizontal
+            data={businesses}
+            keyExtractor={businessKeyExtractor}
+            renderItem={renderItem}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+            initialNumToRender={2}
+            maxToRenderPerBatch={3}
+            windowSize={3}
+            removeClippedSubviews={true}
+            getItemLayout={(_, index) => ({ length: 332, offset: 332 * index, index })}
+        />
+    )
+})
 
 export default function HomeScreen() {
     const { location } = useEnsureLocation()
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
 
-    // Lazy loading: track visible sections
-    const [visibleSections, setVisibleSections] = useState<Set<SectionKey>>(new Set(['suggested', 'nearby']))
-    const sectionPositions = useRef<Record<SectionKey, number>>({
-        suggested: 0,
-        nearby: 0,
-        trending: 0,
-        new: 0,
-    })
-
-    const handleSectionLayout = useCallback(
-        (section: SectionKey) => (y: number) => {
-            sectionPositions.current[section] = y
-        },
-        []
-    )
-
-    const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const scrollY = event.nativeEvent.contentOffset.y
-        const viewportHeight = event.nativeEvent.layoutMeasurement.height
-        const visibilityThreshold = scrollY + viewportHeight + 200 // Pre-load 200px ahead
-
-        setVisibleSections((prev) => {
-            const next = new Set(prev)
-            let changed = false
-
-            if (!prev.has('trending') && sectionPositions.current.trending <= visibilityThreshold) {
-                next.add('trending')
-                changed = true
-            }
-            if (!prev.has('new') && sectionPositions.current.new <= visibilityThreshold) {
-                next.add('new')
-                changed = true
-            }
-
-            return changed ? next : prev
-        })
-    }, [])
-
     const { data: categories } = useGetCategoriesQuery()
+
+    // Only load first 2 sections initially, others load when visible
+    const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
 
     // Suggested for you - top rated (loads immediately)
     const { data: suggestedData, isLoading: suggestedLoading } = useSearchBusinessesQuery({
         sort: 'top_rated',
-        limit: 10,
+        limit: 5, // Reduced limit for performance
     })
 
     // Near you - nearby (requires location, loads immediately)
     const { data: nearbyData, isLoading: nearbyLoading } = useSearchBusinessesQuery(
         {
             sort: 'nearby',
-            limit: 10,
+            limit: 5,
             lat: location?.lat,
             lng: location?.lng,
         },
@@ -173,18 +146,18 @@ export default function HomeScreen() {
     const { data: trendingData, isLoading: trendingLoading } = useSearchBusinessesQuery(
         {
             sort: 'popular',
-            limit: 10,
+            limit: 5,
         },
-        { skip: !visibleSections.has('trending') }
+        { skip: !loadedSections.has('trending') }
     )
 
-    // New on City Needs - price ascending as a stand-in (lazy loaded)
+    // New on City Needs (lazy loaded)
     const { data: newData, isLoading: newLoading } = useSearchBusinessesQuery(
         {
             sort: 'popular',
-            limit: 10,
+            limit: 5,
         },
-        { skip: !visibleSections.has('new') }
+        { skip: !loadedSections.has('new') }
     )
 
     const suggestedBusinesses = useMemo(() => suggestedData?.data ?? [], [suggestedData])
@@ -192,141 +165,211 @@ export default function HomeScreen() {
     const trendingBusinesses = useMemo(() => trendingData?.data ?? [], [trendingData])
     const newBusinesses = useMemo(() => newData?.data ?? [], [newData])
 
-    return (
-        <View className="flex-1 bg-white">
-            <WaveHeader />
+    // Build section data for FlatList
+    const sections = useMemo<SectionItem[]>(
+        () => [
+            { type: 'header' },
+            { type: 'categories' },
+            { type: 'top-picks' },
+            { type: 'section', key: 'suggested', title: 'Suggested For You', businesses: suggestedBusinesses, isLoading: suggestedLoading },
+            { type: 'section', key: 'nearby', title: 'Near You', businesses: nearbyBusinesses, isLoading: nearbyLoading || !location },
+            {
+                type: 'section',
+                key: 'trending',
+                title: 'Trending This Week',
+                businesses: trendingBusinesses,
+                isLoading: trendingLoading || !loadedSections.has('trending'),
+            },
+            {
+                type: 'section',
+                key: 'new',
+                title: 'New on City Needs',
+                businesses: newBusinesses,
+                isLoading: newLoading || !loadedSections.has('new'),
+            },
+        ],
+        [
+            suggestedBusinesses,
+            suggestedLoading,
+            nearbyBusinesses,
+            nearbyLoading,
+            location,
+            trendingBusinesses,
+            trendingLoading,
+            newBusinesses,
+            newLoading,
+            loadedSections,
+        ]
+    )
 
-            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    className="flex-1"
-                    contentContainerStyle={{ paddingBottom: 120 }}
-                    onScroll={handleScroll}
-                    scrollEventThrottle={16}
-                >
-                    {/* Search bar */}
-                    <View className="mb-4">
-                        <MapSearchBar value="" onChangeText={() => {}} />
-                    </View>
+    // Track which sections become visible
+    const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: { item: SectionItem }[] }) => {
+        const visibleSectionKeys = viewableItems.filter((v) => v.item.type === 'section').map((v) => (v.item as { type: 'section'; key: string }).key)
 
-                    {/* Category chips */}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        className="mb-6"
-                        contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
-                    >
-                        <AppPressable
-                            onPress={() => setSelectedCategoryId(null)}
-                            className={
-                                selectedCategoryId === null
-                                    ? 'flex-row items-center gap-1 rounded-2xl bg-orange px-3 py-2'
-                                    : 'flex-row items-center rounded-2xl border border-border bg-white px-3 py-2'
-                            }
-                        >
-                            <AppText
-                                className={
-                                    selectedCategoryId === null
-                                        ? 'text-status font-poppins-medium text-white'
-                                        : 'text-status font-poppins-medium text-text'
-                                }
+        setLoadedSections((prev) => {
+            const next = new Set(prev)
+            let changed = false
+            for (const key of visibleSectionKeys) {
+                if (!prev.has(key)) {
+                    next.add(key)
+                    changed = true
+                }
+            }
+            return changed ? next : prev
+        })
+    }, [])
+
+    const viewabilityConfig = useMemo(() => ({ itemVisiblePercentThreshold: 10, minimumViewTime: 100 }), [])
+
+    const renderItem: ListRenderItem<SectionItem> = useCallback(
+        ({ item }) => {
+            switch (item.type) {
+                case 'header':
+                    return (
+                        <>
+                            {/* Search bar */}
+                            <View className="mb-4">
+                                <MapSearchBar value="" onChangeText={() => {}} />
+                            </View>
+
+                            {/* Category chips */}
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                className="mb-6"
+                                contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
                             >
-                                All
-                            </AppText>
-                        </AppPressable>
-
-                        {categories?.map((cat) => {
-                            const active = selectedCategoryId === cat.id
-                            return (
                                 <AppPressable
-                                    key={cat.id}
-                                    onPress={() => setSelectedCategoryId(active ? null : cat.id)}
+                                    onPress={() => setSelectedCategoryId(null)}
                                     className={
-                                        active
+                                        selectedCategoryId === null
                                             ? 'flex-row items-center gap-1 rounded-2xl bg-orange px-3 py-2'
                                             : 'flex-row items-center rounded-2xl border border-border bg-white px-3 py-2'
                                     }
                                 >
                                     <AppText
                                         className={
-                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                            selectedCategoryId === null
+                                                ? 'text-status font-poppins-medium text-white'
+                                                : 'text-status font-poppins-medium text-text'
                                         }
                                     >
-                                        {cat.title}
+                                        All
                                     </AppText>
-                                    {active && <Feather name="x" size={14} color="#fff" />}
                                 </AppPressable>
-                            )
-                        })}
-                    </ScrollView>
 
-                    {/* Category cards section */}
-                    <View className="mb-6 px-screen">
-                        <View className="mb-3 flex-row items-center justify-between">
-                            <AppText className="text-xl font-poppins-semibold text-brand">What service do you need?</AppText>
-                            <AppPressable>
-                                <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
-                            </AppPressable>
-                        </View>
-                        <View className="gap-3">
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[0]} />
-                                <CategoryCard {...CATEGORIES[1]} />
+                                {categories?.map((cat) => {
+                                    const active = selectedCategoryId === cat.id
+                                    return (
+                                        <AppPressable
+                                            key={cat.id}
+                                            onPress={() => setSelectedCategoryId(active ? null : cat.id)}
+                                            className={
+                                                active
+                                                    ? 'flex-row items-center gap-1 rounded-2xl bg-orange px-3 py-2'
+                                                    : 'flex-row items-center rounded-2xl border border-border bg-white px-3 py-2'
+                                            }
+                                        >
+                                            <AppText
+                                                className={
+                                                    active
+                                                        ? 'text-status font-poppins-medium text-white'
+                                                        : 'text-status font-poppins-medium text-text'
+                                                }
+                                            >
+                                                {cat.title}
+                                            </AppText>
+                                            {active && <Feather name="x" size={14} color="#fff" />}
+                                        </AppPressable>
+                                    )
+                                })}
+                            </ScrollView>
+                        </>
+                    )
+
+                case 'categories':
+                    return (
+                        <View className="mb-6 px-screen">
+                            <View className="mb-3 flex-row items-center justify-between">
+                                <AppText className="text-xl font-poppins-semibold text-brand">What service do you need?</AppText>
+                                <AppPressable>
+                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                                </AppPressable>
                             </View>
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[2]} />
-                                <CategoryCard {...CATEGORIES[3]} />
+                            <View className="gap-3">
+                                <View className="flex-row gap-3">
+                                    <CategoryCard {...CATEGORIES[0]} />
+                                    <CategoryCard {...CATEGORIES[1]} />
+                                </View>
+                                <View className="flex-row gap-3">
+                                    <CategoryCard {...CATEGORIES[2]} />
+                                    <CategoryCard {...CATEGORIES[3]} />
+                                </View>
                             </View>
                         </View>
-                    </View>
+                    )
 
-                    <View className="mb-6 px-screen">
-                        <View className="mb-3 flex-row items-center justify-between">
-                            <AppText className="text-xl font-poppins-semibold text-brand">Top Picks Today</AppText>
-                            <AppPressable>
-                                <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
-                            </AppPressable>
-                        </View>
-                        <View className="gap-3">
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[3]} />
-                                <CategoryCard {...CATEGORIES[1]} />
+                case 'top-picks':
+                    return (
+                        <View className="mb-6 px-screen">
+                            <View className="mb-3 flex-row items-center justify-between">
+                                <AppText className="text-xl font-poppins-semibold text-brand">Top Picks Today</AppText>
+                                <AppPressable>
+                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                                </AppPressable>
                             </View>
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[2]} />
-                                <CategoryCard {...CATEGORIES[0]} />
+                            <View className="gap-3">
+                                <View className="flex-row gap-3">
+                                    <CategoryCard {...CATEGORIES[3]} />
+                                    <CategoryCard {...CATEGORIES[1]} />
+                                </View>
+                                <View className="flex-row gap-3">
+                                    <CategoryCard {...CATEGORIES[2]} />
+                                    <CategoryCard {...CATEGORIES[0]} />
+                                </View>
                             </View>
                         </View>
-                    </View>
+                    )
 
-                    <HomeSection
-                        title="Suggested For You"
-                        businesses={suggestedBusinesses}
-                        isLoading={suggestedLoading}
-                        onLayout={handleSectionLayout('suggested')}
-                    />
+                case 'section':
+                    return (
+                        <View className="mb-6">
+                            {/* Section header */}
+                            <View className="mb-3 flex-row items-center justify-between px-screen">
+                                <AppText className="text-xl font-poppins-semibold text-brand">{item.title}</AppText>
+                                <AppPressable>
+                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                                </AppPressable>
+                            </View>
+                            <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
+                        </View>
+                    )
 
-                    <HomeSection
-                        title="Near You"
-                        businesses={nearbyBusinesses}
-                        isLoading={nearbyLoading || !location}
-                        onLayout={handleSectionLayout('nearby')}
-                    />
+                default:
+                    return null
+            }
+        },
+        [categories, selectedCategoryId]
+    )
 
-                    <HomeSection
-                        title="Trending This Week"
-                        businesses={trendingBusinesses}
-                        isLoading={trendingLoading || !visibleSections.has('trending')}
-                        onLayout={handleSectionLayout('trending')}
-                    />
+    return (
+        <View className="flex-1 bg-white">
+            <WaveHeader />
 
-                    <HomeSection
-                        title="New on City Needs"
-                        businesses={newBusinesses}
-                        isLoading={newLoading || !visibleSections.has('new')}
-                        onLayout={handleSectionLayout('new')}
-                    />
-                </ScrollView>
+            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
+                <FlatList
+                    data={sections}
+                    keyExtractor={keyExtractor}
+                    renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 120 }}
+                    initialNumToRender={4}
+                    maxToRenderPerBatch={2}
+                    windowSize={5}
+                    removeClippedSubviews={true}
+                    onViewableItemsChanged={onViewableItemsChanged}
+                    viewabilityConfig={viewabilityConfig}
+                />
             </SafeAreaView>
         </View>
     )
