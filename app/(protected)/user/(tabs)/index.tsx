@@ -13,6 +13,7 @@ import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
+import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 
 // Category card images
@@ -54,7 +55,7 @@ const CATEGORIES = [
 const HorizontalBusinessCard = memo(function HorizontalBusinessCard({ business }: { business: BusinessCardDto }) {
     return (
         <View style={{ width: 320 }}>
-            <ServiceCard business={business} />
+            <ServiceCard business={business} analyticsSource={AnalyticsSource.CATEGORIES} />
         </View>
     )
 })

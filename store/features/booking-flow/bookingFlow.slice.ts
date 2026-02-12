@@ -1,5 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
+import type { AnalyticsSource } from '@/store/features/analytics'
+
 import { BookingFlowState } from './bookingFlow.types'
 
 const initialState: BookingFlowState = {
@@ -10,15 +12,17 @@ const initialState: BookingFlowState = {
     notes: '',
     status: 'idle',
     error: null,
+    analyticsSource: null,
 }
 
 const bookingFlowSlice = createSlice({
     name: 'bookingFlow',
     initialState,
     reducers: {
-        initBookingFlow: (state, action: PayloadAction<{ businessId: string }>) => {
+        initBookingFlow: (state, action: PayloadAction<{ businessId: string; analyticsSource: AnalyticsSource }>) => {
             Object.assign(state, initialState)
             state.businessId = action.payload.businessId
+            state.analyticsSource = action.payload.analyticsSource
         },
         toggleService: (state, action: PayloadAction<string>) => {
             const id = action.payload

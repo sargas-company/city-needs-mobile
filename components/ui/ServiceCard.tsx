@@ -10,6 +10,7 @@ import type { BusinessCardDto } from '@/store/features/search/search.types'
 import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/store/features/saved-businesses/savedBusinessesApi'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
 import PeopleImage from '@/assets/images/people-reviews.svg'
+import { AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -19,11 +20,22 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export const ServiceCard = memo(function ServiceCard({ business }: { business: BusinessCardDto }) {
+type ServiceCardProps = {
+    business: BusinessCardDto
+    analyticsSource: AnalyticsSource
+}
+
+export const ServiceCard = memo(function ServiceCard({ business, analyticsSource }: ServiceCardProps) {
     const router = useRouter()
     const [saved, setSaved] = useState(business.isSaved)
     const [addSaved] = useAddSavedBusinessMutation()
     const [removeSaved] = useRemoveSavedBusinessMutation()
+    const { trackProfileView } = useTrackAnalytics()
+
+    const handlePress = useCallback(() => {
+        trackProfileView({ businessId: business.id, source: analyticsSource })
+        router.push(`/(protected)/user/book/${business.id}?source=${analyticsSource}`)
+    }, [business.id, analyticsSource, trackProfileView, router])
 
     const handleBookmarkPress = useCallback(() => {
         setSaved((prev) => !prev)
@@ -37,7 +49,7 @@ export const ServiceCard = memo(function ServiceCard({ business }: { business: B
     const initial = business.name.charAt(0).toUpperCase()
 
     return (
-        <Pressable onPress={() => router.push(`/(protected)/user/book/${business.id}`)}>
+        <Pressable onPress={handlePress}>
             <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
                 {/* Row 1: Avatar + Name + Category + Bookmark */}
                 <View className="mb-2 flex-row items-center">

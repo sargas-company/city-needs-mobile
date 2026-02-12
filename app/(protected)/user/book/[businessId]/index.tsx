@@ -18,6 +18,7 @@ import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/fea
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppDispatch } from '@/store/hooks'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
+import { AnalyticsActionType, AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 
 function getDayLabel(day?: BusinessHoursDayDto): string {
     if (!day || day.hours.length === 0) return 'Closed'
@@ -155,9 +156,11 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
 }
 
 const BusinessDetailScreen = () => {
-    const { businessId } = useLocalSearchParams<{ businessId: string }>()
+    const { businessId, source } = useLocalSearchParams<{ businessId: string; source?: string }>()
     const router = useRouter()
     const dispatch = useAppDispatch()
+    const { trackUserAction } = useTrackAnalytics()
+    const analyticsSource = (source as AnalyticsSource) || AnalyticsSource.SEARCH
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
@@ -208,12 +211,26 @@ const BusinessDetailScreen = () => {
 
     const handleCall = () => {
         setCallModalVisible(false)
-        if (phoneRaw) Linking.openURL(`tel:${phoneRaw}`)
+        if (phoneRaw) {
+            trackUserAction({
+                businessId: businessId!,
+                source: analyticsSource,
+                actionType: AnalyticsActionType.CALL,
+            })
+            Linking.openURL(`tel:${phoneRaw}`)
+        }
     }
 
     const handleSms = () => {
         setSmsModalVisible(false)
-        if (phoneRaw) Linking.openURL(`sms:${phoneRaw}`)
+        if (phoneRaw) {
+            trackUserAction({
+                businessId: businessId!,
+                source: analyticsSource,
+                actionType: AnalyticsActionType.MESSAGE,
+            })
+            Linking.openURL(`sms:${phoneRaw}`)
+        }
     }
 
     const providerInitial = businessName[0].toUpperCase()
@@ -222,7 +239,7 @@ const BusinessDetailScreen = () => {
 
     const handleBookNow = () => {
         if (!businessId) return
-        dispatch(initBookingFlow({ businessId }))
+        dispatch(initBookingFlow({ businessId, analyticsSource }))
         router.push(`/(protected)/user/book/${businessId}/select-services`)
     }
 

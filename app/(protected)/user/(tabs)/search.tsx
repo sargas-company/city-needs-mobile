@@ -13,6 +13,7 @@ import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
+import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import type { BusinessCardDto, BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
 // ── Filter chip config ──────────────────────────────────────────────────────────
@@ -166,7 +167,7 @@ export default function SearchScreen() {
     const renderItem = useCallback(
         ({ item }: { item: BusinessCardDto }) => (
             <View className="mb-4">
-                <ServiceCard business={item} />
+                <ServiceCard business={item} analyticsSource={AnalyticsSource.SEARCH} />
             </View>
         ),
         []

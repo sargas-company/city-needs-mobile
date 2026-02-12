@@ -6,18 +6,14 @@ export enum AnalyticsEventType {
 
 export enum AnalyticsSource {
     SEARCH = 'SEARCH',
-    MAP = 'MAP',
+    CATEGORIES = 'CATEGORIES',
     REELS = 'REELS',
-    DIRECT = 'DIRECT',
 }
 
 export enum AnalyticsActionType {
     CALL = 'CALL',
-    WHATSAPP = 'WHATSAPP',
-    WEBSITE = 'WEBSITE',
-    DIRECTIONS = 'DIRECTIONS',
-    SHARE = 'SHARE',
-    SAVE = 'SAVE',
+    MESSAGE = 'MESSAGE',
+    BOOKING = 'BOOKING',
 }
 
 // Request DTOs

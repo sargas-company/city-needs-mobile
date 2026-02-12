@@ -8,6 +8,7 @@ import { BookingSummaryCard } from '@/components/booking/BookingSummaryCard'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { AnalyticsActionType, AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 import { setBookingError, setBookingSubmitting, setBookingSubmitted, setNotes } from '@/store/features/booking-flow/bookingFlow.slice'
 import {
     selectBookingFlow,
@@ -35,6 +36,7 @@ const ReviewScreen = () => {
     const { businessId } = useLocalSearchParams<{ businessId: string }>()
     const router = useRouter()
     const dispatch = useAppDispatch()
+    const { trackUserAction } = useTrackAnalytics()
 
     const bookingFlow = useAppSelector(selectBookingFlow)
     const status = useAppSelector(selectBookingFlowStatus)
@@ -71,6 +73,12 @@ const ReviewScreen = () => {
                 serviceIds: bookingFlow.selectedServiceIds,
                 startAt: bookingFlow.selectedTimeSlot,
             }).unwrap()
+
+            trackUserAction({
+                businessId: businessId!,
+                source: bookingFlow.analyticsSource || AnalyticsSource.SEARCH,
+                actionType: AnalyticsActionType.BOOKING,
+            })
 
             dispatch(setBookingSubmitted())
             router.replace(`/(protected)/user/book/${businessId}/success`)
