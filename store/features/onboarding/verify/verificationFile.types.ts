@@ -1,8 +1,15 @@
+export type VerificationLock = {
+    id: string
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RESUBMISSION'
+    rejectionReason?: string | null
+    reviewedAt?: string | null
+}
+
 export type VerificationFile = {
     id: string
     url?: string | null
     file?: unknown
-    lock?: unknown
+    lock?: VerificationLock | null
     status?: string | null
     originalName?: string | null
     mimeType?: string | null

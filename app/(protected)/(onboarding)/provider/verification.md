@@ -355,7 +355,14 @@ interface VerifyState {
    - "Sign out" → выход из аккаунта
 4. Пользователь НЕ может пользоваться приложением пока не пройдёт верификацию
 
-### Сценарий 6: Статус Verified
+### Сценарий 6: Статус Rejected (failed)
+1. Документ отклонён админом
+2. Показывается причина отклонения (`rejectionReason`)
+3. Старый файл НЕ может быть удалён (остаётся для истории)
+4. Upload zone доступен для загрузки нового документа
+5. После загрузки нового файла → Continue → новый submit
+
+### Сценарий 7: Статус Verified
 1. Верификация пройдена
 2. Continue доступен → переход
 
@@ -391,3 +398,30 @@ interface VerifyState {
 - После submit, thunk возвращает `{ canUseApp: boolean }`
 - Если `canUseApp = false` → не навигируем, UI обновляется автоматически
 - Показываем Contact Support и Sign out вместо кнопки Continue
+
+---
+
+## 14. Admin Actions (Backend)
+
+### approveVerification
+```typescript
+// 1. Verification status → APPROVED
+// 2. Business status → ACTIVE (если был PENDING/REJECTED)
+// 3. User onboardingStep → null (пользователь может войти в приложение)
+```
+
+### rejectVerification
+```typescript
+// 1. Verification status → REJECTED
+// 2. rejectionReason сохраняется
+// 3. Business status → REJECTED (если нет grace или grace истёк)
+// 4. User onboardingStep остаётся 4 (пользователь должен загрузить новый документ)
+```
+
+### Матрица после admin action
+
+| Action | verification.status | business.status | onboardingStep | Результат |
+|--------|---------------------|-----------------|----------------|-----------|
+| APPROVE | `APPROVED` | `ACTIVE` | `null` | Пользователь входит в приложение |
+| REJECT (no grace) | `REJECTED` | `REJECTED` | `4` | Пользователь загружает новый док |
+| REJECT (grace active) | `REJECTED` | без изменений | `4` | Пользователь загружает новый док |

@@ -53,21 +53,28 @@ const VerifyScreen = () => {
     const canUseApp = verificationGate?.canUseApp !== false
     const businessStatus = verificationGate?.status
 
-    const lockStatus = (verifyFile as any)?.lock?.status as string | undefined
+    const lockStatus = verifyFile?.lock?.status
+    const rejectionReason = verifyFile?.lock?.rejectionReason
 
     const uiState: VerifyUiState = useMemo(() => {
-        if (!verifyFile) return 'empty'
+        // Check lock status from file first
         if (lockStatus === 'PENDING') return 'pending'
         if (lockStatus === 'APPROVED') return 'verified'
         if (lockStatus === 'REJECTED') return 'failed'
+        // Fallback to business status from gate (when file API returns null after submit)
+        if (businessStatus === 'PENDING') return 'pending'
+        if (businessStatus === 'REJECTED') return 'failed'
+        // Default states
+        if (!verifyFile) return 'empty'
         return 'draft'
-    }, [verifyFile, lockStatus])
+    }, [verifyFile, lockStatus, businessStatus])
 
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
 
     const isLocked = uiState === 'pending' || uiState === 'verified'
     const canUpload = !isLocked
-    const canDelete = !!verifyFile?.id && !isLocked
+    // Cannot delete rejected files - they stay for history
+    const canDelete = !!verifyFile?.id && !isLocked && uiState !== 'failed'
     const canSkip = !isLocked && (!requiresVerification || !graceExpired)
     const showSkip = canSkip
 
@@ -304,6 +311,12 @@ const VerifyScreen = () => {
                 <View className="mb-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] px-3 py-3">
                     <Text className="text-xs font-semibold text-[#0C2A63]">{infoBadge}</Text>
                 </View>
+
+                {uiState === 'failed' && rejectionReason ? (
+                    <View className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
+                        <Text className="text-xs font-semibold text-red-600">Reason: {rejectionReason}</Text>
+                    </View>
+                ) : null}
 
                 {!!verifyError && <Text className="mb-2 text-sm font-semibold text-red-600">{verifyError}</Text>}
                 {!!localError && <Text className="mb-2 text-sm font-semibold text-red-600">{localError}</Text>}
