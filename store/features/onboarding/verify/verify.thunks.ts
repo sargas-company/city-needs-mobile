@@ -102,14 +102,6 @@ export const submitVerificationThunk = createAsyncThunk<void, void, { state: Roo
         const state = getState()
         const fileId = state.verify.file?.id
 
-        const gate = state.profile.user?.verification
-        if (gate && gate.requiresVerification !== true) {
-            const message = 'Verification is not required for this business category'
-            dispatch(setVerifyError(message))
-            dispatch(setVerifyStatus('error'))
-            return rejectWithValue(message)
-        }
-
         if (!fileId) {
             const message = 'Please upload a document to submit for verification.'
             dispatch(setVerifyError(message))

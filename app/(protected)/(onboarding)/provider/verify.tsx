@@ -63,9 +63,9 @@ const VerifyScreen = () => {
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
 
     const isLocked = uiState === 'pending' || uiState === 'verified'
-    const canUpload = !isLocked && requiresVerification
+    const canUpload = !isLocked
     const canDelete = !!verifyFile?.id && !isLocked
-    const canSubmit = !!verifyFile?.id && !isLocked && requiresVerification
+    const canSubmit = !!verifyFile?.id && !isLocked
     const canSkip = !isLocked && (!requiresVerification || !graceExpired)
     const showSkip = canSkip
 
@@ -154,28 +154,6 @@ const VerifyScreen = () => {
         }
     }
 
-    const handleSubmit = async () => {
-        setLocalError(null)
-
-        if (!requiresVerification) {
-            setLocalError('Verification is not required for your category.')
-            return
-        }
-        if (!verifyFile?.id) {
-            setLocalError('Please upload a document to submit for verification.')
-            return
-        }
-        if (isLocked) return
-
-        try {
-            await dispatch(submitVerificationThunk()).unwrap()
-            router.replace('/(protected)/business/(tabs)')
-        } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to submit verification'
-            setLocalError(message)
-        }
-    }
-
     const handleSkip = async () => {
         setLocalError(null)
 
@@ -232,18 +210,31 @@ const VerifyScreen = () => {
         )
     }
 
-    const showUploadZone = canUpload && (uiState === 'empty' || uiState === 'failed')
+    const showUploadZone = !isLocked && (uiState === 'empty' || uiState === 'failed')
     const showPrimary = true
 
+    const hasFileToSubmit = !!verifyFile?.id && uiState === 'draft'
+    const mustUploadFirst = requiresVerification && graceExpired && !verifyFile?.id
+
     const primaryMode: 'continue' | 'pending' | 'submit' =
-        uiState === 'verified' ? 'continue' : uiState === 'pending' ? 'pending' : !requiresVerification ? 'continue' : 'submit'
-    const primaryLabel = primaryMode === 'continue' ? 'Continue' : primaryMode === 'pending' ? 'Verification Pending' : 'Submit for Verification'
+        uiState === 'verified' ? 'continue' : uiState === 'pending' ? 'pending' : hasFileToSubmit ? 'submit' : 'continue'
 
-    const primaryDisabled = isBusy || primaryMode === 'pending' || (primaryMode === 'submit' && !canSubmit)
+    const primaryLabel = primaryMode === 'pending' ? 'Verification Pending' : 'Continue'
 
-    const handlePrimaryPress = () => {
+    const primaryDisabled = isBusy || primaryMode === 'pending' || mustUploadFirst
+
+    const handlePrimaryPress = async () => {
         if (primaryMode === 'continue') return handleContinue()
-        if (primaryMode === 'submit') return handleSubmit()
+        if (primaryMode === 'submit') {
+            setLocalError(null)
+            try {
+                await dispatch(submitVerificationThunk()).unwrap()
+                router.replace('/(protected)/business/(tabs)')
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to submit verification'
+                setLocalError(message)
+            }
+        }
     }
 
     const steps = ['Business Info', 'Address', 'Branding', 'Verification']
