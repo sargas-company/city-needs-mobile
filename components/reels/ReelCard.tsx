@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Image, View, ViewStyle } from 'react-native'
+import React, { memo, useEffect, useState } from 'react'
+import { View, ViewStyle } from 'react-native'
+import { Image } from 'expo-image'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import * as VideoThumbnails from 'expo-video-thumbnails'
@@ -18,7 +19,7 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export function ReelCard({ reel }: { reel: ReelFeedItem }) {
+export const ReelCard = memo(function ReelCard({ reel }: { reel: ReelFeedItem }) {
     const router = useRouter()
     const { business } = reel
 
@@ -81,7 +82,13 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
                 {/* Row 2: Video thumbnail with play overlay */}
                 <View className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
                     {thumbUri ? (
-                        <Image source={{ uri: thumbUri }} className="h-full w-4/12 rounded-xl" resizeMode="cover" />
+                        <Image
+                            source={{ uri: thumbUri }}
+                            className="h-full w-4/12 rounded-xl"
+                            contentFit="cover"
+                            cachePolicy="memory-disk"
+                            transition={200}
+                        />
                     ) : (
                         <View className="h-full w-4/12 rounded-xl" style={{ backgroundColor: '#D9D9D9' }} />
                     )}
@@ -94,4 +101,4 @@ export function ReelCard({ reel }: { reel: ReelFeedItem }) {
             </View>
         </AppPressable>
     )
-}
+})
