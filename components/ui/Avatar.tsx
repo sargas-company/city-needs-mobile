@@ -1,4 +1,5 @@
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
+import { Image } from 'expo-image'
 import React from 'react'
 
 export type AvatarProps = {
@@ -7,9 +8,17 @@ export type AvatarProps = {
     borderWidth?: number
     borderColor?: string
     fallback?: React.ReactNode
+    /**
+     * Optional key for image recycling in lists.
+     * Pass a unique identifier (e.g., user ID) when Avatar is used in FlatList/ScrollView.
+     */
+    recyclingKey?: string
 }
-export const Avatar = ({ uri, size = 73, borderWidth = 3, borderColor = '#FFFFFF', fallback }: AvatarProps) => {
+
+export const Avatar = ({ uri, size = 73, borderWidth = 3, borderColor = '#FFFFFF', fallback, recyclingKey }: AvatarProps) => {
     const radius = size / 2
+    // Calculate inner image size for optimal memory usage
+    const innerSize = size - borderWidth * 2
 
     return (
         <View
@@ -33,12 +42,23 @@ export const Avatar = ({ uri, size = 73, borderWidth = 3, borderColor = '#FFFFFF
             <View
                 style={{
                     flex: 1,
-                    borderRadius: radius,
+                    borderRadius: radius - borderWidth,
                     overflow: 'hidden',
                     backgroundColor: '#E5E7EB',
                 }}
             >
-                {uri ? <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" /> : fallback}
+                {uri ? (
+                    <Image
+                        source={{ uri }}
+                        style={{ width: innerSize, height: innerSize }}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={200}
+                        recyclingKey={recyclingKey}
+                    />
+                ) : (
+                    fallback
+                )}
             </View>
         </View>
     )

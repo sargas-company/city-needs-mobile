@@ -1,5 +1,6 @@
 import React from 'react'
-import { Image, Pressable, View, ViewStyle } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
+import { Image } from 'expo-image'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 
@@ -50,7 +51,14 @@ export function BusinessMapCard({ business, onClose }: BusinessMapCardProps) {
             <View className="flex-row items-start">
                 {/* Logo / Initial */}
                 {business.logoUrl ? (
-                    <Image source={{ uri: business.logoUrl }} className="mr-3 rounded-xl" style={{ width: 48, height: 48 }} />
+                    <Image
+                        source={{ uri: business.logoUrl }}
+                        className="mr-3 rounded-xl"
+                        style={{ width: 48, height: 48 }}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={200}
+                    />
                 ) : (
                     <View className="mr-3 items-center justify-center rounded-xl bg-brand" style={{ width: 48, height: 48 }}>
                         <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>

@@ -42,7 +42,7 @@ type Props = {
 }
 
 export const ReviewCard = ({ review }: Props) => {
-    const { authorName, authorAvatarUrl, rating, comment, createdAt } = review
+    const { id, authorName, authorAvatarUrl, rating, comment, createdAt } = review
     const initial = authorName ? authorName[0].toUpperCase() : '?'
 
     return (
@@ -56,6 +56,7 @@ export const ReviewCard = ({ review }: Props) => {
                             size={48}
                             borderWidth={2}
                             borderColor="#F6F7FB"
+                            recyclingKey={`review-avatar-${id}`}
                             fallback={
                                 <View className="flex-1 items-center justify-center bg-[#E5E7EB]">
                                     <AppText className="font-poppins-bold text-[18px] text-[#0C2A63]">{initial}</AppText>

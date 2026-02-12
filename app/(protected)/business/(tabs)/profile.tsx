@@ -325,6 +325,9 @@ const BusinessProfileScreen = () => {
                                                 source={{ uri: photo.url }}
                                                 style={{ width: 140, height: 140, borderRadius: 16 }}
                                                 contentFit="cover"
+                                                cachePolicy="memory-disk"
+                                                transition={200}
+                                                recyclingKey={`photo-${photo.id}`}
                                             />
                                         </View>
                                     ))}

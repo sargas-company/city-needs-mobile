@@ -58,6 +58,7 @@ export const ReelCard = memo(function ReelCard({ reel }: { reel: ReelFeedItem })
                             size={56}
                             borderWidth={2}
                             borderColor="#E8A230"
+                            recyclingKey={`reel-avatar-${reel.id}`}
                             fallback={
                                 <View className="flex-1 items-center justify-center bg-[#A3C9A8]">
                                     <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>

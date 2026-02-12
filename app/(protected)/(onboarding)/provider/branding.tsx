@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
-import { Image, Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
+import { Image } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useRouter } from 'expo-router'
@@ -372,7 +373,13 @@ const UploadedList = ({ title, files, onRemove, onClearAll, progress = 100, show
 
                         {/* Preview / Icon */}
                         {showPreview && isImage ? (
-                            <Image source={{ uri: file.url }} className="mb-2 h-12 w-12 rounded-md" resizeMode="cover" />
+                            <Image
+                                source={{ uri: file.url }}
+                                style={{ width: 48, height: 48, borderRadius: 6, marginBottom: 8 }}
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                transition={200}
+                            />
                         ) : (
                             <View className="mb-2 h-12 w-12 items-center justify-center">{getFileIcon(file)}</View>
                         )}

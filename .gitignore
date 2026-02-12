@@ -85,3 +85,5 @@ temp/
 
 expo-env.d.ts
 credentials
+ios
+android
