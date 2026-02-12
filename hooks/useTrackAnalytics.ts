@@ -9,7 +9,6 @@ type TrackProfileViewParams = {
 
 type TrackUserActionParams = {
     businessId: string
-    source: AnalyticsSource
     actionType: AnalyticsActionType
 }
 
@@ -28,11 +27,10 @@ export function useTrackAnalytics() {
     )
 
     const trackUserAction = useCallback(
-        ({ businessId, source, actionType }: TrackUserActionParams) => {
+        ({ businessId, actionType }: TrackUserActionParams) => {
             createEvent({
                 businessId,
                 type: AnalyticsEventType.USER_ACTION,
-                source,
                 actionType,
             })
         },

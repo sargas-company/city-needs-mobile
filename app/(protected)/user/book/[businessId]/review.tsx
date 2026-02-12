@@ -8,7 +8,7 @@ import { BookingSummaryCard } from '@/components/booking/BookingSummaryCard'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
-import { AnalyticsActionType, AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
+import { AnalyticsActionType, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 import { setBookingError, setBookingSubmitting, setBookingSubmitted, setNotes } from '@/store/features/booking-flow/bookingFlow.slice'
 import {
     selectBookingFlow,
@@ -76,7 +76,6 @@ const ReviewScreen = () => {
 
             trackUserAction({
                 businessId: businessId!,
-                source: bookingFlow.analyticsSource || AnalyticsSource.SEARCH,
                 actionType: AnalyticsActionType.BOOKING,
             })
 

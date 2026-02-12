@@ -17,12 +17,19 @@ export enum AnalyticsActionType {
 }
 
 // Request DTOs
-export type CreateAnalyticsEventDto = {
+export type CreateProfileViewEventDto = {
     businessId: string
-    type: AnalyticsEventType
+    type: AnalyticsEventType.PROFILE_VIEW
     source: AnalyticsSource
-    actionType?: AnalyticsActionType
 }
+
+export type CreateUserActionEventDto = {
+    businessId: string
+    type: AnalyticsEventType.USER_ACTION
+    actionType: AnalyticsActionType
+}
+
+export type CreateAnalyticsEventDto = CreateProfileViewEventDto | CreateUserActionEventDto
 
 // Response types
 export type ApiResponse<T> = {

@@ -34,7 +34,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
 
     const handlePress = useCallback(() => {
         trackProfileView({ businessId: business.id, source: analyticsSource })
-        router.push(`/(protected)/user/book/${business.id}?source=${analyticsSource}`)
+        router.push(`/(protected)/user/book/${business.id}`)
     }, [business.id, analyticsSource, trackProfileView, router])
 
     const handleBookmarkPress = useCallback(() => {

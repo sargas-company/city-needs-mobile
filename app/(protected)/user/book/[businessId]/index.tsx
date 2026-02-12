@@ -18,7 +18,7 @@ import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/fea
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
 import { useAppDispatch } from '@/store/hooks'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
-import { AnalyticsActionType, AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
+import { AnalyticsActionType, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 
 function getDayLabel(day?: BusinessHoursDayDto): string {
     if (!day || day.hours.length === 0) return 'Closed'
@@ -156,11 +156,10 @@ const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onCl
 }
 
 const BusinessDetailScreen = () => {
-    const { businessId, source } = useLocalSearchParams<{ businessId: string; source?: string }>()
+    const { businessId } = useLocalSearchParams<{ businessId: string }>()
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { trackUserAction } = useTrackAnalytics()
-    const analyticsSource = (source as AnalyticsSource) || AnalyticsSource.SEARCH
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
@@ -214,7 +213,6 @@ const BusinessDetailScreen = () => {
         if (phoneRaw) {
             trackUserAction({
                 businessId: businessId!,
-                source: analyticsSource,
                 actionType: AnalyticsActionType.CALL,
             })
             Linking.openURL(`tel:${phoneRaw}`)
@@ -226,7 +224,6 @@ const BusinessDetailScreen = () => {
         if (phoneRaw) {
             trackUserAction({
                 businessId: businessId!,
-                source: analyticsSource,
                 actionType: AnalyticsActionType.MESSAGE,
             })
             Linking.openURL(`sms:${phoneRaw}`)
@@ -239,7 +236,7 @@ const BusinessDetailScreen = () => {
 
     const handleBookNow = () => {
         if (!businessId) return
-        dispatch(initBookingFlow({ businessId, analyticsSource }))
+        dispatch(initBookingFlow({ businessId }))
         router.push(`/(protected)/user/book/${businessId}/select-services`)
     }
 

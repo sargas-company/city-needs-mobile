@@ -1,5 +1,3 @@
-import type { AnalyticsSource } from '@/store/features/analytics'
-
 export type BookingFlowStatus = 'idle' | 'submitting' | 'submitted' | 'error'
 
 export type BookingFlowState = {
@@ -10,5 +8,4 @@ export type BookingFlowState = {
     notes: string
     status: BookingFlowStatus
     error: string | null
-    analyticsSource: AnalyticsSource | null
 }
