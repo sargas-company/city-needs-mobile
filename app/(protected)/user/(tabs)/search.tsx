@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, FlatList, Modal, Pressable, View } from 'react-native'
+import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -37,6 +37,14 @@ const SORT_OPTIONS: { value: BusinessSort | null; label: string }[] = [
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
 ]
+
+const dropdownShadow = {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+}
 
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
@@ -90,9 +98,9 @@ export default function SearchScreen() {
         return args
     }, [searchText, activeChips, sort, cursor, appliedFilters, userLocation])
 
-    const { data, isLoading, isFetching } = useSearchBusinessesQuery(queryArgs)
+    const { data, isLoading, isFetching, refetch } = useSearchBusinessesQuery(queryArgs)
 
-    const businesses = data?.data ?? []
+    const businesses = useMemo(() => data?.data ?? [], [data])
     const meta = data?.meta
     const totalCount = meta?.totalCount
 
@@ -137,6 +145,11 @@ export default function SearchScreen() {
         }
     }, [meta, isFetching])
 
+    const handleRefresh = useCallback(() => {
+        setCursor(null)
+        refetch()
+    }, [refetch])
+
     const handleSortChange = useCallback((value: BusinessSort | null) => {
         setSort(value)
         setSortOpen(false)
@@ -160,85 +173,8 @@ export default function SearchScreen() {
     )
 
     const ListHeader = useMemo(
-        () => (
-            <>
-                {/* ── Location row ─────────────────────────── */}
-                <View className="mb-3 flex-row items-center justify-between">
-                    <View>
-                        <AppText className="text-status text-text-muted">Location</AppText>
-                        <View className="flex-row items-center gap-1">
-                            <Feather name="map-pin" size={16} color="#e89f48" />
-                            <AppText className="text-subtitle font-poppins-semibold text-text">{displayCity}</AppText>
-                        </View>
-                    </View>
-                </View>
-
-                {/* ── Search bar row ────────────────────────── */}
-                <View className="mb-3 flex-row items-center gap-3">
-                    <View className="flex-1">
-                        <AppInput
-                            leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
-                            clearable
-                            value={searchText}
-                            onChangeText={handleSearchChange}
-                            placeholder="Search services..."
-                        />
-                    </View>
-                </View>
-
-                {/* ── Filter chips ──────────────────────────── */}
-                <View className="mb-3 flex-row flex-wrap gap-2">
-                    {FILTER_CHIPS.map((chip) => {
-                        const active = activeChips.has(chip.id)
-                        const disabled = chip.requiresSearch && !searchText.trim()
-                        return (
-                            <AppPressable
-                                key={chip.id}
-                                disabled={disabled}
-                                disabledClassName=""
-                                onPress={() => toggleChip(chip.id)}
-                                className={
-                                    active
-                                        ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                        : disabled
-                                          ? 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5 opacity-40'
-                                          : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
-                                }
-                            >
-                                <AppText
-                                    className={active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'}
-                                >
-                                    {chip.label}
-                                </AppText>
-                                {active && <Feather name="x" size={14} color="#fff" />}
-                            </AppPressable>
-                        )
-                    })}
-                </View>
-
-                {/* ── Sort & advanced filter row ────────────── */}
-                <View className="mb-4 flex-row items-center justify-between">
-                    <AppPressable onPress={() => setSortOpen(true)} className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
-                        <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
-                        <Feather name="chevron-down" size={16} color="#fff" />
-                    </AppPressable>
-                    <AppPressable onPress={() => setFilterOpen(true)} className="items-center justify-center rounded-xl bg-orange p-2.5">
-                        <Feather name="sliders" size={20} color="#fff" />
-                    </AppPressable>
-                </View>
-
-                {/* ── Results count ─────────────────────────── */}
-                {totalCount != null && <AppText className="mb-4 text-title font-poppins-bold text-brand">{totalCount} Results Found</AppText>}
-
-                {/* ── Loading state ─────────────────────────── */}
-                {isLoading && (
-                    <View className="items-center py-10">
-                        <ActivityIndicator size="large" />
-                    </View>
-                )}
-            </>
-        ),
-        [displayCity, searchText, handleSearchChange, activeChips, toggleChip, sortLabel, totalCount, isLoading]
+        () => (totalCount != null ? <AppText className="mb-4 text-title font-poppins-bold text-brand">{totalCount} Results Found</AppText> : null),
+        [totalCount]
     )
 
     const ListFooter = useMemo(() => {
@@ -267,26 +203,109 @@ export default function SearchScreen() {
         )
     }, [isLoading, meta?.hasNextPage, loadMore, isFetching, businesses.length])
 
+    const refreshControl = useMemo(
+        () => <RefreshControl refreshing={isFetching && !isLoading && cursor === null} onRefresh={handleRefresh} tintColor="#0C2A63" />,
+        [isFetching, isLoading, cursor, handleRefresh]
+    )
+
     return (
         <View className="flex-1 bg-white">
             <WaveHeader />
 
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-                <FlatList
-                    data={isLoading ? [] : businesses}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    ListHeaderComponent={ListHeader}
-                    ListFooterComponent={ListFooter}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 20 }}
-                    initialNumToRender={5}
-                    maxToRenderPerBatch={10}
-                    windowSize={5}
-                    removeClippedSubviews={true}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.5}
-                />
+                {/* ── Fixed Header ────────────────────────────── */}
+                <View className="px-screen">
+                    {/* ── Location row ─────────────────────────── */}
+                    <View className="mb-3 flex-row items-center justify-between">
+                        <View>
+                            <AppText className="text-status text-text-muted">Location</AppText>
+                            <View className="flex-row items-center gap-1">
+                                <Feather name="map-pin" size={16} color="#e89f48" />
+                                <AppText className="text-subtitle font-poppins-semibold text-text">{displayCity}</AppText>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* ── Search bar row ────────────────────────── */}
+                    <View className="mb-3 flex-row items-center gap-3">
+                        <View className="flex-1">
+                            <AppInput
+                                leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
+                                clearable
+                                value={searchText}
+                                onChangeText={handleSearchChange}
+                                placeholder="Search services..."
+                            />
+                        </View>
+                    </View>
+
+                    {/* ── Filter chips ──────────────────────────── */}
+                    <View className="mb-3 flex-row flex-wrap gap-2">
+                        {FILTER_CHIPS.map((chip) => {
+                            const active = activeChips.has(chip.id)
+                            const disabled = chip.requiresSearch && !searchText.trim()
+                            return (
+                                <AppPressable
+                                    key={chip.id}
+                                    disabled={disabled}
+                                    disabledClassName=""
+                                    onPress={() => toggleChip(chip.id)}
+                                    className={
+                                        active
+                                            ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                            : disabled
+                                              ? 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5 opacity-40'
+                                              : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                                    }
+                                >
+                                    <AppText
+                                        className={
+                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                        }
+                                    >
+                                        {chip.label}
+                                    </AppText>
+                                    {active && <Feather name="x" size={14} color="#fff" />}
+                                </AppPressable>
+                            )
+                        })}
+                    </View>
+
+                    {/* ── Sort & advanced filter row ────────────── */}
+                    <View className="mb-4 flex-row items-center justify-between">
+                        <AppPressable onPress={() => setSortOpen(true)} className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
+                            <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
+                            <Feather name="chevron-down" size={16} color="#fff" />
+                        </AppPressable>
+                        <AppPressable onPress={() => setFilterOpen(true)} className="items-center justify-center rounded-xl bg-orange p-2.5">
+                            <Feather name="sliders" size={20} color="#fff" />
+                        </AppPressable>
+                    </View>
+                </View>
+
+                {/* ── Scrollable List with Pull-to-Refresh ────────────────────────────── */}
+                {isLoading ? (
+                    <View className="flex-1 items-center justify-center">
+                        <ActivityIndicator size="large" />
+                    </View>
+                ) : (
+                    <FlatList
+                        data={businesses}
+                        keyExtractor={keyExtractor}
+                        renderItem={renderItem}
+                        ListHeaderComponent={ListHeader}
+                        ListFooterComponent={ListFooter}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 20 }}
+                        initialNumToRender={5}
+                        maxToRenderPerBatch={10}
+                        windowSize={5}
+                        removeClippedSubviews={true}
+                        onEndReached={loadMore}
+                        onEndReachedThreshold={0.5}
+                        refreshControl={refreshControl}
+                    />
+                )}
             </SafeAreaView>
 
             {/* ── Sort dropdown modal ──────────────────── */}
@@ -322,12 +341,4 @@ export default function SearchScreen() {
             />
         </View>
     )
-}
-
-const dropdownShadow = {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
 }

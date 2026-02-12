@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, ListRenderItem, ScrollView, View } from 'react-native'
+import { ActivityIndicator, FlatList, ListRenderItem, RefreshControl, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
 import Feather from '@expo/vector-icons/Feather'
@@ -126,13 +126,22 @@ export default function HomeScreen() {
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
 
     // Suggested for you - top rated (loads immediately)
-    const { data: suggestedData, isLoading: suggestedLoading } = useSearchBusinessesQuery({
+    const {
+        data: suggestedData,
+        isLoading: suggestedLoading,
+        isFetching: suggestedFetching,
+        refetch: refetchSuggested,
+    } = useSearchBusinessesQuery({
         sort: 'top_rated',
         limit: 5, // Reduced limit for performance
     })
 
     // Near you - nearby (requires location, loads immediately)
-    const { data: nearbyData, isLoading: nearbyLoading } = useSearchBusinessesQuery(
+    const {
+        data: nearbyData,
+        isLoading: nearbyLoading,
+        refetch: refetchNearby,
+    } = useSearchBusinessesQuery(
         {
             sort: 'nearby',
             limit: 5,
@@ -143,7 +152,11 @@ export default function HomeScreen() {
     )
 
     // Trending this week - popular (lazy loaded)
-    const { data: trendingData, isLoading: trendingLoading } = useSearchBusinessesQuery(
+    const {
+        data: trendingData,
+        isLoading: trendingLoading,
+        refetch: refetchTrending,
+    } = useSearchBusinessesQuery(
         {
             sort: 'popular',
             limit: 5,
@@ -152,13 +165,30 @@ export default function HomeScreen() {
     )
 
     // New on City Needs (lazy loaded)
-    const { data: newData, isLoading: newLoading } = useSearchBusinessesQuery(
+    const {
+        data: newData,
+        isLoading: newLoading,
+        refetch: refetchNew,
+    } = useSearchBusinessesQuery(
         {
             sort: 'popular',
             limit: 5,
         },
         { skip: !loadedSections.has('new') }
     )
+
+    const [isRefreshing, setIsRefreshing] = useState(false)
+
+    const handleRefresh = useCallback(async () => {
+        setIsRefreshing(true)
+        await Promise.all([
+            refetchSuggested(),
+            location ? refetchNearby() : Promise.resolve(),
+            loadedSections.has('trending') ? refetchTrending() : Promise.resolve(),
+            loadedSections.has('new') ? refetchNew() : Promise.resolve(),
+        ])
+        setIsRefreshing(false)
+    }, [refetchSuggested, refetchNearby, refetchTrending, refetchNew, location, loadedSections])
 
     const suggestedBusinesses = useMemo(() => suggestedData?.data ?? [], [suggestedData])
     const nearbyBusinesses = useMemo(() => nearbyData?.data ?? [], [nearbyData])
@@ -220,6 +250,11 @@ export default function HomeScreen() {
     }, [])
 
     const viewabilityConfig = useMemo(() => ({ itemVisiblePercentThreshold: 10, minimumViewTime: 100 }), [])
+
+    const refreshControl = useMemo(
+        () => <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#0C2A63" />,
+        [isRefreshing, handleRefresh]
+    )
 
     const renderItem: ListRenderItem<SectionItem> = useCallback(
         ({ item }) => {
@@ -369,6 +404,7 @@ export default function HomeScreen() {
                     removeClippedSubviews={true}
                     onViewableItemsChanged={onViewableItemsChanged}
                     viewabilityConfig={viewabilityConfig}
+                    refreshControl={refreshControl}
                 />
             </SafeAreaView>
         </View>

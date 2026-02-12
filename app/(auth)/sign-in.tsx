@@ -37,7 +37,7 @@ const SignIn = () => {
         resolver: zodResolver(signInSchema),
         defaultValues: {
             //email: 'onora.arsema@minuteafter.com',
-            email: 'hyder.doryan@minuteafter.com',
+            email: 'hawkins.ayden@minuteafter.com',
             password: 'Admin1998%',
         },
         mode: 'onSubmit',

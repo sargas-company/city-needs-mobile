@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, ScrollView, View } from 'react-native'
+import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -36,7 +36,7 @@ export default function ReelsScreen() {
         return args
     }, [searchText, selectedCategoryId, cursor])
 
-    const { data, isLoading, isFetching } = useGetReelsFeedQuery(queryArgs)
+    const { data, isLoading, isFetching, refetch } = useGetReelsFeedQuery(queryArgs)
 
     const reels = useMemo(() => data?.items ?? [], [data])
     const feedData = data
@@ -57,33 +57,79 @@ export default function ReelsScreen() {
         }
     }, [feedData, isFetching])
 
+    const handleRefresh = useCallback(() => {
+        setCursor(null)
+        refetch()
+    }, [refetch])
+
     const keyExtractor = useCallback((item: ReelFeedItem) => item.id, [])
 
     const renderItem = useCallback(
         ({ item }: { item: ReelFeedItem }) => (
-            <View className="mb-4">
+            <View className="mb-4 px-screen">
                 <ReelCard reel={item} />
             </View>
         ),
         []
     )
 
-    const ListHeader = useMemo(
-        () => (
-            <>
-                {/* ── Search bar ────────────────────────────── */}
-                <View className="mb-3">
-                    <AppInput
-                        leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
-                        clearable
-                        value={searchText}
-                        onChangeText={handleSearchChange}
-                        placeholder="Search reels..."
-                    />
+    const ListFooter = useMemo(() => {
+        if (isLoading) return null
+
+        return (
+            <View className="mb-6 px-screen">
+                {/* ── Load more ───────────────────── */}
+                {feedData?.hasNextPage && (
+                    <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
+                        {isFetching ? (
+                            <ActivityIndicator size="small" />
+                        ) : (
+                            <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
+                        )}
+                    </AppPressable>
+                )}
+
+                {/* ── Empty state ─────────────────── */}
+                {reels.length === 0 && (
+                    <View className="items-center py-10">
+                        <AppText className="text-subtitle text-text-muted">No reels found</AppText>
+                    </View>
+                )}
+            </View>
+        )
+    }, [isLoading, feedData?.hasNextPage, loadMore, isFetching, reels.length])
+
+    const refreshControl = useMemo(
+        () => <RefreshControl refreshing={isFetching && !isLoading && cursor === null} onRefresh={handleRefresh} tintColor="#0C2A63" />,
+        [isFetching, isLoading, cursor, handleRefresh]
+    )
+
+    return (
+        <View className="flex-1 bg-white">
+            <WaveHeader />
+
+            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
+                {/* ── Fixed Header: Search + Categories ────────────────────────────── */}
+                <View className="px-screen">
+                    {/* ── Search bar ────────────────────────────── */}
+                    <View className="mb-3">
+                        <AppInput
+                            leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
+                            clearable
+                            value={searchText}
+                            onChangeText={handleSearchChange}
+                            placeholder="Search reels..."
+                        />
+                    </View>
                 </View>
 
-                {/* ── Category chips ────────────────────────── */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4" contentContainerClassName="gap-2">
+                {/* ── Category chips (horizontal scroll) ────────────────────────── */}
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="mb-4 max-h-10"
+                    contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+                >
                     <AppPressable
                         onPress={() => handleCategoryPress(null)}
                         className={
@@ -126,63 +172,28 @@ export default function ReelsScreen() {
                     })}
                 </ScrollView>
 
-                {/* ── Loading state ─────────────────────────── */}
-                {isLoading && (
-                    <View className="items-center py-10">
+                {/* ── Scrollable List with Pull-to-Refresh ────────────────────────────── */}
+                {isLoading ? (
+                    <View className="flex-1 items-center justify-center">
                         <ActivityIndicator size="large" />
                     </View>
+                ) : (
+                    <FlatList
+                        data={reels}
+                        keyExtractor={keyExtractor}
+                        renderItem={renderItem}
+                        ListFooterComponent={ListFooter}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 20 }}
+                        initialNumToRender={3}
+                        maxToRenderPerBatch={5}
+                        windowSize={5}
+                        removeClippedSubviews={true}
+                        onEndReached={loadMore}
+                        onEndReachedThreshold={0.5}
+                        refreshControl={refreshControl}
+                    />
                 )}
-            </>
-        ),
-        [searchText, handleSearchChange, selectedCategoryId, handleCategoryPress, categories, isLoading]
-    )
-
-    const ListFooter = useMemo(() => {
-        if (isLoading) return null
-
-        return (
-            <View className="mb-6">
-                {/* ── Load more ───────────────────── */}
-                {feedData?.hasNextPage && (
-                    <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
-                        {isFetching ? (
-                            <ActivityIndicator size="small" />
-                        ) : (
-                            <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
-                        )}
-                    </AppPressable>
-                )}
-
-                {/* ── Empty state ─────────────────── */}
-                {reels.length === 0 && (
-                    <View className="items-center py-10">
-                        <AppText className="text-subtitle text-text-muted">No reels found</AppText>
-                    </View>
-                )}
-            </View>
-        )
-    }, [isLoading, feedData?.hasNextPage, loadMore, isFetching, reels.length])
-
-    return (
-        <View className="flex-1 bg-white">
-            <WaveHeader />
-
-            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-                <FlatList
-                    data={isLoading ? [] : reels}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    ListHeaderComponent={ListHeader}
-                    ListFooterComponent={ListFooter}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 20 }}
-                    initialNumToRender={3}
-                    maxToRenderPerBatch={5}
-                    windowSize={5}
-                    removeClippedSubviews={true}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.5}
-                />
             </SafeAreaView>
         </View>
     )
