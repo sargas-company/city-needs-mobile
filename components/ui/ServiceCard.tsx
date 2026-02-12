@@ -9,8 +9,8 @@ import { AppText } from '@/components/ui/AppText'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/store/features/saved-businesses/savedBusinessesApi'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
-import PeopleImage from '@/assets/images/people-reviews.svg'
 import { AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
+import PeopleImage from '@/assets/images/people-reviews.png'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -136,7 +136,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
 
                 {/* Row 4: Reviews + Price */}
                 <View className="flex-row items-center gap-3">
-                    <PeopleImage />
+                    <Image source={PeopleImage} style={{ width: 80, height: 24 }} />
 
                     <View className="flex-row items-baseline">
                         <AppText className="text-subtitle font-poppins-bold text-orange">${business.price}</AppText>

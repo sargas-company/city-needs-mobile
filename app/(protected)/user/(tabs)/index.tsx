@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, ListRenderItem, RefreshControl, ScrollView, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { SvgProps } from 'react-native-svg'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppPressable } from '@/components/ui/AppPressable'
@@ -17,20 +16,20 @@ import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 
 // Category card images
-import FoodImage from '@/assets/images/home-page/food.svg'
-import BeautyImage from '@/assets/images/home-page/beauty.svg'
-import RepairsImage from '@/assets/images/home-page/repairs.svg'
-import PetsImage from '@/assets/images/home-page/pets.svg'
+import FoodImage from '@/assets/images/home-page/food.png'
+import BeautyImage from '@/assets/images/home-page/beauty.png'
+import RepairsImage from '@/assets/images/home-page/repairs.png'
+import PetsImage from '@/assets/images/home-page/pets.png'
 import NoDataImage from '@/assets/images/system/NoData.svg'
 
 type CategoryCardProps = {
     title: string
     emoji: string
-    Image: React.FC<SvgProps>
+    image: ImageSourcePropType
     bgColor: string
 }
 
-const CategoryCard = memo(function CategoryCard({ title, emoji, Image, bgColor }: CategoryCardProps) {
+const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor }: CategoryCardProps) {
     return (
         <AppPressable className="flex-1 overflow-hidden rounded-2xl" style={{ backgroundColor: bgColor, height: 100 }}>
             <View className="flex-1 flex-row items-end p-3">
@@ -38,17 +37,17 @@ const CategoryCard = memo(function CategoryCard({ title, emoji, Image, bgColor }
                 <AppText className="text-subtitle font-poppins-semibold text-white">{title}</AppText>
             </View>
             <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
-                <Image width={80} height={80} />
+                <Image source={image} style={{ width: 80, height: 80 }} />
             </View>
         </AppPressable>
     )
 })
 
 const CATEGORIES = [
-    { title: 'Food', emoji: '🍔', Image: FoodImage, bgColor: '#F5A3A8' },
-    { title: 'Beauty', emoji: '💄', Image: BeautyImage, bgColor: '#F4F2BA' },
-    { title: 'Repairs', emoji: '🔧', Image: RepairsImage, bgColor: '#F4B778' },
-    { title: 'Pets', emoji: '🐶', Image: PetsImage, bgColor: '#D8CFC8' },
+    { title: 'Food', emoji: '🍔', image: FoodImage, bgColor: '#F5A3A8' },
+    { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#F4F2BA' },
+    { title: 'Repairs', emoji: '🔧', image: RepairsImage, bgColor: '#F4B778' },
+    { title: 'Pets', emoji: '🐶', image: PetsImage, bgColor: '#D8CFC8' },
 ]
 
 // Horizontal business card for sections
