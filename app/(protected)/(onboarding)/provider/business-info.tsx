@@ -186,8 +186,9 @@ const ProviderBusinessInfo = () => {
                                     placeholder="Description"
                                     editable={!isLoading}
                                     multiline
-                                    numberOfLines={4}
-                                    inputWrapperClassName="items-start"
+                                    numberOfLines={5}
+                                    inputWrapperClassName="items-start min-h-12"
+                                    style={{ minHeight: 48, maxHeight: 120 }}
                                 />
 
                                 <FormInput<BusinessInfoFormValues>
