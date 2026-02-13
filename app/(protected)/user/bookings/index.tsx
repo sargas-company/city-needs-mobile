@@ -52,6 +52,7 @@ function mapToBooking(item: BookingListItemDto): Booking {
             firstName: nameParts[0] ?? name,
             lastName: nameParts.slice(1).join(' ') || '',
             avatarUrl: item.businessLogo?.url ?? null,
+            phone: item.businessPhone ?? null,
         },
         services: item.services.map((s) => ({ name: s.name, price: s.price })),
         totalPrice: item.totalPrice,

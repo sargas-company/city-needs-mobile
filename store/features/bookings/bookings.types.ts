@@ -11,6 +11,7 @@ export type BookingListItemDto = {
     id: string
     businessId: string
     businessName?: string
+    businessPhone?: string | null
     businessLogo?: {
         id: string
         url: string

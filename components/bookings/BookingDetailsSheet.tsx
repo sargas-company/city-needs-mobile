@@ -1,5 +1,5 @@
-import React from 'react'
-import { Pressable, View } from 'react-native'
+import React, { useState } from 'react'
+import { Linking, Modal, Pressable, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppText } from '@/components/ui/AppText'
@@ -61,11 +61,29 @@ function formatPrice(cents: number): string {
 }
 
 export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
+    const [callModalVisible, setCallModalVisible] = useState(false)
+    const [smsModalVisible, setSmsModalVisible] = useState(false)
+
     if (!booking) return null
 
     const { customer, services, totalPrice, dateLabel, timeLabel, status, hasReview } = booking
     const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, role, hasReview)
     const fullName = `${customer.firstName} ${customer.lastName}`
+    const phoneRaw = (customer.phone ?? '').replace(/\s/g, '')
+
+    const handleCall = () => {
+        setCallModalVisible(false)
+        if (phoneRaw) {
+            Linking.openURL(`tel:${phoneRaw}`)
+        }
+    }
+
+    const handleSms = () => {
+        setSmsModalVisible(false)
+        if (phoneRaw) {
+            Linking.openURL(`sms:${phoneRaw}`)
+        }
+    }
 
     return (
         <AppBottomSheet isOpen={isOpen && !!booking} onClose={onClose}>
@@ -96,20 +114,24 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
                         <AppText className="font-poppins-semibold text-[16px] text-text">{fullName}</AppText>
                     </View>
 
-                    <View className="flex-row items-center gap-2">
-                        <Pressable
-                            className="h-11 w-11 items-center justify-center rounded-full bg-white"
-                            style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
-                        >
-                            <Feather name="message-circle" size={20} color="#0C2A63" />
-                        </Pressable>
-                        <Pressable
-                            className="h-11 w-11 items-center justify-center rounded-full bg-white"
-                            style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
-                        >
-                            <Feather name="phone" size={20} color="#0C2A63" />
-                        </Pressable>
-                    </View>
+                    {phoneRaw ? (
+                        <View className="flex-row items-center gap-2">
+                            <Pressable
+                                onPress={() => setSmsModalVisible(true)}
+                                className="h-11 w-11 items-center justify-center rounded-full bg-white"
+                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                            >
+                                <Feather name="message-circle" size={20} color="#0C2A63" />
+                            </Pressable>
+                            <Pressable
+                                onPress={() => setCallModalVisible(true)}
+                                className="h-11 w-11 items-center justify-center rounded-full bg-white"
+                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                            >
+                                <Feather name="phone" size={20} color="#0C2A63" />
+                            </Pressable>
+                        </View>
+                    ) : null}
                 </View>
 
                 {/* Services */}
@@ -158,6 +180,34 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
                         </View>
                     </>
                 )}
+
+                {/* Call modal */}
+                <Modal visible={callModalVisible} transparent animationType="fade" onRequestClose={() => setCallModalVisible(false)}>
+                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setCallModalVisible(false)}>
+                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Call</AppText>
+                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{customer.phone ?? ''}</AppText>
+                            <View className="mt-6 gap-3">
+                                <AppButton title="Call" onPress={handleCall} />
+                            </View>
+                        </Pressable>
+                    </Pressable>
+                </Modal>
+
+                {/* SMS modal */}
+                <Modal visible={smsModalVisible} transparent animationType="fade" onRequestClose={() => setSmsModalVisible(false)}>
+                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setSmsModalVisible(false)}>
+                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Write a Message</AppText>
+                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                                Write to {customer.phone ?? ''}
+                            </AppText>
+                            <View className="mt-6">
+                                <AppButton title="Message" onPress={handleSms} />
+                            </View>
+                        </Pressable>
+                    </Pressable>
+                </Modal>
             </View>
         </AppBottomSheet>
     )

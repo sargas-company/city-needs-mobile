@@ -20,7 +20,7 @@ export type BookingService = {
 export type Booking = {
     id: string
     businessId: string
-    customer: { firstName: string; lastName: string; avatarUrl?: string | null }
+    customer: { firstName: string; lastName: string; avatarUrl?: string | null; phone?: string | null }
     services: BookingService[]
     totalPrice: number
     dateLabel: string
