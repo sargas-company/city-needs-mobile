@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { Image } from 'expo-image'
 
 import { AppText } from '@/components/ui/AppText'
@@ -10,13 +10,14 @@ type Props = {
     logoUrl?: string | null
     /** Optional key for image recycling in lists */
     recyclingKey?: string
+    onPress?: () => void
 }
 
-export const SavedBusinessCard = ({ name, city, logoUrl, recyclingKey }: Props) => {
+export const SavedBusinessCard = ({ name, city, logoUrl, recyclingKey, onPress }: Props) => {
     const initial = name.charAt(0).toUpperCase()
 
     return (
-        <View className="flex-row gap-4 rounded-2xl bg-white p-4">
+        <Pressable onPress={onPress} className="flex-row gap-4 rounded-2xl bg-white p-4">
             <View className="h-[64px] w-[64px] overflow-hidden rounded-xl bg-[#F6F7FB]">
                 {logoUrl ? (
                     <Image
@@ -41,6 +42,6 @@ export const SavedBusinessCard = ({ name, city, logoUrl, recyclingKey }: Props) 
                     <AppText className="font-poppins-medium text-[13px] leading-[20px] text-[#171717]">{city}</AppText>
                 </View>
             </View>
-        </View>
+        </Pressable>
     )
 }

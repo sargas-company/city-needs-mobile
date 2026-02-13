@@ -73,6 +73,7 @@ const UserBookingsScreen = () => {
     const [reviewCursor, setReviewCursor] = useState<string | null>(null)
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
     const [isSheetOpen, setIsSheetOpen] = useState(false)
+    const [isRefreshing, setIsRefreshing] = useState(false)
 
     const allQuery = useGetMyBookingsQuery({ cursor: allCursor, limit: LIMIT })
     const reviewQuery = useGetMyBookingsQuery({ cursor: reviewCursor, limit: LIMIT, withoutReview: true })
@@ -93,13 +94,15 @@ const UserBookingsScreen = () => {
         }
     }
 
-    const onRefresh = () => {
+    const onRefresh = async () => {
+        setIsRefreshing(true)
         if (activeTab === 'all') {
             setAllCursor(null)
         } else {
             setReviewCursor(null)
         }
-        activeQuery.refetch()
+        await activeQuery.refetch()
+        setIsRefreshing(false)
     }
 
     const keyExtractor = useCallback((item: Booking) => item.id, [])
@@ -178,7 +181,7 @@ const UserBookingsScreen = () => {
                         ItemSeparatorComponent={() => <View className="h-3" />}
                         onEndReachedThreshold={0.5}
                         onEndReached={loadNext}
-                        refreshControl={<RefreshControl refreshing={activeQuery.isFetching && !hasNextPage} onRefresh={onRefresh} />}
+                        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
                         showsVerticalScrollIndicator={false}
                     />
                 )}

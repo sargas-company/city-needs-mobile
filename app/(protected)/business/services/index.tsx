@@ -15,6 +15,7 @@ const MyServicesScreen = () => {
     const router = useRouter()
     const insets = useSafeAreaInsets()
     const [cursor, setCursor] = useState<string | null>(null)
+    const [isRefreshing, setIsRefreshing] = useState(false)
 
     const { data, isLoading, isFetching, error, refetch } = useGetBusinessServicesQuery({ cursor, limit: LIMIT })
     const [deleteService] = useDeleteBusinessServiceMutation()
@@ -28,9 +29,11 @@ const MyServicesScreen = () => {
         setCursor(nextCursor)
     }
 
-    const onRefresh = () => {
+    const onRefresh = async () => {
+        setIsRefreshing(true)
         setCursor(null)
-        refetch()
+        await refetch()
+        setIsRefreshing(false)
     }
 
     const handleDelete = useCallback(
@@ -145,7 +148,7 @@ const MyServicesScreen = () => {
                         ItemSeparatorComponent={() => <View className="h-3" />}
                         onEndReachedThreshold={0.5}
                         onEndReached={loadNext}
-                        refreshControl={<RefreshControl refreshing={isFetching && !hasNextPage} onRefresh={onRefresh} />}
+                        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
                         showsVerticalScrollIndicator={false}
                         ListFooterComponent={renderFooter}
                     />

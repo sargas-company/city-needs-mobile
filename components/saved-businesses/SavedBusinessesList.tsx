@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native'
+import { useRouter } from 'expo-router'
 
 import { AppText } from '@/components/ui/AppText'
 import type { SavedBusinessCard as SavedBusinessCardT } from '@/store/features/saved-businesses/savedBusinesses.types'
@@ -17,7 +18,15 @@ type Props = {
 }
 
 export const SavedBusinessesList = ({ data, isLoading, isFetching, error, hasNextPage, onEndReached, onRefresh }: Props) => {
+    const router = useRouter()
     const keyExtractor = useCallback((item: SavedBusinessCardT) => item.id, [])
+
+    const handlePress = useCallback(
+        (businessId: string) => {
+            router.push(`/(protected)/user/book/${businessId}`)
+        },
+        [router]
+    )
 
     if (isLoading) {
         return (
@@ -49,7 +58,9 @@ export const SavedBusinessesList = ({ data, isLoading, isFetching, error, hasNex
             keyExtractor={keyExtractor}
             contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 18, paddingBottom: 40 }}
             ItemSeparatorComponent={() => <View className="h-4" />}
-            renderItem={({ item }) => <SavedBusinessCard name={item.name} city={item.city} logoUrl={item.logoUrl} />}
+            renderItem={({ item }) => (
+                <SavedBusinessCard name={item.name} city={item.city} logoUrl={item.logoUrl} onPress={() => handlePress(item.id)} />
+            )}
             onEndReachedThreshold={0.5}
             onEndReached={() => {
                 if (!isFetching && hasNextPage) onEndReached()
