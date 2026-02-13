@@ -51,24 +51,17 @@ const VerifyScreen = () => {
     const requiresVerification = verificationGate?.requiresVerification === true
     const graceExpired = verificationGate?.graceExpired === true
     const canUseApp = verificationGate?.canUseApp !== false
-    const businessStatus = verificationGate?.status
 
     const lockStatus = verifyFile?.lock?.status
     const rejectionReason = verifyFile?.lock?.rejectionReason
 
     const uiState: VerifyUiState = useMemo(() => {
-        // Check lock status from file first
+        if (!verifyFile) return 'empty'
         if (lockStatus === 'PENDING') return 'pending'
         if (lockStatus === 'APPROVED') return 'verified'
         if (lockStatus === 'REJECTED') return 'failed'
-        // If file exists without lock, it's a draft (even if business is rejected)
-        if (verifyFile) return 'draft'
-        // Fallback to business status from gate (only when NO file exists)
-        if (businessStatus === 'PENDING') return 'pending'
-        if (businessStatus === 'REJECTED') return 'failed'
-        // No file
-        return 'empty'
-    }, [verifyFile, lockStatus, businessStatus])
+        return 'draft'
+    }, [verifyFile, lockStatus])
 
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
 
@@ -81,32 +74,27 @@ const VerifyScreen = () => {
 
     const title = useMemo(() => {
         if (!requiresVerification) return 'Verification not required'
-        // Check business status from gate as fallback
-        if (businessStatus === 'PENDING' || uiState === 'pending') return 'Verification in progress'
+        if (uiState === 'pending') return 'Verification in progress'
         if (uiState === 'verified') return 'Business Verified'
         if (uiState === 'failed') return 'Verification Failed'
         return 'Verify your business'
-    }, [uiState, requiresVerification, businessStatus])
+    }, [uiState, requiresVerification])
 
     const description = useMemo(() => {
         if (!requiresVerification) return 'Your category does not require verification.'
-        // Check business status from gate as fallback
-        if (businessStatus === 'PENDING' || uiState === 'pending')
-            return 'Your document is being reviewed. This helps keep our community safe and trusted.'
+        if (uiState === 'pending') return 'Your document is being reviewed. This helps keep our community safe and trusted.'
         if (uiState === 'verified') return 'Your business has been successfully verified.'
         if (uiState === 'failed') return "We couldn't verify your document. Please upload a different document."
         return 'This helps build trust with users.'
-    }, [uiState, requiresVerification, businessStatus])
+    }, [uiState, requiresVerification])
 
     const infoBadge = useMemo(() => {
         if (!requiresVerification) return 'You can continue without verification.'
-        // Check business status from gate as fallback
-        if (businessStatus === 'PENDING' || uiState === 'pending')
-            return "Reviews usually take up to 24–48 hours. You'll be notified once it's completed."
+        if (uiState === 'pending') return "Reviews usually take up to 24–48 hours. You'll be notified once it's completed."
         if (uiState === 'verified') return 'Your profile is now trusted by users.'
         if (uiState === 'failed') return 'Make sure the document is clear and valid.'
         return 'Upload 1 document (business reg, GST, license, utility bill).'
-    }, [uiState, requiresVerification, businessStatus])
+    }, [uiState, requiresVerification])
 
     const pickDocument = async () => {
         setLocalError(null)
@@ -203,9 +191,8 @@ const VerifyScreen = () => {
         )
     }
 
-    const isBusinessPending = businessStatus === 'PENDING'
-    const showUploadZone = !isLocked && !isBusinessPending && (uiState === 'empty' || uiState === 'failed')
-    const showPrimary = true
+    // Upload zone visible when not locked and either no file or file was rejected (per spec section 11)
+    const showUploadZone = !isLocked && (uiState === 'empty' || uiState === 'failed')
 
     const hasFileToSubmit = !!verifyFile?.id && uiState === 'draft'
     const mustUploadFirst = requiresVerification && graceExpired && !verifyFile?.id
@@ -307,10 +294,10 @@ const VerifyScreen = () => {
                     </View>
                 ) : null}
 
+                {renderFileRow()}
                 <View className="mb-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] px-3 py-3">
                     <Text className="text-xs font-semibold text-[#0C2A63]">{infoBadge}</Text>
                 </View>
-                {renderFileRow()}
 
                 {uiState === 'failed' && rejectionReason ? (
                     <View className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
@@ -321,7 +308,7 @@ const VerifyScreen = () => {
                 {!!verifyError && <Text className="mb-2 text-sm font-semibold text-red-600">{verifyError}</Text>}
                 {!!localError && <Text className="mb-2 text-sm font-semibold text-red-600">{localError}</Text>}
 
-                {!canUseApp && (uiState === 'pending' || businessStatus === 'PENDING') ? (
+                {!canUseApp && uiState === 'pending' ? (
                     <View className="mt-auto items-center gap-4">
                         <Pressable onPress={handleContactSupport}>
                             <Text className="text-base text-[#0C2A63] underline">Need help? Contact Support</Text>
@@ -330,7 +317,7 @@ const VerifyScreen = () => {
                             <Text className={`text-base text-gray-500 ${isBusy ? 'opacity-60' : ''}`}>Sign out</Text>
                         </Pressable>
                     </View>
-                ) : showPrimary ? (
+                ) : (
                     <View className="mt-auto">
                         <Pressable
                             onPress={handlePrimaryPress}
@@ -340,7 +327,7 @@ const VerifyScreen = () => {
                             <Text className="text-base font-semibold text-white">{primaryLabel}</Text>
                         </Pressable>
                     </View>
-                ) : null}
+                )}
             </KeyboardAwareScrollView>
         </SafeAreaView>
     )

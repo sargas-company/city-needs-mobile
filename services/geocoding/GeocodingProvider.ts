@@ -1,7 +1,6 @@
 import type { LocationProvider } from '@/services/location/location.types'
 
 import { GooglePlacesProvider } from './providers/GooglePlacesProvider'
-import { MapboxProvider } from './providers/MapboxProvider'
 import { NominatimProvider } from './providers/NominatimProvider'
 import { OpenMeteoProvider } from './providers/OpenMeteoProvider'
 
@@ -27,19 +26,19 @@ export type GeocodingProvider = {
 }
 
 export const getGeocodingProvider = (): GeocodingProvider => {
+    const provider = process.env.EXPO_PUBLIC_GEOCODING_PROVIDER
+
+    if (provider === 'nominatim') {
+        return NominatimProvider()
+    }
+
+    if (provider === 'openmeteo') {
+        return OpenMeteoProvider()
+    }
+
     const googleKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
     if (googleKey) {
         return GooglePlacesProvider(googleKey)
-    }
-
-    const mapboxKey = process.env.EXPO_PUBLIC_MAPBOX_API_KEY
-    if (mapboxKey) {
-        return MapboxProvider(mapboxKey)
-    }
-
-    const useNominatim = process.env.EXPO_PUBLIC_GEOCODING_PROVIDER === 'nominatim'
-    if (useNominatim) {
-        return NominatimProvider()
     }
 
     return OpenMeteoProvider()
