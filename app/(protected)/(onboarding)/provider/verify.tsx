@@ -61,12 +61,13 @@ const VerifyScreen = () => {
         if (lockStatus === 'PENDING') return 'pending'
         if (lockStatus === 'APPROVED') return 'verified'
         if (lockStatus === 'REJECTED') return 'failed'
-        // Fallback to business status from gate (when file API returns null after submit)
+        // If file exists without lock, it's a draft (even if business is rejected)
+        if (verifyFile) return 'draft'
+        // Fallback to business status from gate (only when NO file exists)
         if (businessStatus === 'PENDING') return 'pending'
         if (businessStatus === 'REJECTED') return 'failed'
-        // Default states
-        if (!verifyFile) return 'empty'
-        return 'draft'
+        // No file
+        return 'empty'
     }, [verifyFile, lockStatus, businessStatus])
 
     const isBusy = profileStatus === 'loading' || verifyStatus === 'loading' || verifyStatus === 'submitting'
@@ -128,8 +129,8 @@ const VerifyScreen = () => {
                     type: asset.mimeType || 'application/octet-stream',
                 })
             ).unwrap()
-
-            await dispatch(loadVerificationFileThunk()).unwrap()
+            // Don't reload - uploadVerificationFileThunk already sets the new file
+            // Reloading would overwrite with rejected file from BE
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to upload file'
             setLocalError(message)
@@ -289,8 +290,6 @@ const VerifyScreen = () => {
                     <Text className="text-sm text-gray-600">{description}</Text>
                 </View>
 
-                {renderFileRow()}
-
                 {showUploadZone ? (
                     <View className="mb-4">
                         <AppText>Upload document (any of the following)</AppText>
@@ -311,6 +310,7 @@ const VerifyScreen = () => {
                 <View className="mb-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] px-3 py-3">
                     <Text className="text-xs font-semibold text-[#0C2A63]">{infoBadge}</Text>
                 </View>
+                {renderFileRow()}
 
                 {uiState === 'failed' && rejectionReason ? (
                     <View className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
