@@ -48,53 +48,59 @@ export const ReelCard = memo(function ReelCard({ reel, isVisible = true }: ReelC
 
     const initial = business.name.charAt(0).toUpperCase()
 
+    const handleBusinessPress = () => {
+        router.push(`/(protected)/user/book/${business.id}`)
+    }
+
+    const handleVideoPress = () => {
+        router.push(`/(protected)/user/reel/${reel.id}?videoUrl=${encodeURIComponent(reel.videoUrl)}`)
+    }
+
     return (
-        <AppPressable onPress={() => router.push(`/(protected)/user/reel/${reel.id}?videoUrl=${encodeURIComponent(reel.videoUrl)}`)}>
-            <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
-                {/* Row 1: Avatar + Name + Category */}
-                <View className="mb-2 flex-row items-center">
-                    <View className="mr-3">
-                        <Avatar
-                            uri={business.logoUrl ?? undefined}
-                            size={56}
-                            borderWidth={2}
-                            borderColor="#E8A230"
-                            recyclingKey={`reel-avatar-${reel.id}`}
-                            fallback={
-                                <View className="flex-1 items-center justify-center bg-[#A3C9A8]">
-                                    <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>
-                                </View>
-                            }
-                        />
-                    </View>
-
-                    <View className="flex-1">
-                        <AppText className="text-lg font-poppins-semibold text-text">{business.name}</AppText>
-
-                        {/* Rating + City */}
-                        <View className="mt-0.5 flex-row items-center gap-1">
-                            <DoubleStar />
-                            <AppText className="text-status text-text">({business.ratingAvg})</AppText>
-                            <Feather name="map-pin" size={13} color="#e89f48" />
-                            <AppText className="text-status text-text">{business.address.city}</AppText>
-                        </View>
-                    </View>
+        <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
+            {/* Row 1: Avatar + Name + Category - navigates to business */}
+            <AppPressable onPress={handleBusinessPress} className="mb-2 flex-row items-center">
+                <View className="mr-3">
+                    <Avatar
+                        uri={business.logoUrl ?? undefined}
+                        size={56}
+                        borderWidth={2}
+                        borderColor="#E8A230"
+                        recyclingKey={`reel-avatar-${reel.id}`}
+                        fallback={
+                            <View className="flex-1 items-center justify-center bg-[#A3C9A8]">
+                                <AppText className="text-title font-poppins-bold text-white">{initial}</AppText>
+                            </View>
+                        }
+                    />
                 </View>
 
-                {/* Row 2: Video thumbnail with play overlay */}
-                <View className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
-                    {isVisible ? (
-                        <VideoThumbnail videoUrl={reel.videoUrl} />
-                    ) : (
-                        <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#D9D9D9' }} />
-                    )}
-                    <View className="absolute inset-0 w-4/12 items-center justify-center">
-                        <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>
-                            <Feather name="play" size={24} color="#fff" />
-                        </View>
+                <View className="flex-1">
+                    <AppText className="text-lg font-poppins-semibold text-text">{business.name}</AppText>
+
+                    {/* Rating + City */}
+                    <View className="mt-0.5 flex-row items-center gap-1">
+                        <DoubleStar />
+                        <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                        <Feather name="map-pin" size={13} color="#e89f48" />
+                        <AppText className="text-status text-text">{business.address.city}</AppText>
                     </View>
                 </View>
-            </View>
-        </AppPressable>
+            </AppPressable>
+
+            {/* Row 2: Video thumbnail with play overlay - navigates to reel player */}
+            <AppPressable onPress={handleVideoPress} className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
+                {isVisible ? (
+                    <VideoThumbnail videoUrl={reel.videoUrl} />
+                ) : (
+                    <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#D9D9D9' }} />
+                )}
+                {/*<View className="absolute inset-0 w-4/12 items-center justify-center">*/}
+                {/*    <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>*/}
+                {/*        <Feather name="play" size={24} color="#fff" />*/}
+                {/*    </View>*/}
+                {/*</View>*/}
+            </AppPressable>
+        </View>
     )
 })
