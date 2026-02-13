@@ -69,25 +69,26 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
 
                     <View className="flex-1">
                         <View className="flex-row items-center gap-2">
-                            <AppText className="text-lg font-poppins-semibold  text-text">{business.name}</AppText>
-                            <View className="rounded-pill bg-orange px-2 py-0.5">
+                            <AppText className="shrink text-lg font-poppins-semibold text-text" numberOfLines={1}>
+                                {business.name}
+                            </AppText>
+                            <View className="shrink-0 rounded-pill bg-orange px-2 py-0.5">
                                 <AppText className="text-xs font-poppins-semibold text-white">{business.category.title}</AppText>
                             </View>
                         </View>
 
                         {/* Rating */}
-                        <View className="mt-0.5 flex-row items-center gap-1">
-                            {/*<View className="h-3 w-3 rounded-full bg-[#F5C518]" />*/}
-                            {/*<View className="h-3 w-3 rounded-full bg-brand" />*/}
-                            <DoubleStar />
-                            <AppText className="text-status text-text">({business.ratingAvg})</AppText>
-                            <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
+                        <View className="mt-0.5 flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-1">
+                                <DoubleStar />
+                                <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                                <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
+                            </View>
+                            <Pressable onPress={handleBookmarkPress} hitSlop={8}>
+                                <FontAwesome name="bookmark" size={20} color={saved ? '#0C2A63' : '#CBCBCB'} />
+                            </Pressable>
                         </View>
                     </View>
-
-                    <Pressable onPress={handleBookmarkPress} hitSlop={8}>
-                        <FontAwesome name="bookmark" size={22} color={saved ? '#0C2A63' : '#CBCBCB'} />
-                    </Pressable>
                 </View>
 
                 {/* Row 2: Location | Service type */}
