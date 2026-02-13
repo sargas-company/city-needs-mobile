@@ -61,6 +61,7 @@ module.exports = {
                 },
             ],
             'expo-secure-store',
+            'expo-video',
         ],
         experiments: {
             typedRoutes: true,

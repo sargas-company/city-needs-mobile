@@ -1,9 +1,8 @@
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo } from 'react'
 import { View, ViewStyle } from 'react-native'
-import { Image } from 'expo-image'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
-import * as VideoThumbnails from 'expo-video-thumbnails'
+import { useVideoPlayer, VideoView } from 'expo-video'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -19,33 +18,35 @@ const cardShadow: ViewStyle = {
     elevation: 2,
 }
 
-export const ReelCard = memo(function ReelCard({ reel }: { reel: ReelFeedItem }) {
+type ReelCardProps = {
+    reel: ReelFeedItem
+    isVisible?: boolean
+}
+
+/** Video thumbnail - only renders when visible to save memory */
+const VideoThumbnail = memo(function VideoThumbnail({ videoUrl }: { videoUrl: string }) {
+    const player = useVideoPlayer(videoUrl, (p) => {
+        p.loop = false
+        p.muted = true
+    })
+
+    return (
+        <VideoView
+            player={player}
+            style={{ width: '33%', height: '100%', borderRadius: 12 }}
+            contentFit="cover"
+            nativeControls={false}
+            allowsFullscreen={false}
+            allowsPictureInPicture={false}
+        />
+    )
+})
+
+export const ReelCard = memo(function ReelCard({ reel, isVisible = true }: ReelCardProps) {
     const router = useRouter()
     const { business } = reel
 
     const initial = business.name.charAt(0).toUpperCase()
-
-    const [thumbUri, setThumbUri] = useState<string | null>(null)
-
-    useEffect(() => {
-        let cancelled = false
-
-        const run = async () => {
-            try {
-                const { uri } = await VideoThumbnails.getThumbnailAsync(reel.videoUrl, { time: 500 })
-                setThumbUri(uri)
-
-                if (!cancelled) setThumbUri(uri)
-            } catch {
-                if (!cancelled) setThumbUri(null)
-            }
-        }
-
-        run()
-        return () => {
-            cancelled = true
-        }
-    }, [reel.id, reel.videoUrl])
 
     return (
         <AppPressable onPress={() => router.push(`/(protected)/user/reel/${reel.id}?videoUrl=${encodeURIComponent(reel.videoUrl)}`)}>
@@ -82,22 +83,16 @@ export const ReelCard = memo(function ReelCard({ reel }: { reel: ReelFeedItem })
 
                 {/* Row 2: Video thumbnail with play overlay */}
                 <View className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
-                    {thumbUri ? (
-                        <Image
-                            source={{ uri: thumbUri }}
-                            className="h-full w-4/12 rounded-xl"
-                            contentFit="cover"
-                            cachePolicy="memory-disk"
-                            transition={200}
-                        />
+                    {isVisible ? (
+                        <VideoThumbnail videoUrl={reel.videoUrl} />
                     ) : (
-                        <View className="h-full w-4/12 rounded-xl" style={{ backgroundColor: '#D9D9D9' }} />
+                        <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#D9D9D9' }} />
                     )}
-                    {/*<View className="absolute inset-0 items-center justify-center">*/}
-                    {/*    <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>*/}
-                    {/*        <Feather name="play" size={24} color="#fff" />*/}
-                    {/*    </View>*/}
-                    {/*</View>*/}
+                    <View className="absolute inset-0 w-4/12 items-center justify-center">
+                        <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>
+                            <Feather name="play" size={24} color="#fff" />
+                        </View>
+                    </View>
                 </View>
             </View>
         </AppPressable>

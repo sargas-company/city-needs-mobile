@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View } from 'react-native'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View, ViewToken } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -17,6 +17,15 @@ export default function ReelsScreen() {
     const [searchText, setSearchText] = useState('')
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
     const [cursor, setCursor] = useState<string | null>(null)
+    const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set())
+
+    const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken<ReelFeedItem>[] }) => {
+        setVisibleIds(new Set(viewableItems.map((item) => item.key)))
+    }).current
+
+    const viewabilityConfig = useRef({
+        itemVisiblePercentThreshold: 10,
+    }).current
 
     const { data: categories } = useGetCategoriesQuery()
 
@@ -67,10 +76,10 @@ export default function ReelsScreen() {
     const renderItem = useCallback(
         ({ item }: { item: ReelFeedItem }) => (
             <View className="mb-4 px-screen">
-                <ReelCard reel={item} />
+                <ReelCard reel={item} isVisible={visibleIds.has(item.id)} />
             </View>
         ),
-        []
+        [visibleIds]
     )
 
     const ListFooter = useMemo(() => {
@@ -192,6 +201,8 @@ export default function ReelsScreen() {
                         onEndReached={loadMore}
                         onEndReachedThreshold={0.5}
                         refreshControl={refreshControl}
+                        onViewableItemsChanged={onViewableItemsChanged}
+                        viewabilityConfig={viewabilityConfig}
                     />
                 )}
             </SafeAreaView>
