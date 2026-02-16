@@ -18,9 +18,14 @@
             }
         },
         "production": {
-            "autoIncrement": true,
             "env": {
                 "EXPO_PUBLIC_API_URL": "https://api-cn.sargas.io/"
+            },
+            "android": {
+                "autoIncrement": true
+            },
+            "ios": {
+                "autoIncrement": true
             }
         }
     },

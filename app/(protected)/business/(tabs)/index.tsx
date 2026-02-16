@@ -5,6 +5,9 @@ import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
+import { useAppSelector } from '@/store/hooks'
+import { useGetAnalyticsActivityQuery } from '@/store/features/analytics/analyticsApi'
+import { selectBusiness } from '@/store/features/profile/profile.selectors'
 import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { StatCard } from '@/components/ui/StatCard'
@@ -14,17 +17,6 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly']
-
-const MOCK_CHART_DATA = [
-    { month: 'Jan', views: 40, actions: 65 },
-    { month: 'Feb', views: 55, actions: 70 },
-    { month: 'Mar', views: 25, actions: 10 },
-    { month: 'Apr', views: 50, actions: 60 },
-    { month: 'May', views: 60, actions: 75 },
-    { month: 'Jun', views: 55, actions: 45 },
-    { month: 'Jul', views: 20, actions: 80 },
-    { month: 'Aug', views: 50, actions: 65 },
-]
 
 const cardShadow = {
     shadowColor: '#000',
@@ -44,6 +36,15 @@ const StatusRow = ({ label, variant, badgeLabel }: { label: string; variant: 'ac
 export default function BusinessHomeScreen() {
     const router = useRouter()
     const [period, setPeriod] = useState('Monthly')
+    const business = useAppSelector(selectBusiness)
+    const { data: activityResponse } = useGetAnalyticsActivityQuery()
+
+    const chartData =
+        activityResponse?.data?.map((item) => ({
+            month: item.label,
+            views: item.views,
+            actions: item.actions,
+        })) ?? []
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -71,7 +72,9 @@ export default function BusinessHomeScreen() {
 
                 {/* Business info card */}
                 <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
-                    <AppText className="mb-4 font-poppins-semibold text-[18px] text-text">Good Morning, Grooming Center!</AppText>
+                    <AppText numberOfLines={1} className="mb-4 font-poppins-semibold text-[15px] text-text">
+                        Good Morning, {business?.category?.title ?? 'Business'}!
+                    </AppText>
                     <View className="gap-3">
                         <StatusRow label="Profile" variant="active" badgeLabel="Active" />
                         <StatusRow label="Reels" variant="expired" badgeLabel="Expired" />
@@ -109,7 +112,7 @@ export default function BusinessHomeScreen() {
 
                 {/* Activity overview section */}
                 <AppText className="mb-4 mt-8 font-poppins-bold text-[20px] text-brand">Activity overview</AppText>
-                <ActivityChart data={MOCK_CHART_DATA} />
+                {chartData.length > 0 && <ActivityChart data={chartData} />}
             </ScrollView>
         </SafeAreaView>
     )
