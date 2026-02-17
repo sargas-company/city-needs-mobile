@@ -52,7 +52,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
         <Pressable onPress={handlePress}>
             <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
                 {/* Row 1: Avatar + Name + Category + Bookmark */}
-                <View className="mb-2 flex-row items-center">
+                <View className="mb-2 gap-3 flex-row items-center">
                     {business.logoUrl ? (
                         <Image
                             source={{ uri: business.logoUrl }}

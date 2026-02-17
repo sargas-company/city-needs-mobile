@@ -1,12 +1,14 @@
 import { Stack, useRouter, usePathname } from 'expo-router'
-import { useEffect } from 'react'
-import { View, Text } from 'react-native'
+import React, { useEffect } from 'react'
+import { View } from 'react-native'
 
 import { useAppSelector } from '@/store/hooks'
 import { selectAuthStatus, selectIsAuth } from '@/store/features/auth/auth.selectors'
 import { BusinessVerificationGuard } from '@/components/guards/BusinessVerificationGuard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { WAVE_HEIGHT } from '@/constants/layout'
+import LogoSvg from '@/assets/images/main_logo.svg'
+import { AppText } from '@/components/ui/AppText'
 
 export default function ProtectedLayout() {
     const router = useRouter()
@@ -26,8 +28,9 @@ export default function ProtectedLayout() {
     // Show loading while auth state is being determined (idle = pre-bootstrap, loading = during bootstrap)
     if (status === 'idle' || status === 'loading') {
         return (
-            <View className="flex-1 items-center justify-center bg-white">
-                <Text>Loading session...</Text>
+            <View className="flex-1 items-center justify-center gap-5 bg-brand">
+                <LogoSvg width={140} height={140} />
+                <AppText className={'font-poppins-semibold text-white text-[25px]'}>City Needs</AppText>
             </View>
         )
     }

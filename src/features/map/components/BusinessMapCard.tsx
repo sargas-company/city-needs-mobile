@@ -48,7 +48,7 @@ export function BusinessMapCard({ business, onClose }: BusinessMapCardProps) {
                     <Feather name="x" size={18} color="#8D8C92" />
                 </Pressable>
             )}
-            <View className="flex-row items-start">
+            <View className="flex-row items-start gap-3">
                 {/* Logo / Initial */}
                 {business.logoUrl ? (
                     <Image
