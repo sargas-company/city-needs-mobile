@@ -45,7 +45,7 @@ const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor }
 
 const CATEGORIES = [
     { title: 'Food', emoji: '🍔', image: FoodImage, bgColor: '#F5A3A8' },
-    { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#F4F2BA' },
+    { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#dfbaf4' },
     { title: 'Repairs', emoji: '🔧', image: RepairsImage, bgColor: '#F4B778' },
     { title: 'Pets', emoji: '🐶', image: PetsImage, bgColor: '#D8CFC8' },
 ]
