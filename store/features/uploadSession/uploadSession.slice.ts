@@ -43,6 +43,8 @@ export const selectUploadSessionLogoFile = (state: { uploadSession: UploadSessio
     state.uploadSession.session?.files.find((f) => f.kind === 'LOGO') ?? null
 export const selectUploadSessionPhotoFiles = (state: { uploadSession: UploadSessionState }) =>
     state.uploadSession.session?.files.filter((f) => f.kind === 'PHOTO') ?? []
+export const selectUploadSessionVideoFiles = (state: { uploadSession: UploadSessionState }) =>
+    state.uploadSession.session?.files.filter((f) => f.kind === 'VIDEO') ?? []
 export const selectUploadSessionDocumentFiles = (state: { uploadSession: UploadSessionState }) =>
     state.uploadSession.session?.files.filter((f) => f.kind === 'DOCUMENT') ?? []
 

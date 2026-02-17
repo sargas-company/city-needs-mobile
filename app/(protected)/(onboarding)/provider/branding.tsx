@@ -21,6 +21,7 @@ import {
     selectUploadSessionDocumentFiles,
     selectUploadSessionLogoFile,
     selectUploadSessionPhotoFiles,
+    selectUploadSessionVideoFiles,
 } from '@/store/features/uploadSession/uploadSession.slice'
 import { UploadSessionFileDto } from '@/services/onboarding/uploadSession.types'
 import { ProgressStepper } from '@/components/ui/ProgressStepper'
@@ -45,6 +46,9 @@ type UploadedListProps = {
 }
 
 const MAX_FILES = 4
+const MAX_VIDEO_SIZE_MB = 100
+const MAX_VIDEO_DURATION_SECONDS = 60
+const ALLOWED_VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime'])
 
 const getNameFromUri = (uri: string, fallback: string) => uri.split('/').pop() || fallback
 
@@ -55,6 +59,7 @@ const BrandingScreen = () => {
     const uploadSession = useAppSelector(selectUploadSession)
     const logoFile = useAppSelector(selectUploadSessionLogoFile)
     const photoFiles = useAppSelector(selectUploadSessionPhotoFiles)
+    const videoFiles = useAppSelector(selectUploadSessionVideoFiles)
     const documentFiles = useAppSelector(selectUploadSessionDocumentFiles)
 
     const [error, setError] = useState<string | null>(null)
@@ -68,8 +73,8 @@ const BrandingScreen = () => {
 
     const hasAnyFile = useMemo(() => {
         const total = uploadSession?.totalCount ?? 0
-        return total > 0 || Boolean(logoFile || photoFiles.length > 0 || documentFiles.length > 0)
-    }, [documentFiles.length, logoFile, photoFiles.length, uploadSession?.totalCount])
+        return total > 0 || Boolean(logoFile || photoFiles.length > 0 || videoFiles.length > 0 || documentFiles.length > 0)
+    }, [documentFiles.length, logoFile, photoFiles.length, videoFiles.length, uploadSession?.totalCount])
 
     const handlePickLogo = async () => {
         setApiError(null)
@@ -112,6 +117,38 @@ const BrandingScreen = () => {
         }
     }
 
+    const handlePickVideo = async () => {
+        setApiError(null)
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            allowsEditing: false,
+            quality: 0.8,
+            allowsMultipleSelection: false,
+            videoMaxDuration: MAX_VIDEO_DURATION_SECONDS,
+        })
+        if (result.canceled || !result.assets?.length) return
+        const asset = result.assets[0]
+        const mimeType = asset.mimeType || 'video/mp4'
+        if (!ALLOWED_VIDEO_TYPES.has(mimeType)) {
+            setApiError('Only MP4 and MOV video formats are allowed')
+            return
+        }
+        if (asset.fileSize && asset.fileSize > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+            setApiError(`Video must be under ${MAX_VIDEO_SIZE_MB} MB`)
+            return
+        }
+        if (asset.duration && asset.duration > MAX_VIDEO_DURATION_SECONDS * 1000) {
+            setApiError(`Video must be under ${MAX_VIDEO_DURATION_SECONDS} seconds`)
+            return
+        }
+        const file = {
+            uri: asset.uri,
+            name: asset.fileName || getNameFromUri(asset.uri, 'video.mp4'),
+            type: mimeType,
+        }
+        await dispatch(uploadSessionUploadFileThunk({ kind: 'VIDEO', file })).unwrap()
+    }
+
     const handlePickDocuments = async () => {
         setApiError(null)
         const result = await DocumentPicker.getDocumentAsync({
@@ -149,6 +186,13 @@ const BrandingScreen = () => {
     const clearPhotos = async () => {
         for (const file of photoFiles) {
             await dispatch(uploadSessionDeleteFileThunk(file.id))
+        }
+    }
+
+    const removeVideo = () => {
+        const target = videoFiles[0]
+        if (target) {
+            dispatch(uploadSessionDeleteFileThunk(target.id))
         }
     }
 
@@ -258,6 +302,31 @@ const BrandingScreen = () => {
                 ) : null}
 
                 <UploadSection
+                    fieldTitle="Upload Business Video"
+                    title={'Upload a video of your business'}
+                    description={`MP4 or MOV, up to ${MAX_VIDEO_SIZE_MB} MB, max ${MAX_VIDEO_DURATION_SECONDS} seconds`}
+                    icon={<Feather name="video" size={35} color="#3a3a3a" />}
+                    onPress={handlePickVideo}
+                />
+
+                {videoFiles.length > 0 ? (
+                    <View className="mb-6 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+                        <View className="mb-3 flex-row items-center justify-between">
+                            <AppText className={'mb-2 leading-[21px] font-poppins-semibold'}>Uploaded video</AppText>
+                            <Pressable onPress={removeVideo}>
+                                <Text className="text-base text-red-500">✕</Text>
+                            </Pressable>
+                        </View>
+                        <View className="items-center justify-center gap-2">
+                            <Feather name="video" size={48} color="#3a3a3a" />
+                            <Text className="mt-2 text-center text-xs text-[#111827]" numberOfLines={2}>
+                                {videoFiles[0].originalName || videoFiles[0].url.split('/').pop()}
+                            </Text>
+                        </View>
+                    </View>
+                ) : null}
+
+                <UploadSection
                     fieldTitle="Upload Business Documents"
                     title={'Upload document of your business'}
                     icon={<Feather name="file" size={35} color="#3a3a3a" />}
@@ -315,6 +384,11 @@ export const getFileIcon = (file: UploadSessionFileDto): ReactNode => {
     // ---- Images ----
     if (mime.startsWith('image/')) {
         return <FontAwesome name="photo" size={28} color="#3a3a3a" />
+    }
+
+    // ---- Videos ----
+    if (mime.startsWith('video/') || ext === 'mp4' || ext === 'mov') {
+        return <Feather name="video" size={28} color="#3a3a3a" />
     }
 
     // ---- PDF ----

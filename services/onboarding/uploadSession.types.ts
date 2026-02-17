@@ -1,4 +1,4 @@
-export type UploadItemKind = 'LOGO' | 'PHOTO' | 'DOCUMENT'
+export type UploadItemKind = 'LOGO' | 'PHOTO' | 'VIDEO' | 'DOCUMENT'
 
 export type UploadSessionStatus = 'DRAFT' | 'COMMITTED' | 'ABORTED' | string
 
