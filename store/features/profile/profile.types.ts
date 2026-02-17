@@ -60,6 +60,20 @@ export type FileDto = {
     originalName?: string | null
 }
 
+export type VideoProcessingStatus = 'UPLOADED' | 'PROCESSING' | 'READY' | 'FAILED'
+export type BusinessVideoVerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'RESUBMISSION'
+
+export type BusinessVideoDto = {
+    id: string
+    processingStatus: VideoProcessingStatus
+    processedUrl: string | null
+    thumbnailUrl: string | null
+    durationSeconds: number | null
+    width: number | null
+    height: number | null
+    status: BusinessVideoVerificationStatus
+}
+
 export type BusinessDto = {
     id: string
     name: string
@@ -77,6 +91,8 @@ export type BusinessDto = {
 
     logoId?: string | null
     logo?: FileDto | null
+
+    video?: BusinessVideoDto | null
 
     price?: number | null
     serviceOnSite?: boolean | null

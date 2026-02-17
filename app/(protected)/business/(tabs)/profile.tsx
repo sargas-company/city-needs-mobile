@@ -4,6 +4,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useVideoPlayer, VideoView } from 'expo-video'
 
 import { ReviewList } from '@/components/reviews/ReviewList'
 import type { Review } from '@/components/reviews/ReviewCard'
@@ -92,6 +93,26 @@ const InfoCard = ({
     )
 }
 
+const VideoPlayerModal = ({ visible, onClose, videoUrl }: { visible: boolean; onClose: () => void; videoUrl: string }) => {
+    const player = useVideoPlayer(videoUrl, (p) => {
+        p.loop = false
+        p.play()
+    })
+
+    return (
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+            <Pressable className="flex-1 items-center justify-center bg-black/90" onPress={onClose}>
+                <Pressable className="w-full aspect-video" onPress={(e) => e.stopPropagation()}>
+                    <VideoView player={player} style={{ width: '100%', height: '100%' }} contentFit="contain" nativeControls allowsFullscreen />
+                </Pressable>
+                <Pressable onPress={onClose} className="absolute top-12 right-6 h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <Feather name="x" size={24} color="#FFFFFF" />
+                </Pressable>
+            </Pressable>
+        </Modal>
+    )
+}
+
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
     const todayApi = getTodayWeekday()
     const daysMap = useMemo(() => {
@@ -161,6 +182,7 @@ const BusinessProfileScreen = () => {
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [reviewsCursor, setReviewsCursor] = useState<string | null>(null)
     const [hoursModalVisible, setHoursModalVisible] = useState(false)
+    const [videoModalVisible, setVideoModalVisible] = useState(false)
 
     const business = useAppSelector(selectBusiness)
     const profileUser = useAppSelector(selectProfileUser)
@@ -192,6 +214,8 @@ const BusinessProfileScreen = () => {
     const providerInitial = providerName[0].toUpperCase()
 
     const businessPhotos = publicData?.photos ?? []
+    const businessVideo = business?.video
+    const isVideoReady = businessVideo?.processingStatus === 'READY' && businessVideo?.processedUrl
     const descriptionParagraphs = useMemo(() => (business?.description ?? '').split('\n').filter(Boolean), [business?.description])
 
     const reviews: Review[] = useMemo(
@@ -315,6 +339,26 @@ const BusinessProfileScreen = () => {
                             </View>
                         </View>
 
+                        {isVideoReady && businessVideo?.thumbnailUrl && (
+                            <View className="mt-4">
+                                <AppText className="mb-3 font-poppins-semibold text-[14px] text-[#0C2A63]">Video</AppText>
+                                <Pressable onPress={() => setVideoModalVisible(true)} className="relative">
+                                    <Image
+                                        source={{ uri: businessVideo.thumbnailUrl }}
+                                        style={{ width: 200, height: 140, borderRadius: 16 }}
+                                        contentFit="cover"
+                                        cachePolicy="memory-disk"
+                                        transition={200}
+                                    />
+                                    <View className="absolute inset-0 items-center justify-center">
+                                        <View className="h-12 w-12 items-center justify-center rounded-full bg-black/50">
+                                            <Feather name="play" size={24} color="#FFFFFF" />
+                                        </View>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        )}
+
                         {businessPhotos.length > 0 && (
                             <View className="mt-4">
                                 <AppText className="mb-3 font-poppins-semibold text-[14px] text-[#0C2A63]">Photos</AppText>
@@ -363,6 +407,9 @@ const BusinessProfileScreen = () => {
             </ScrollView>
 
             <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
+            {businessVideo?.processedUrl && (
+                <VideoPlayerModal visible={videoModalVisible} onClose={() => setVideoModalVisible(false)} videoUrl={businessVideo.processedUrl} />
+            )}
         </SafeAreaView>
     )
 }
