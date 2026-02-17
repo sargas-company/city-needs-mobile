@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { Image } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,14 +10,13 @@ import { AntDesign, Feather, FontAwesome, Ionicons, MaterialCommunityIcons } fro
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectProfileStatus } from '@/store/features/profile/profile.selectors'
-import { submitBusinessFilesSkipThunk, submitBusinessFilesThunk } from '@/store/features/onboarding/onboarding.thunks'
+import { submitBusinessFilesThunk } from '@/store/features/onboarding/onboarding.thunks'
 import {
     bootstrapUploadSessionThunk,
     uploadSessionDeleteFileThunk,
     uploadSessionUploadFileThunk,
 } from '@/store/features/uploadSession/uploadSession.thunks'
 import {
-    selectUploadSession,
     selectUploadSessionDocumentFiles,
     selectUploadSessionLogoFile,
     selectUploadSessionPhotoFiles,
@@ -45,7 +44,8 @@ type UploadedListProps = {
     showPreview?: boolean
 }
 
-const MAX_FILES = 4
+const MAX_PHOTOS = 15
+const MAX_DOCUMENTS = 4
 const MAX_VIDEO_SIZE_MB = 100
 const MAX_VIDEO_DURATION_SECONDS = 60
 const ALLOWED_VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime'])
@@ -56,7 +56,6 @@ const BrandingScreen = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const profileStatus = useAppSelector(selectProfileStatus)
-    const uploadSession = useAppSelector(selectUploadSession)
     const logoFile = useAppSelector(selectUploadSessionLogoFile)
     const photoFiles = useAppSelector(selectUploadSessionPhotoFiles)
     const videoFiles = useAppSelector(selectUploadSessionVideoFiles)
@@ -70,11 +69,6 @@ const BrandingScreen = () => {
     useEffect(() => {
         dispatch(bootstrapUploadSessionThunk())
     }, [dispatch])
-
-    const hasAnyFile = useMemo(() => {
-        const total = uploadSession?.totalCount ?? 0
-        return total > 0 || Boolean(logoFile || photoFiles.length > 0 || videoFiles.length > 0 || documentFiles.length > 0)
-    }, [documentFiles.length, logoFile, photoFiles.length, videoFiles.length, uploadSession?.totalCount])
 
     const handlePickLogo = async () => {
         setApiError(null)
@@ -101,10 +95,10 @@ const BrandingScreen = () => {
             allowsEditing: false,
             quality: 0.8,
             allowsMultipleSelection: true,
-            selectionLimit: MAX_FILES,
+            selectionLimit: MAX_PHOTOS,
         })
         if (result.canceled || !result.assets?.length) return
-        const remainingSlots = Math.max(0, MAX_FILES - photoFiles.length)
+        const remainingSlots = Math.max(0, MAX_PHOTOS - photoFiles.length)
         if (remainingSlots <= 0) return
         const assets = result.assets.slice(0, remainingSlots)
         for (const asset of assets) {
@@ -157,7 +151,7 @@ const BrandingScreen = () => {
             copyToCacheDirectory: true,
         })
         if (result.canceled || !result.assets?.length) return
-        const remainingSlots = Math.max(0, MAX_FILES - documentFiles.length)
+        const remainingSlots = Math.max(0, MAX_DOCUMENTS - documentFiles.length)
         if (remainingSlots <= 0) return
         const assets = result.assets.slice(0, remainingSlots)
         for (const asset of assets) {
@@ -209,21 +203,14 @@ const BrandingScreen = () => {
         }
     }
 
-    const handleSkip = async () => {
-        setApiError(null)
-        try {
-            await dispatch(submitBusinessFilesSkipThunk()).unwrap()
-            router.replace('/(protected)/gate')
-        } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to skip'
-            setApiError(message)
-        }
-    }
-
     const handleSubmit = async () => {
         setApiError(null)
-        if (!hasAnyFile) {
-            setError('Please upload at least one logo, photo or document, or skip for now.')
+        if (!logoFile) {
+            setError('Please upload your logo.')
+            return
+        }
+        if (photoFiles.length === 0) {
+            setError('Please upload at least one business photo.')
             return
         }
         setError(null)
@@ -246,12 +233,6 @@ const BrandingScreen = () => {
                 keyboardShouldPersistTaps="handled"
                 bottomOffset={24}
             >
-                <View className="flex-row items-end justify-end">
-                    <Pressable onPress={handleSkip} disabled={isLoading}>
-                        <Text className="text-base font-semibold text-[#0C2A63]">Skip for now</Text>
-                    </Pressable>
-                </View>
-
                 <View className="mb-2 gap-2">
                     <ProgressStepper steps={steps} currentStep={currentStep} showLabels showFooter />
                     <Text className="text-2xl font-bold text-[#0C2A63]">Your branding builds trust & increases booking chance</Text>
@@ -261,7 +242,7 @@ const BrandingScreen = () => {
                 <UploadSection
                     fieldTitle="Upload Logo"
                     title={'Upload your logo'}
-                    description="File must be a JPEG, JPG, PNG or WEB and up to 5 MB"
+                    description="Required. JPEG, JPG, PNG or WEBP, up to 5 MB"
                     icon={<Feather name="upload" size={35} color="#3a3a3a" />}
                     onPress={handlePickLogo}
                 />
@@ -285,7 +266,7 @@ const BrandingScreen = () => {
                 <UploadSection
                     fieldTitle="Upload Business Photos"
                     title={'Upload photos of your business'}
-                    description="File must be a JPEG, JPG, PNG or WEB and up to 10 MB per file"
+                    description={`Required. 1-${MAX_PHOTOS} photos, JPEG/JPG/PNG/WEBP, up to 10 MB per file`}
                     icon={<FontAwesome name="photo" size={35} color="#3a3a3a" />}
                     onPress={handlePickPhotos}
                 />

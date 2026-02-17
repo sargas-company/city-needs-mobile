@@ -110,25 +110,3 @@ export const submitBusinessFilesThunk = createAsyncThunk<void, void, { dispatch:
         }
     }
 )
-
-export const submitBusinessFilesSkipThunk = createAsyncThunk<void, void, { dispatch: AppDispatch; state: RootState }>(
-    'onboarding/submitBusinessFilesSkip',
-    async (_, { dispatch, rejectWithValue }) => {
-        try {
-            dispatch(setProfileStatus('loading'))
-            await dispatch(
-                onboardingApi.endpoints.submitOnboarding.initiate({
-                    action: 'BUSINESS_FILES_SKIP',
-                })
-            ).unwrap()
-            const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
-            const resolvedMe = resolveApiData<AppUser>(meResult)
-            dispatch(setProfileUser(resolvedMe))
-            dispatch(authApi.util.invalidateTags(['Me']))
-            dispatch(setProfileStatus('ready'))
-        } catch (error) {
-            dispatch(setProfileError('Failed to skip branding'))
-            return rejectWithValue(error)
-        }
-    }
-)
