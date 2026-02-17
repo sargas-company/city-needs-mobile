@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-import { AppUser } from '@/store/features/profile/profile.types'
+import { AppUser, MeLocationDto } from '@/store/features/profile/profile.types'
 
 export type ProfileStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -25,6 +25,11 @@ const profileSlice = createSlice({
             state.status = 'ready'
             state.error = null
         },
+        setProfileLocation: (state, action: PayloadAction<MeLocationDto>) => {
+            if (state.user) {
+                state.user.location = action.payload
+            }
+        },
         clearProfile: (state) => {
             state.user = null
             state.status = 'idle'
@@ -40,5 +45,5 @@ const profileSlice = createSlice({
     },
 })
 
-export const { setProfileUser, clearProfile, setProfileStatus, setProfileError } = profileSlice.actions
+export const { setProfileUser, setProfileLocation, clearProfile, setProfileStatus, setProfileError } = profileSlice.actions
 export const profileReducer = profileSlice.reducer

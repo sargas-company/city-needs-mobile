@@ -10,6 +10,7 @@ import { getLocationErrorMessage } from '@/services/location/locationErrors'
 import { submitGpsLocation } from '@/services/location/submitLocation'
 import { useSyncLocationMutation } from '@/store/api/locationApi'
 import { setLocation, setLocationPermission } from '@/store/features/location/location.slice'
+import { setProfileLocation } from '@/store/features/profile/profile.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
 import { AppButton } from '@/components/ui/AppButton'
@@ -39,6 +40,7 @@ const LocationGate = () => {
             }
             if (result.ok && result.response.ok && result.response.location) {
                 dispatch(setLocation(result.response.location))
+                dispatch(setProfileLocation(result.response.location))
             }
             if (isFromProfile) {
                 router.back()

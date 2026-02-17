@@ -12,6 +12,7 @@ import { getLocationErrorMessage } from '@/services/location/locationErrors'
 import { submitGpsLocation } from '@/services/location/submitLocation'
 import { useSyncLocationMutation } from '@/store/api/locationApi'
 import { setLocation, setLocationPermission } from '@/store/features/location/location.slice'
+import { setProfileLocation } from '@/store/features/profile/profile.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
 import type { StoredLocation } from '@/services/location/location.types'
@@ -88,6 +89,7 @@ const LocationManual = () => {
             const response = await syncLocation(payload).unwrap()
             if (response.ok && response.location) {
                 dispatch(setLocation(response.location))
+                dispatch(setProfileLocation(response.location))
             }
             if (isFromProfile) {
                 router.dismiss(2)
@@ -113,6 +115,7 @@ const LocationManual = () => {
             }
             if (result.ok && result.response.ok && result.response.location) {
                 dispatch(setLocation(result.response.location))
+                dispatch(setProfileLocation(result.response.location))
             }
             if (isFromProfile) {
                 router.dismiss(2)
