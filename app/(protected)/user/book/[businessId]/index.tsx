@@ -3,6 +3,7 @@ import { Linking, Modal, Pressable, ScrollView, View } from 'react-native'
 import { Image } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
 import { AppButton } from '@/components/ui/AppButton'
@@ -163,6 +164,7 @@ const BusinessDetailScreen = () => {
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
+    const [whatsappModalVisible, setWhatsappModalVisible] = useState(false)
     const [reviewCursor, setReviewCursor] = useState<string | null>(null)
     const [hoursModalVisible, setHoursModalVisible] = useState(false)
 
@@ -227,6 +229,18 @@ const BusinessDetailScreen = () => {
                 actionType: AnalyticsActionType.MESSAGE,
             })
             Linking.openURL(`sms:${phoneRaw}`)
+        }
+    }
+
+    const handleWhatsapp = () => {
+        setWhatsappModalVisible(false)
+        if (phoneRaw) {
+            trackUserAction({
+                businessId: businessId!,
+                actionType: AnalyticsActionType.MESSAGE,
+            })
+            const phoneForWhatsapp = phoneRaw.replace(/^\+/, '')
+            Linking.openURL(`https://wa.me/${phoneForWhatsapp}`)
         }
     }
 
@@ -309,40 +323,45 @@ const BusinessDetailScreen = () => {
                 {activeTab === 'about' && (
                     <View className="mt-6">
                         <View className="rounded-2xl bg-white p-4" style={cardShadow}>
-                            <AppText className="font-poppins-semibold text-[14px] text-[#0C2A63]">Provider Contact</AppText>
-
-                            <View className="mt-4 flex-row items-center justify-between">
-                                <View className="flex-row items-center gap-3">
-                                    <Avatar
-                                        size={56}
-                                        borderWidth={2}
-                                        borderColor="#F6F7FB"
-                                        fallback={
-                                            <View className="flex-1 items-center justify-center bg-[#0C2A63]">
-                                                <AppText className="text-[20px] font-poppins-bold text-white">{providerInitial}</AppText>
-                                            </View>
-                                        }
-                                    />
-
-                                    <View>
-                                        <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{businessName}</AppText>
-                                        <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">Owner</AppText>
-                                    </View>
-                                </View>
-
+                            <View className="flex-row items-center justify-between">
+                                <AppText className="font-poppins-semibold text-[14px] text-[#0C2A63]">Provider Contact</AppText>
                                 <View className="flex-row items-center gap-3">
                                     <AppPressable
                                         onPress={() => setSmsModalVisible(true)}
-                                        className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]"
+                                        className="h-8 w-8 items-center justify-center rounded-full bg-[#0C2A63]"
                                     >
-                                        <Feather name="message-circle" size={20} color="#FFFFFF" />
+                                        <Feather name="message-circle" size={16} color="#FFFFFF" />
+                                    </AppPressable>
+                                    <AppPressable
+                                        onPress={() => setWhatsappModalVisible(true)}
+                                        className="h-8 w-8 items-center justify-center rounded-full bg-[#25D366]"
+                                    >
+                                        <FontAwesome name="whatsapp" size={16} color="#FFFFFF" />
                                     </AppPressable>
                                     <AppPressable
                                         onPress={() => setCallModalVisible(true)}
-                                        className="h-11 w-11 items-center justify-center rounded-full bg-[#0C2A63]"
+                                        className="h-8 w-8 items-center justify-center rounded-full bg-[#0C2A63]"
                                     >
-                                        <Feather name="phone" size={20} color="#FFFFFF" />
+                                        <Feather name="phone" size={16} color="#FFFFFF" />
                                     </AppPressable>
+                                </View>
+                            </View>
+
+                            <View className="mt-4 flex-row items-center gap-3">
+                                <Avatar
+                                    size={56}
+                                    borderWidth={2}
+                                    borderColor="#F6F7FB"
+                                    fallback={
+                                        <View className="flex-1 items-center justify-center bg-[#0C2A63]">
+                                            <AppText className="text-[20px] font-poppins-bold text-white">{providerInitial}</AppText>
+                                        </View>
+                                    }
+                                />
+
+                                <View>
+                                    <AppText className="font-poppins-semibold text-[14px] text-[#171717]">{businessName}</AppText>
+                                    <AppText className="font-poppins-medium text-[12px] text-[#CBCBCB]">Owner</AppText>
                                 </View>
                             </View>
                         </View>
@@ -423,6 +442,21 @@ const BusinessDetailScreen = () => {
                         </AppText>
                         <View className="mt-6">
                             <AppButton title="Message" onPress={handleSms} className="bg-[#0C2A63]" />
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
+
+            {/* WhatsApp modal */}
+            <Modal visible={whatsappModalVisible} transparent animationType="fade" onRequestClose={() => setWhatsappModalVisible(false)}>
+                <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setWhatsappModalVisible(false)}>
+                    <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                        <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">WhatsApp</AppText>
+                        <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                            Message {publicData?.phone ?? ''} on WhatsApp
+                        </AppText>
+                        <View className="mt-6">
+                            <AppButton title="Open WhatsApp" onPress={handleWhatsapp} className="bg-[#0C2A63]" />
                         </View>
                     </Pressable>
                 </Pressable>
