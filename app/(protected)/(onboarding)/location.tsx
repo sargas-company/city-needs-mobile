@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import Feather from '@expo/vector-icons/Feather'
 
 import { openSettings } from '@/services/location/LocationService'
 import { getLocationErrorMessage } from '@/services/location/locationErrors'
@@ -12,10 +13,13 @@ import { setLocation, setLocationPermission } from '@/store/features/location/lo
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectLocationPermission } from '@/store/features/location/location.selectors'
 import { AppButton } from '@/components/ui/AppButton'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const LocationGate = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
+    const { fromProfile } = useLocalSearchParams<{ fromProfile?: string }>()
+    const isFromProfile = fromProfile === 'true'
     const permission = useAppSelector(selectLocationPermission)
     const [error, setError] = useState<string | null>(null)
     const [syncLocation, syncLocationState] = useSyncLocationMutation()
@@ -36,14 +40,29 @@ const LocationGate = () => {
             if (result.ok && result.response.ok && result.response.location) {
                 dispatch(setLocation(result.response.location))
             }
-            router.replace('/(protected)/gate')
+            if (isFromProfile) {
+                router.back()
+            } else {
+                router.replace('/(protected)/gate')
+            }
         } catch (err) {
             setError(getLocationErrorMessage(err, 'Failed to fetch location'))
         }
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white px-6 py-8">
+        <SafeAreaView className="flex-1 bg-white px-6 py-8" style={isFromProfile ? { paddingTop: HEADER_CONTENT_OFFSET } : undefined}>
+            {isFromProfile && (
+                <View className="mb-4 flex-row items-center gap-3">
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="h-11 w-11 items-center justify-center rounded-full border border-border bg-white"
+                        accessibilityRole="button"
+                    >
+                        <Feather name="arrow-left" size={20} color="#0C2A63" />
+                    </Pressable>
+                </View>
+            )}
             <View className="flex-1 items-center justify-center gap-6">
                 <View className="h-32 w-32 items-center justify-center rounded-full bg-[#E9EEF9]">
                     <MaterialCommunityIcons name="map-marker" size={55} color="#0C2A63" />
@@ -62,7 +81,13 @@ const LocationGate = () => {
                     disabled={syncLocationState.isLoading}
                 />
 
-                <Pressable onPress={() => router.push('/(protected)/(onboarding)/location-manual')}>
+                <Pressable
+                    onPress={() =>
+                        router.push(
+                            isFromProfile ? '/(protected)/(onboarding)/location-manual?fromProfile=true' : '/(protected)/(onboarding)/location-manual'
+                        )
+                    }
+                >
                     <Text className="text-sm font-semibold text-brand">Enter Location Manually</Text>
                 </Pressable>
 

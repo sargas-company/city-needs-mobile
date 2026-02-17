@@ -13,3 +13,4 @@ export const selectUserRole = (state: RootState) => state.profile.user?.user.rol
 
 export const selectBusiness = (state: RootState) => state.profile.user?.business ?? null
 export const selectVerification = (state: RootState) => state.profile.user?.verification ?? null
+export const selectProfileLocation = (state: RootState) => state.profile.user?.location ?? null

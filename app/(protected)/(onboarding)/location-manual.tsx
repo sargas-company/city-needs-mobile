@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { FontAwesome6 } from '@expo/vector-icons'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -21,6 +21,8 @@ import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 const LocationManual = () => {
     const dispatch = useAppDispatch()
     const router = useRouter()
+    const { fromProfile } = useLocalSearchParams<{ fromProfile?: string }>()
+    const isFromProfile = fromProfile === 'true'
     const permission = useAppSelector(selectLocationPermission)
     const providerId = getGeocodingProviderId()
 
@@ -87,7 +89,11 @@ const LocationManual = () => {
             if (response.ok && response.location) {
                 dispatch(setLocation(response.location))
             }
-            router.replace('/(protected)/gate')
+            if (isFromProfile) {
+                router.dismiss(2)
+            } else {
+                router.replace('/(protected)/gate')
+            }
         } catch (err) {
             setSubmitError(getLocationErrorMessage(err, 'Failed to select location'))
         }
@@ -108,7 +114,11 @@ const LocationManual = () => {
             if (result.ok && result.response.ok && result.response.location) {
                 dispatch(setLocation(result.response.location))
             }
-            router.replace('/(protected)/gate')
+            if (isFromProfile) {
+                router.dismiss(2)
+            } else {
+                router.replace('/(protected)/gate')
+            }
         } catch (err) {
             setSubmitError(getLocationErrorMessage(err, 'Failed to get current location'))
         }

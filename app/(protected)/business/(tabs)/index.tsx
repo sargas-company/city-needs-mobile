@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
 import { useAppSelector } from '@/store/hooks'
-import { useGetAnalyticsActivityQuery } from '@/store/features/analytics/analyticsApi'
+import { useGetAnalyticsActivityQuery, useGetAnalyticsSummaryQuery } from '@/store/features/analytics/analyticsApi'
 import { selectBusiness } from '@/store/features/profile/profile.selectors'
 import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -17,6 +17,8 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const PERIOD_OPTIONS = ['Weekly', 'Monthly', 'Yearly']
+
+const formatNumber = (num: number): string => num.toLocaleString('en-US')
 
 const cardShadow = {
     shadowColor: '#000',
@@ -38,7 +40,9 @@ export default function BusinessHomeScreen() {
     const [period, setPeriod] = useState('Monthly')
     const business = useAppSelector(selectBusiness)
     const { data: activityResponse } = useGetAnalyticsActivityQuery()
+    const { data: summaryResponse } = useGetAnalyticsSummaryQuery()
 
+    const summary = summaryResponse
     const chartData =
         activityResponse?.data?.map((item) => ({
             month: item.label,
@@ -106,8 +110,18 @@ export default function BusinessHomeScreen() {
                 </View>
 
                 <View className="mt-4 flex-row gap-3">
-                    <StatCard icon="eye" label="Profile views" value="1, 854" changePercent={12.5} />
-                    <StatCard icon="zap" label="User actions" value="96" changePercent={-1.6} />
+                    <StatCard
+                        icon="eye"
+                        label="Profile views"
+                        value={formatNumber(summary?.profileViews.total ?? 0)}
+                        changePercent={summary?.profileViews.deltaPercent ?? 0}
+                    />
+                    <StatCard
+                        icon="zap"
+                        label="User actions"
+                        value={formatNumber(summary?.userActions.total ?? 0)}
+                        changePercent={summary?.userActions.deltaPercent ?? 0}
+                    />
                 </View>
 
                 {/* Activity overview section */}

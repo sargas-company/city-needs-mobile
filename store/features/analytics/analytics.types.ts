@@ -49,7 +49,11 @@ export type AnalyticsSummary = {
     userActions: MetricDto
 }
 
-export type AnalyticsSummaryResponse = ApiResponse<AnalyticsSummary>
+export type AnalyticsSummaryResponse = {
+    code?: number
+    profileViews: MetricDto
+    userActions: MetricDto
+}
 
 // Activity
 export type ActivityMonthDto = {

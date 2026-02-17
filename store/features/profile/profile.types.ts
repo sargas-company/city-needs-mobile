@@ -97,8 +97,19 @@ export type BusinessVerificationGateDto = {
     nextAction: BusinessVerificationNextAction
 }
 
+export type MeLocationDto = {
+    lat: number
+    lng: number
+    source: string
+    provider?: string | null
+    placeId?: string | null
+    formattedAddress?: string | null
+    updatedAt: string
+}
+
 export type AppUser = {
     user: UserDto
     business?: BusinessDto | null
     verification?: BusinessVerificationGateDto | null
+    location?: MeLocationDto | null
 }

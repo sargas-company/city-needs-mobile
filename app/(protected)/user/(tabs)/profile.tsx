@@ -10,7 +10,7 @@ import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { selectProfileUser } from '@/store/features/profile/profile.selectors'
+import { selectProfileUser, selectProfileLocation } from '@/store/features/profile/profile.selectors'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
 const getFirstLetter = (name?: string | null, email?: string | null) => {
@@ -52,6 +52,7 @@ const ProfileScreen = () => {
     const [notifications, setNotifications] = useState(true)
 
     const profileUser = useAppSelector(selectProfileUser)
+    const profileLocation = useAppSelector(selectProfileLocation)
 
     const fullName = useMemo(() => {
         return profileUser?.username?.trim() || user?.displayName?.trim() || '—'
@@ -121,8 +122,8 @@ const ProfileScreen = () => {
                         <MenuRow
                             icon="map-pin"
                             title="Location"
-                            subtitle="Saskatoon, Canada"
-                            onPress={() => router.push('/(protected)/(onboarding)/location')}
+                            subtitle={profileLocation?.formattedAddress ?? 'Set your location'}
+                            onPress={() => router.push('/(protected)/(onboarding)/location?fromProfile=true')}
                         />
                     </View>
 
