@@ -334,7 +334,7 @@ const BusinessDetailScreen = () => {
                                     </AppPressable>
                                     <AppPressable
                                         onPress={() => setWhatsappModalVisible(true)}
-                                        className="h-8 w-8 items-center justify-center rounded-full bg-[#25D366]"
+                                        className="h-8 w-8 items-center justify-center rounded-full bg-[#0C2A63]"
                                     >
                                         <FontAwesome name="whatsapp" size={16} color="#FFFFFF" />
                                     </AppPressable>

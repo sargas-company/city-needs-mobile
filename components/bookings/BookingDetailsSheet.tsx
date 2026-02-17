@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Linking, Modal, Pressable, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
@@ -63,6 +64,7 @@ function formatPrice(cents: number): string {
 export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER, onClose, onConfirm, onCancel, onLeaveReview }: Props) => {
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
+    const [whatsappModalVisible, setWhatsappModalVisible] = useState(false)
 
     if (!booking) return null
 
@@ -82,6 +84,14 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
         setSmsModalVisible(false)
         if (phoneRaw) {
             Linking.openURL(`sms:${phoneRaw}`)
+        }
+    }
+
+    const handleWhatsapp = () => {
+        setWhatsappModalVisible(false)
+        if (phoneRaw) {
+            const phoneForWhatsapp = phoneRaw.replace(/^\+/, '')
+            Linking.openURL(`https://wa.me/${phoneForWhatsapp}`)
         }
     }
 
@@ -118,17 +128,24 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
                         <View className="flex-row items-center gap-2">
                             <Pressable
                                 onPress={() => setSmsModalVisible(true)}
-                                className="h-11 w-11 items-center justify-center rounded-full bg-white"
+                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
                                 style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
                             >
-                                <Feather name="message-circle" size={20} color="#0C2A63" />
+                                <Feather name="message-circle" size={18} color="#0C2A63" />
+                            </Pressable>
+                            <Pressable
+                                onPress={() => setWhatsappModalVisible(true)}
+                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
+                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                            >
+                                <FontAwesome name="whatsapp" size={18} color="#0C2A63" />
                             </Pressable>
                             <Pressable
                                 onPress={() => setCallModalVisible(true)}
-                                className="h-11 w-11 items-center justify-center rounded-full bg-white"
+                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
                                 style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
                             >
-                                <Feather name="phone" size={20} color="#0C2A63" />
+                                <Feather name="phone" size={18} color="#0C2A63" />
                             </Pressable>
                         </View>
                     ) : null}
@@ -204,6 +221,21 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
                             </AppText>
                             <View className="mt-6">
                                 <AppButton title="Message" onPress={handleSms} />
+                            </View>
+                        </Pressable>
+                    </Pressable>
+                </Modal>
+
+                {/* WhatsApp modal */}
+                <Modal visible={whatsappModalVisible} transparent animationType="fade" onRequestClose={() => setWhatsappModalVisible(false)}>
+                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setWhatsappModalVisible(false)}>
+                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">WhatsApp</AppText>
+                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                                Message {customer.phone ?? ''} on WhatsApp
+                            </AppText>
+                            <View className="mt-6">
+                                <AppButton title="Open WhatsApp" onPress={handleWhatsapp} className="bg-[#25D366]" />
                             </View>
                         </Pressable>
                     </Pressable>
