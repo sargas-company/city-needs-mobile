@@ -161,7 +161,7 @@ export function GoogleMapAdapter({
                         longitude: userLocation.lng,
                     }}
                     anchor={{ x: 0.5, y: 0.5 }}
-                    tracksViewChanges={true}
+                    tracksViewChanges={false}
                 >
                     <UserLocationPin />
                 </Marker>

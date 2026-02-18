@@ -14,6 +14,7 @@ const apiClient = axios.create({
 export const baseApi = createApi({
     reducerPath: 'api',
     baseQuery: axiosBaseQuery({ client: apiClient }),
+    keepUnusedDataFor: 30, // Clean up unused cache entries after 30s (default 60s) to reduce memory
     tagTypes: [
         'Me',
         'Profile',

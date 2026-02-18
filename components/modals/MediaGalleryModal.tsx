@@ -16,6 +16,26 @@ type MediaGalleryModalProps = {
     initialIndex?: number
 }
 
+/** Placeholder shown for video slides that are not close to current index */
+const VideoPlaceholder = ({ thumbnailUrl, screenWidth, screenHeight }: { thumbnailUrl?: string; screenWidth: number; screenHeight: number }) => {
+    return (
+        <View className="flex-1 items-center justify-center">
+            {thumbnailUrl ? (
+                <Image
+                    source={{ uri: thumbnailUrl }}
+                    style={{ width: screenWidth, height: screenHeight * 0.7 }}
+                    contentFit="contain"
+                    cachePolicy="memory-disk"
+                />
+            ) : (
+                <View style={{ width: screenWidth, height: screenHeight * 0.7 }} className="items-center justify-center bg-neutral-900">
+                    <Feather name="play-circle" size={64} color="#666" />
+                </View>
+            )}
+        </View>
+    )
+}
+
 const VideoSlide = ({ url, isActive, screenWidth, screenHeight }: { url: string; isActive: boolean; screenWidth: number; screenHeight: number }) => {
     const player = useVideoPlayer(url, (p) => {
         p.loop = false
@@ -111,15 +131,29 @@ export const MediaGalleryModal = ({ visible, onClose, items, initialIndex = 0 }:
                 </View>
 
                 <PagerView ref={pagerRef} style={{ flex: 1 }} initialPage={initialIndex} onPageSelected={handlePageSelected} overdrag>
-                    {items.map((item, index) => (
-                        <View key={item.type === 'video' ? `video-${index}` : item.id} className="flex-1">
-                            {item.type === 'video' ? (
-                                <VideoSlide url={item.url} isActive={currentIndex === index} screenWidth={screenWidth} screenHeight={screenHeight} />
-                            ) : (
-                                <PhotoSlide url={item.url} screenWidth={screenWidth} screenHeight={screenHeight} />
-                            )}
-                        </View>
-                    ))}
+                    {items.map((item, index) => {
+                        // Only render video players for slides within ±1 of current to save memory
+                        const isNearCurrent = Math.abs(index - currentIndex) <= 1
+
+                        return (
+                            <View key={item.type === 'video' ? `video-${index}` : item.id} className="flex-1">
+                                {item.type === 'video' ? (
+                                    isNearCurrent ? (
+                                        <VideoSlide
+                                            url={item.url}
+                                            isActive={currentIndex === index}
+                                            screenWidth={screenWidth}
+                                            screenHeight={screenHeight}
+                                        />
+                                    ) : (
+                                        <VideoPlaceholder thumbnailUrl={item.thumbnailUrl} screenWidth={screenWidth} screenHeight={screenHeight} />
+                                    )
+                                ) : (
+                                    <PhotoSlide url={item.url} screenWidth={screenWidth} screenHeight={screenHeight} />
+                                )}
+                            </View>
+                        )
+                    })}
                 </PagerView>
             </View>
         </Modal>
