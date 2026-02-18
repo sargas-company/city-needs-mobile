@@ -59,6 +59,9 @@ export const searchApi = baseApi.injectEndpoints({
                 result?.data
                     ? [...result.data.map(({ id }) => ({ type: 'Businesses' as const, id })), { type: 'Businesses', id: 'LIST' }]
                     : [{ type: 'Businesses', id: 'LIST' }],
+
+            // More aggressive cleanup for search results (pagination accumulates data)
+            keepUnusedDataFor: 15,
         }),
     }),
 })

@@ -52,6 +52,8 @@ export const bookingsApi = baseApi.injectEndpoints({
                 result?.data
                     ? [...result.data.map(({ id }) => ({ type: 'Bookings' as const, id })), { type: 'Bookings', id: 'LIST' }]
                     : [{ type: 'Bookings', id: 'LIST' }],
+
+            keepUnusedDataFor: 20,
         }),
 
         getBusinessBookings: builder.query<BusinessBookingListResponse, GetBusinessBookingsArgs | void>({
@@ -88,6 +90,8 @@ export const bookingsApi = baseApi.injectEndpoints({
                 result?.data
                     ? [...result.data.map(({ id }) => ({ type: 'Bookings' as const, id })), { type: 'Bookings', id: 'BUSINESS_LIST' }]
                     : [{ type: 'Bookings', id: 'BUSINESS_LIST' }],
+
+            keepUnusedDataFor: 20,
         }),
 
         createBooking: builder.mutation<BookingResponse, CreateBookingDto>({

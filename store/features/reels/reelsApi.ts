@@ -95,6 +95,9 @@ export const reelsApi = baseApi.injectEndpoints({
                 result?.items
                     ? [...result.items.map(({ id }) => ({ type: 'Reels' as const, id })), { type: 'Reels', id: 'FEED' }]
                     : [{ type: 'Reels', id: 'FEED' }],
+
+            // Aggressive cleanup for reels feed (video metadata can be heavy)
+            keepUnusedDataFor: 15,
         }),
     }),
 })
