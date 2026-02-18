@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import { View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
@@ -29,6 +29,17 @@ const VideoThumbnail = memo(function VideoThumbnail({ videoUrl }: { videoUrl: st
         p.loop = false
         p.muted = true
     })
+
+    // Cleanup: pause player on unmount to release native resources faster
+    useEffect(() => {
+        return () => {
+            try {
+                player.pause()
+            } catch {
+                // Player already released by expo-video
+            }
+        }
+    }, [player])
 
     return (
         <VideoView
