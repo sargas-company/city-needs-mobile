@@ -60,8 +60,19 @@ export type FileDto = {
     originalName?: string | null
 }
 
-export type VideoProcessingStatus = 'UPLOADED' | 'PROCESSING' | 'READY' | 'FAILED'
-export type BusinessVideoVerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'RESUBMISSION'
+export enum VideoProcessingStatus {
+    UPLOADED = 'UPLOADED',
+    PROCESSING = 'PROCESSING',
+    READY = 'READY',
+    FAILED = 'FAILED',
+}
+
+export enum BusinessVideoVerificationStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+    RESUBMISSION = 'RESUBMISSION',
+}
 
 export type BusinessVideoDto = {
     id: string

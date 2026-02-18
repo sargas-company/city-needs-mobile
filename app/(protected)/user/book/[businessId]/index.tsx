@@ -502,7 +502,7 @@ const BusinessDetailScreen = () => {
             </Modal>
 
             <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
-            {businessVideo?.processedUrl && (
+            {videoModalVisible && businessVideo?.processedUrl && (
                 <VideoPlayerModal visible={videoModalVisible} onClose={() => setVideoModalVisible(false)} videoUrl={businessVideo.processedUrl} />
             )}
         </SafeAreaView>

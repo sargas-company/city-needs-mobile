@@ -15,6 +15,7 @@ import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { getTodayWeekday, WEEKDAYS } from '@/constants/isoWeekday'
 import { logoutThunk } from '@/store/features/auth/auth.thunks'
 import { selectBusiness, selectProfileUser } from '@/store/features/profile/profile.selectors'
+import { BusinessVideoVerificationStatus, VideoProcessingStatus } from '@/store/features/profile/profile.types'
 import type { BusinessHoursDayDto } from '@/store/features/public-business/publicBusiness.types'
 import { useGetBusinessHoursQuery, useGetPublicBusinessQuery } from '@/store/features/public-business/publicBusinessApi'
 import { useGetBusinessReviewsQuery } from '@/store/features/reviews/reviewsApi'
@@ -231,7 +232,10 @@ const BusinessProfileScreen = () => {
 
     const businessPhotos = publicData?.photos ?? []
     const businessVideo = business?.video
-    const isVideoReady = businessVideo?.processingStatus === 'READY' && businessVideo?.processedUrl
+    const isVideoReady =
+        businessVideo?.processingStatus === VideoProcessingStatus.READY &&
+        businessVideo?.status === BusinessVideoVerificationStatus.APPROVED &&
+        businessVideo?.processedUrl
     const descriptionParagraphs = useMemo(() => (business?.description ?? '').split('\n').filter(Boolean), [business?.description])
 
     const reviews: Review[] = useMemo(
