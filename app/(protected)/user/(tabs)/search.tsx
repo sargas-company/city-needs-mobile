@@ -11,6 +11,7 @@ import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
+import { useDebounce } from '@/hooks/useDebounce'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
@@ -51,6 +52,7 @@ const dropdownShadow = {
 
 export default function SearchScreen() {
     const [searchText, setSearchText] = useState('')
+    const debouncedSearchText = useDebounce(searchText, 300)
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
     const [sort, setSort] = useState<BusinessSort | null>('popular')
     const [sortOpen, setSortOpen] = useState(false)
@@ -66,16 +68,15 @@ export default function SearchScreen() {
     // "popular" sort is incompatible with top-rated and best-price chips
     const isPopularDisabled = activeChips.has('top-rated') || activeChips.has('best-price')
 
-    const displayCity = appliedFilters ? (appliedFilters.city ?? 'All Cities') : 'Saskatoon'
+    const displayCity = appliedFilters?.city ?? 'All Cities'
 
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
-            city: appliedFilters ? undefined : 'Saskatoon',
             cursor: cursor ?? undefined,
         }
 
-        if (searchText.trim()) {
-            args.search = searchText.trim()
+        if (debouncedSearchText.trim()) {
+            args.search = debouncedSearchText.trim()
         }
 
         if (sort) {
@@ -85,19 +86,19 @@ export default function SearchScreen() {
         for (const chip of FILTER_CHIPS) {
             if (activeChips.has(chip.id)) {
                 // Skip service-specific chips when no search
-                if (chip.requiresSearch && !searchText.trim()) continue
+                if (chip.requiresSearch && !debouncedSearchText.trim()) continue
                 Object.assign(args, chip.getParams())
             }
         }
 
         if (appliedFilters) {
-            const hasSearch = !!searchText.trim()
+            const hasSearch = !!debouncedSearchText.trim()
             const filterArgs = filterValuesToSearchArgs(appliedFilters, userLocation, hasSearch)
             Object.assign(args, filterArgs)
         }
 
         return args
-    }, [searchText, activeChips, sort, cursor, appliedFilters, userLocation])
+    }, [debouncedSearchText, activeChips, sort, cursor, appliedFilters, userLocation])
 
     const { data, isLoading, isFetching, refetch } = useSearchBusinessesQuery(queryArgs)
 
@@ -338,7 +339,7 @@ export default function SearchScreen() {
                 onClose={() => setFilterOpen(false)}
                 onApply={handleApplyFilters}
                 initialValues={appliedFiltersRef.current ?? undefined}
-                hasSearch={!!searchText.trim()}
+                hasSearch={!!debouncedSearchText.trim()}
             />
         </View>
     )

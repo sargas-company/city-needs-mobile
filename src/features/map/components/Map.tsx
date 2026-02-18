@@ -38,6 +38,11 @@ export interface MapProps {
     onRegionChangeEnd?: OnRegionChangeEnd
 
     /**
+     * Callback when the map is pressed (not on a marker)
+     */
+    onPress?: () => void
+
+    /**
      * Show user's current location (native blue dot when no userLocation)
      */
     showUserLocation?: boolean
@@ -75,6 +80,7 @@ export function Map({
     selectedMarkerId,
     onMarkerPress,
     onRegionChangeEnd,
+    onPress,
     showUserLocation = false,
     userLocation,
     searchRadiusKm,
@@ -96,6 +102,7 @@ export function Map({
                     selectedMarkerId={selectedMarkerId}
                     onMarkerPress={onMarkerPress}
                     onRegionChangeEnd={onRegionChangeEnd}
+                    onPress={onPress}
                     showUserLocation={showUserLocation}
                     userLocation={userLocation}
                     searchRadiusKm={searchRadiusKm}

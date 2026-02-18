@@ -14,6 +14,7 @@ interface GoogleMapAdapterProps {
     selectedMarkerId?: string | null
     onMarkerPress?: OnMarkerPress
     onRegionChangeEnd?: OnRegionChangeEnd
+    onPress?: () => void
     showUserLocation?: boolean
     userLocation?: LatLng | null
     searchRadiusKm?: 1 | 5 | null
@@ -31,6 +32,7 @@ export function GoogleMapAdapter({
     selectedMarkerId,
     onMarkerPress,
     onRegionChangeEnd,
+    onPress,
     showUserLocation = false,
     userLocation,
     searchRadiusKm,
@@ -130,6 +132,7 @@ export function GoogleMapAdapter({
             style={[styles.map, style]}
             initialRegion={getInitialRegion()}
             onRegionChangeComplete={handleRegionChangeComplete}
+            onPress={onPress}
             showsUserLocation={!userLocation && showUserLocation}
             showsMyLocationButton={false}
             showsCompass={true}

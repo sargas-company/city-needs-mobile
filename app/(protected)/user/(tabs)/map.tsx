@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Keyboard, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
 import { CITIES } from '@/constants/cities'
+import { useDebounce } from '@/hooks/useDebounce'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import { Map, MapMarker, type Bounds, type LatLng } from '@/src/features/map'
 import { BusinessMapCard } from '@/src/features/map/components/BusinessMapCard'
@@ -38,26 +39,34 @@ export default function MapScreen() {
     const defaultCenter: LatLng = userLocation ?? CITIES.Saskatoon.center
     const [mapCenter, setMapCenter] = useState<LatLng>(defaultCenter)
     const [searchText, setSearchText] = useState('')
+    const debouncedSearchText = useDebounce(searchText, 300)
     const [filterOpen, setFilterOpen] = useState(false)
     const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
     const appliedFiltersRef = useRef(appliedFilters)
 
     const queryArgs: SearchBusinessesArgs = useMemo(() => {
         const args: SearchBusinessesArgs = { limit: 50 }
-        const hasSearch = !!searchText.trim()
+        const hasSearch = !!debouncedSearchText.trim()
         if (hasSearch) {
-            args.search = searchText.trim()
+            args.search = debouncedSearchText.trim()
         }
         if (appliedFilters) {
             Object.assign(args, filterValuesToSearchArgs(appliedFilters, userLocation, hasSearch))
         }
         return args
-    }, [searchText, appliedFilters, userLocation])
+    }, [debouncedSearchText, appliedFilters, userLocation])
 
     const insets = useSafeAreaInsets()
     const { data } = useSearchBusinessesQuery(queryArgs)
     const businesses = useMemo(() => data?.data ?? [], [data?.data])
     const markers = useMemo(() => businessesToMarkers(businesses), [businesses])
+
+    // Auto-select first business when search results arrive
+    useEffect(() => {
+        if (debouncedSearchText.trim() && businesses.length > 0) {
+            setSelectedBusinessId(businesses[0].id)
+        }
+    }, [businesses, debouncedSearchText])
 
     appliedFiltersRef.current = appliedFilters
 
@@ -79,6 +88,10 @@ export default function MapScreen() {
         setSelectedBusinessId(null)
     }, [])
 
+    const handleMapPress = useCallback(() => {
+        Keyboard.dismiss()
+    }, [])
+
     const handleApplyFilters = useCallback((values: FilterValues) => {
         setAppliedFilters(values)
     }, [])
@@ -98,6 +111,7 @@ export default function MapScreen() {
                 selectedMarkerId={selectedBusinessId}
                 onMarkerPress={handleMarkerPress}
                 onRegionChangeEnd={handleRegionChangeEnd}
+                onPress={handleMapPress}
                 showUserLocation={true}
                 userLocation={userLocation}
                 searchRadiusKm={searchRadiusKm}
@@ -108,7 +122,7 @@ export default function MapScreen() {
                 onClose={() => setFilterOpen(false)}
                 onApply={handleApplyFilters}
                 initialValues={appliedFiltersRef.current ?? undefined}
-                hasSearch={!!searchText.trim()}
+                hasSearch={!!debouncedSearchText.trim()}
             />
 
             {/* Single business card overlay */}
