@@ -1,13 +1,11 @@
-import React, { useCallback, useState } from 'react'
-import { Dimensions, Modal, Pressable, View } from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Modal, Pressable, useWindowDimensions, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { Image } from 'expo-image'
 import { useVideoPlayer, VideoView } from 'expo-video'
 import PagerView from 'react-native-pager-view'
 
 import { AppText } from '@/components/ui/AppText'
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
 type MediaItem = { type: 'video'; url: string; thumbnailUrl?: string } | { type: 'photo'; url: string; id: string }
 
@@ -18,15 +16,12 @@ type MediaGalleryModalProps = {
     initialIndex?: number
 }
 
-const VideoSlide = ({ url, isActive }: { url: string; isActive: boolean }) => {
+const VideoSlide = ({ url, isActive, screenWidth, screenHeight }: { url: string; isActive: boolean; screenWidth: number; screenHeight: number }) => {
     const player = useVideoPlayer(url, (p) => {
         p.loop = false
-        if (isActive) {
-            p.play()
-        }
     })
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isActive) {
             player.play()
         } else {
@@ -34,11 +29,21 @@ const VideoSlide = ({ url, isActive }: { url: string; isActive: boolean }) => {
         }
     }, [isActive, player])
 
+    useEffect(() => {
+        return () => {
+            try {
+                player.pause()
+            } catch {
+                // Player already released by expo-video
+            }
+        }
+    }, [player])
+
     return (
         <View className="flex-1 items-center justify-center">
             <VideoView
                 player={player}
-                style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.7 }}
+                style={{ width: screenWidth, height: screenHeight * 0.7 }}
                 contentFit="contain"
                 nativeControls
                 allowsFullscreen
@@ -47,22 +52,37 @@ const VideoSlide = ({ url, isActive }: { url: string; isActive: boolean }) => {
     )
 }
 
-const PhotoSlide = ({ url }: { url: string }) => {
+const PhotoSlide = ({ url, screenWidth, screenHeight }: { url: string; screenWidth: number; screenHeight: number }) => {
+    const [isLoading, setIsLoading] = useState(true)
+
     return (
         <View className="flex-1 items-center justify-center">
+            {isLoading && <ActivityIndicator size="large" color="#FFFFFF" className="absolute" />}
             <Image
                 source={{ uri: url }}
-                style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.7 }}
+                style={{ width: screenWidth, height: screenHeight * 0.7 }}
                 contentFit="contain"
                 cachePolicy="memory-disk"
                 transition={200}
+                onLoad={() => setIsLoading(false)}
             />
         </View>
     )
 }
 
 export const MediaGalleryModal = ({ visible, onClose, items, initialIndex = 0 }: MediaGalleryModalProps) => {
+    const { width: screenWidth, height: screenHeight } = useWindowDimensions()
     const [currentIndex, setCurrentIndex] = useState(initialIndex)
+    const pagerRef = useRef<PagerView>(null)
+
+    useEffect(() => {
+        if (visible) {
+            setCurrentIndex(initialIndex)
+            setTimeout(() => {
+                pagerRef.current?.setPage(initialIndex)
+            }, 0)
+        }
+    }, [visible, initialIndex])
 
     const handlePageSelected = useCallback((e: { nativeEvent: { position: number } }) => {
         setCurrentIndex(e.nativeEvent.position)
@@ -79,15 +99,25 @@ export const MediaGalleryModal = ({ visible, onClose, items, initialIndex = 0 }:
                             {currentIndex + 1} / {items.length}
                         </AppText>
                     </View>
-                    <Pressable onPress={onClose} className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <Pressable
+                        onPress={onClose}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        accessibilityRole="button"
+                        accessibilityLabel="Close gallery"
+                        className="h-10 w-10 items-center justify-center rounded-full bg-white/20"
+                    >
                         <Feather name="x" size={24} color="#FFFFFF" />
                     </Pressable>
                 </View>
 
-                <PagerView style={{ flex: 1 }} initialPage={initialIndex} onPageSelected={handlePageSelected} overdrag>
+                <PagerView ref={pagerRef} style={{ flex: 1 }} initialPage={initialIndex} onPageSelected={handlePageSelected} overdrag>
                     {items.map((item, index) => (
-                        <View key={item.type === 'video' ? 'video' : item.id} className="flex-1">
-                            {item.type === 'video' ? <VideoSlide url={item.url} isActive={currentIndex === index} /> : <PhotoSlide url={item.url} />}
+                        <View key={item.type === 'video' ? `video-${index}` : item.id} className="flex-1">
+                            {item.type === 'video' ? (
+                                <VideoSlide url={item.url} isActive={currentIndex === index} screenWidth={screenWidth} screenHeight={screenHeight} />
+                            ) : (
+                                <PhotoSlide url={item.url} screenWidth={screenWidth} screenHeight={screenHeight} />
+                            )}
                         </View>
                     ))}
                 </PagerView>
