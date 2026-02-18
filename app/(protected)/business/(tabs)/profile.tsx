@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Modal, Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { Image } from 'expo-image'
@@ -94,39 +94,23 @@ const InfoCard = ({
     )
 }
 
-const FullscreenVideoPlayer = ({ videoUrl, onClose }: { videoUrl: string; onClose: () => void }) => {
-    const videoRef = useRef<VideoView>(null)
+const VideoPlayerModal = ({ visible, onClose, videoUrl }: { visible: boolean; onClose: () => void; videoUrl: string }) => {
     const player = useVideoPlayer(videoUrl, (p) => {
         p.loop = false
+        p.play()
     })
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            videoRef.current?.enterFullscreen()
-            player.play()
-        }, 100)
-        return () => clearTimeout(timeout)
-    }, [player])
-
-    useEffect(() => {
-        const subscription = player.addListener('playingChange', (event) => {
-            if (!event.isPlaying && player.currentTime > 0) {
-                onClose()
-            }
-        })
-        return () => subscription.remove()
-    }, [player, onClose])
-
     return (
-        <VideoView
-            ref={videoRef}
-            player={player}
-            style={{ width: 0, height: 0, position: 'absolute' }}
-            contentFit="contain"
-            nativeControls
-            allowsFullscreen
-            onFullscreenExit={onClose}
-        />
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+            <Pressable className="flex-1 items-center justify-center bg-black/90" onPress={onClose}>
+                <Pressable className="w-full aspect-video" onPress={(e) => e.stopPropagation()}>
+                    <VideoView player={player} style={{ width: '100%', height: '100%' }} contentFit="contain" nativeControls allowsFullscreen />
+                </Pressable>
+                <Pressable onPress={onClose} className="absolute top-12 right-6 h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <Feather name="x" size={24} color="#FFFFFF" />
+                </Pressable>
+            </Pressable>
+        </Modal>
     )
 }
 
@@ -423,7 +407,7 @@ const BusinessProfileScreen = () => {
 
             <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
             {videoModalVisible && businessVideo?.processedUrl && (
-                <FullscreenVideoPlayer videoUrl={businessVideo.processedUrl} onClose={() => setVideoModalVisible(false)} />
+                <VideoPlayerModal visible={videoModalVisible} onClose={() => setVideoModalVisible(false)} videoUrl={businessVideo.processedUrl} />
             )}
         </SafeAreaView>
     )
