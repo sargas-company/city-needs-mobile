@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useVideoPlayer, VideoView } from 'expo-video'
 
 import { AppButton } from '@/components/ui/AppButton'
 import { AppPressable } from '@/components/ui/AppPressable'
@@ -102,6 +103,26 @@ const TabButton = ({ title, active, onPress }: { title: string; active: boolean;
     )
 }
 
+const VideoPlayerModal = ({ visible, onClose, videoUrl }: { visible: boolean; onClose: () => void; videoUrl: string }) => {
+    const player = useVideoPlayer(videoUrl, (p) => {
+        p.loop = false
+        p.play()
+    })
+
+    return (
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+            <Pressable className="flex-1 items-center justify-center bg-black/90" onPress={onClose}>
+                <Pressable className="w-full aspect-video" onPress={(e) => e.stopPropagation()}>
+                    <VideoView player={player} style={{ width: '100%', height: '100%' }} contentFit="contain" nativeControls allowsFullscreen />
+                </Pressable>
+                <Pressable onPress={onClose} className="absolute top-12 right-6 h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <Feather name="x" size={24} color="#FFFFFF" />
+                </Pressable>
+            </Pressable>
+        </Modal>
+    )
+}
+
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
     const todayApi = getTodayWeekday()
     const daysMap = useMemo(() => {
@@ -167,6 +188,7 @@ const BusinessDetailScreen = () => {
     const [whatsappModalVisible, setWhatsappModalVisible] = useState(false)
     const [reviewCursor, setReviewCursor] = useState<string | null>(null)
     const [hoursModalVisible, setHoursModalVisible] = useState(false)
+    const [videoModalVisible, setVideoModalVisible] = useState(false)
 
     const { data: publicData } = useGetPublicBusinessQuery(businessId!, { skip: !businessId })
     const { data: businessHours } = useGetBusinessHoursQuery(businessId!, { skip: !businessId })
@@ -246,6 +268,8 @@ const BusinessDetailScreen = () => {
 
     const providerInitial = businessName[0].toUpperCase()
     const businessPhotos = publicData?.photos ?? []
+    const businessVideo = publicData?.video
+    const isVideoReady = businessVideo?.processedUrl && businessVideo?.thumbnailUrl
     const descriptionParagraphs = useMemo(() => (publicData?.description ?? '').split('\n').filter(Boolean), [publicData?.description])
 
     const handleBookNow = () => {
@@ -366,10 +390,25 @@ const BusinessDetailScreen = () => {
                             </View>
                         </View>
 
-                        {businessPhotos.length > 0 && (
+                        {(isVideoReady || businessPhotos.length > 0) && (
                             <View className="mt-4">
-                                <AppText className="mb-3 font-poppins-semibold text-[14px] text-[#0C2A63]">Photos</AppText>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-1">
+                                    {isVideoReady && businessVideo?.thumbnailUrl && (
+                                        <Pressable onPress={() => setVideoModalVisible(true)} className="mx-1">
+                                            <Image
+                                                source={{ uri: businessVideo.thumbnailUrl }}
+                                                style={{ width: 100, height: 140, borderRadius: 16 }}
+                                                contentFit="cover"
+                                                cachePolicy="memory-disk"
+                                                transition={200}
+                                            />
+                                            <View className="absolute inset-0 items-center justify-center">
+                                                <View className="h-12 w-12 items-center justify-center rounded-full bg-black/50">
+                                                    <Feather name="play" size={24} color="#FFFFFF" />
+                                                </View>
+                                            </View>
+                                        </Pressable>
+                                    )}
                                     {businessPhotos.map((photo) => (
                                         <View key={photo.id} className="mx-1">
                                             <Image
@@ -463,6 +502,9 @@ const BusinessDetailScreen = () => {
             </Modal>
 
             <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
+            {businessVideo?.processedUrl && (
+                <VideoPlayerModal visible={videoModalVisible} onClose={() => setVideoModalVisible(false)} videoUrl={businessVideo.processedUrl} />
+            )}
         </SafeAreaView>
     )
 }

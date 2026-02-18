@@ -1,5 +1,16 @@
 import type { AddressDto, BusinessHoursDto, CategoryPublicDto, FileDto } from '@/store/features/profile/profile.types'
 
+export type BusinessPublicVideoDto = {
+    id: string
+    processedUrl: string | null
+    thumbnailUrl: string | null
+    durationSeconds: number | null
+    width: number | null
+    height: number | null
+    createdAt: string
+    updatedAt: string
+}
+
 export type PublicBusinessDto = {
     id: string
     name: string
@@ -13,6 +24,7 @@ export type PublicBusinessDto = {
     address?: AddressDto | null
     logo?: FileDto | null
     photos?: FileDto[]
+    video?: BusinessPublicVideoDto | null
 
     price?: number | null
     serviceOnSite?: boolean | null
