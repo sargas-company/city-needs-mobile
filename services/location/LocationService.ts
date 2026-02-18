@@ -15,12 +15,34 @@ export const requestLocationPermission = async (): Promise<LocationPermissionSta
 }
 
 export const getCurrentPosition = async () => {
-    const position = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-    })
-    return {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+    // Try to get fresh position first
+    try {
+        const position = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 10000,
+            mayShowUserSettingsDialog: true,
+        })
+        return {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+        }
+    } catch {
+        // On failure (kCLErrorLocationUnknown), try last known position as fallback
+        const lastKnown = await Location.getLastKnownPositionAsync()
+        if (lastKnown) {
+            return {
+                lat: lastKnown.coords.latitude,
+                lng: lastKnown.coords.longitude,
+            }
+        }
+        // If no cached position, retry once with lower accuracy
+        const position = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Low,
+        })
+        return {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+        }
     }
 }
 
