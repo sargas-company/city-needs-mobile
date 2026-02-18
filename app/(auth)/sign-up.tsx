@@ -94,12 +94,12 @@ const SignUp = () => {
     } = useForm<SignUpFormValues>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
-            fullName: 'John',
+            fullName: '',
             phone: '',
-            email: 'khamani.ahron@minuteafter.com',
-            password: 'Admin1998%',
-            confirmPassword: 'Admin1998%',
-            termsAccepted: true,
+            email: '',
+            password: '',
+            confirmPassword: '',
+            termsAccepted: false,
         },
         mode: 'onSubmit',
         reValidateMode: 'onChange',

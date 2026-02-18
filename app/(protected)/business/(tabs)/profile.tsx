@@ -4,8 +4,8 @@ import Feather from '@expo/vector-icons/Feather'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useVideoPlayer, VideoView } from 'expo-video'
 
+import { MediaGalleryModal } from '@/components/modals/MediaGalleryModal'
 import { ReviewList } from '@/components/reviews/ReviewList'
 import type { Review } from '@/components/reviews/ReviewCard'
 import { AppText } from '@/components/ui/AppText'
@@ -94,26 +94,6 @@ const InfoCard = ({
     )
 }
 
-const VideoPlayerModal = ({ visible, onClose, videoUrl }: { visible: boolean; onClose: () => void; videoUrl: string }) => {
-    const player = useVideoPlayer(videoUrl, (p) => {
-        p.loop = false
-        p.play()
-    })
-
-    return (
-        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            <Pressable className="flex-1 items-center justify-center bg-black/90" onPress={onClose}>
-                <Pressable className="w-full aspect-video" onPress={(e) => e.stopPropagation()}>
-                    <VideoView player={player} style={{ width: '100%', height: '100%' }} contentFit="contain" nativeControls allowsFullscreen />
-                </Pressable>
-                <Pressable onPress={onClose} className="absolute top-12 right-6 h-10 w-10 items-center justify-center rounded-full bg-white/20">
-                    <Feather name="x" size={24} color="#FFFFFF" />
-                </Pressable>
-            </Pressable>
-        </Modal>
-    )
-}
-
 const BusinessHoursModal = ({ visible, onClose, days }: { visible: boolean; onClose: () => void; days?: BusinessHoursDayDto[] }) => {
     const todayApi = getTodayWeekday()
     const daysMap = useMemo(() => {
@@ -183,7 +163,8 @@ const BusinessProfileScreen = () => {
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [reviewsCursor, setReviewsCursor] = useState<string | null>(null)
     const [hoursModalVisible, setHoursModalVisible] = useState(false)
-    const [videoModalVisible, setVideoModalVisible] = useState(false)
+    const [mediaGalleryVisible, setMediaGalleryVisible] = useState(false)
+    const [initialMediaIndex, setInitialMediaIndex] = useState(0)
 
     const business = useAppSelector(selectBusiness)
     const profileUser = useAppSelector(selectProfileUser)
@@ -221,6 +202,22 @@ const BusinessProfileScreen = () => {
         businessVideo?.status === BusinessVideoVerificationStatus.APPROVED &&
         businessVideo?.processedUrl
     const descriptionParagraphs = useMemo(() => (business?.description ?? '').split('\n').filter(Boolean), [business?.description])
+
+    const mediaItems = useMemo(() => {
+        const items: ({ type: 'video'; url: string } | { type: 'photo'; url: string; id: string })[] = []
+        if (isVideoReady && businessVideo?.processedUrl) {
+            items.push({ type: 'video', url: businessVideo.processedUrl })
+        }
+        businessPhotos.forEach((photo) => {
+            items.push({ type: 'photo', url: photo.url, id: photo.id })
+        })
+        return items
+    }, [isVideoReady, businessVideo?.processedUrl, businessPhotos])
+
+    const openMediaGallery = useCallback((index: number) => {
+        setInitialMediaIndex(index)
+        setMediaGalleryVisible(true)
+    }, [])
 
     const reviews: Review[] = useMemo(
         () =>
@@ -347,7 +344,7 @@ const BusinessProfileScreen = () => {
                             <View className="mt-4">
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-1">
                                     {isVideoReady && businessVideo?.thumbnailUrl && (
-                                        <Pressable onPress={() => setVideoModalVisible(true)} className="mx-1">
+                                        <Pressable onPress={() => openMediaGallery(0)} className="mx-1">
                                             <Image
                                                 source={{ uri: businessVideo.thumbnailUrl }}
                                                 style={{ width: 100, height: 140, borderRadius: 16 }}
@@ -362,8 +359,8 @@ const BusinessProfileScreen = () => {
                                             </View>
                                         </Pressable>
                                     )}
-                                    {businessPhotos.map((photo) => (
-                                        <View key={photo.id} className="mx-1">
+                                    {businessPhotos.map((photo, index) => (
+                                        <Pressable key={photo.id} className="mx-1" onPress={() => openMediaGallery(isVideoReady ? index + 1 : index)}>
                                             <Image
                                                 source={{ uri: photo.url }}
                                                 style={{ width: 140, height: 140, borderRadius: 16 }}
@@ -372,7 +369,7 @@ const BusinessProfileScreen = () => {
                                                 transition={200}
                                                 recyclingKey={`photo-${photo.id}`}
                                             />
-                                        </View>
+                                        </Pressable>
                                     ))}
                                 </ScrollView>
                             </View>
@@ -406,8 +403,13 @@ const BusinessProfileScreen = () => {
             </ScrollView>
 
             <BusinessHoursModal visible={hoursModalVisible} onClose={() => setHoursModalVisible(false)} days={businessHours} />
-            {videoModalVisible && businessVideo?.processedUrl && (
-                <VideoPlayerModal visible={videoModalVisible} onClose={() => setVideoModalVisible(false)} videoUrl={businessVideo.processedUrl} />
+            {mediaGalleryVisible && mediaItems.length > 0 && (
+                <MediaGalleryModal
+                    visible={mediaGalleryVisible}
+                    onClose={() => setMediaGalleryVisible(false)}
+                    items={mediaItems}
+                    initialIndex={initialMediaIndex}
+                />
             )}
         </SafeAreaView>
     )
