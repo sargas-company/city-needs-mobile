@@ -1,6 +1,7 @@
-import React, { memo, useEffect } from 'react'
+import React, { memo, useCallback, useEffect } from 'react'
 import { View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
+import { useIsFocused } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 import { useVideoPlayer, VideoView } from 'expo-video'
 
@@ -20,7 +21,6 @@ const cardShadow: ViewStyle = {
 
 type ReelCardProps = {
     reel: ReelFeedItem
-    isVisible?: boolean
 }
 
 /** Video thumbnail - only renders when visible to save memory */
@@ -53,19 +53,20 @@ const VideoThumbnail = memo(function VideoThumbnail({ videoUrl }: { videoUrl: st
     )
 })
 
-export const ReelCard = memo(function ReelCard({ reel, isVisible = true }: ReelCardProps) {
+export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
     const router = useRouter()
+    const isFocused = useIsFocused()
     const { business } = reel
 
     const initial = business.name.charAt(0).toUpperCase()
 
-    const handleBusinessPress = () => {
+    const handleBusinessPress = useCallback(() => {
         router.push(`/(protected)/user/book/${business.id}`)
-    }
+    }, [router, business.id])
 
-    const handleVideoPress = () => {
+    const handleVideoPress = useCallback(() => {
         router.push(`/(protected)/user/reel/${reel.id}?videoUrl=${encodeURIComponent(reel.videoUrl)}`)
-    }
+    }, [router, reel.id, reel.videoUrl])
 
     return (
         <View className="rounded-2xl bg-white px-5 py-4" style={cardShadow}>
@@ -100,11 +101,12 @@ export const ReelCard = memo(function ReelCard({ reel, isVisible = true }: ReelC
             </AppPressable>
 
             {/* Row 2: Video thumbnail with play overlay - navigates to reel player */}
+            {/* Only render VideoThumbnail when tab is focused to save memory */}
             <AppPressable onPress={handleVideoPress} className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
-                {isVisible ? (
+                {isFocused ? (
                     <VideoThumbnail videoUrl={reel.videoUrl} />
                 ) : (
-                    <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#D9D9D9' }} />
+                    <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#E5E5E5' }} />
                 )}
                 {/*<View className="absolute inset-0 w-4/12 items-center justify-center">*/}
                 {/*    <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>*/}
