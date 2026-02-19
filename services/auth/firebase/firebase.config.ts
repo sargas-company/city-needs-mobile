@@ -16,11 +16,14 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 
 function getOrInitializeAuth() {
     try {
-        return getAuth(app)
-    } catch {
+        // Primary initialization with AsyncStorage persistence
+        // This ensures Firebase session survives app restarts
         return initializeAuth(app, {
             persistence: getReactNativePersistence(AsyncStorage),
         })
+    } catch {
+        // Already initialized (HMR/hot reload case) - get existing instance
+        return getAuth(app)
     }
 }
 
