@@ -51,7 +51,7 @@ const CATEGORIES = [
 // Horizontal business card for sections
 const HorizontalBusinessCard = memo(function HorizontalBusinessCard({ business }: { business: BusinessCardDto }) {
     return (
-        <View style={{ width: 320 }}>
+        <View style={{ width: 345 }}>
             <ServiceCard business={business} analyticsSource={AnalyticsSource.CATEGORIES} />
         </View>
     )
@@ -91,7 +91,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
     if (businesses.length === 0) {
         return (
             <View className="items-center py-6">
-                <NoDataImage width={80} height={80} />
+                <NoDataImage width={100} height={100} />
                 <AppText className="mt-2 text-base font-poppins-semibold text-gray-400">No businesses found</AppText>
             </View>
         )
@@ -104,7 +104,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
             keyExtractor={businessKeyExtractor}
             renderItem={renderItem}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+            contentContainerStyle={{ paddingHorizontal: 24, gap: 12 }}
             initialNumToRender={2}
             maxToRenderPerBatch={3}
             windowSize={3}

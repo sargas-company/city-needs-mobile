@@ -63,8 +63,9 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                         <Image
                             source={{ uri: business.logoUrl }}
                             recyclingKey={business.id}
-                            className="mr-3 rounded-xl"
-                            style={{ width: 56, height: 56 }}
+                            className="mr-3"
+                            style={{ width: 56, height: 56, borderRadius: 8 }}
+                            contentFit="cover"
                             cachePolicy="memory-disk"
                             transition={200}
                         />
@@ -75,8 +76,8 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                     )}
 
                     <View className="flex-1">
-                        <View className="flex-row items-center gap-2">
-                            <AppText className="shrink text-lg font-poppins-semibold text-text" numberOfLines={1}>
+                        <View className="flex-row items-center justify-between gap-2">
+                            <AppText className="shrink text-lg font-poppins-medium text-brand" numberOfLines={1}>
                                 {business.name}
                             </AppText>
                             <View className="shrink-0 rounded-pill bg-orange px-2 py-0.5">
@@ -89,8 +90,10 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                             <View className="flex-row items-center gap-1">
                                 <DoubleStar />
                                 <AppText className="text-status text-text">({business.ratingAvg})</AppText>
-                                <AppText className="text-status text-text-muted">{business.ratingCount} reviews</AppText>
+                                <AppText className="text-border">|</AppText>
+                                <AppText className="text-status text-text">{business.ratingCount} reviews</AppText>
                             </View>
+
                             <Pressable onPress={handleBookmarkPress} hitSlop={8}>
                                 <FontAwesome name="bookmark" size={20} color={saved ? '#0C2A63' : '#CBCBCB'} />
                             </Pressable>
