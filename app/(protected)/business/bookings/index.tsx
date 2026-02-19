@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -60,6 +60,16 @@ const BookingsScreen = () => {
     const [cursor, setCursor] = useState<string | null>(null)
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
     const [isSheetOpen, setIsSheetOpen] = useState(false)
+    const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current)
+            }
+        }
+    }, [])
 
     const { data, isLoading, isFetching, error, refetch } = useGetBusinessBookingsQuery({ cursor, limit: LIMIT })
     const [cancelBooking] = useCancelBookingMutation()
@@ -88,8 +98,15 @@ const BookingsScreen = () => {
 
     const closeSheet = useCallback(() => {
         setIsSheetOpen(false)
+        // Clear any pending timeout
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current)
+        }
         // Delay clearing booking to allow sheet close animation to complete
-        setTimeout(() => setSelectedBooking(null), 300)
+        closeTimeoutRef.current = setTimeout(() => {
+            setSelectedBooking(null)
+            closeTimeoutRef.current = null
+        }, 300)
     }, [])
 
     const handleConfirm = useCallback(async () => {
