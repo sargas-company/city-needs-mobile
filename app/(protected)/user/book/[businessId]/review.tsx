@@ -3,6 +3,7 @@ import { ScrollView, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
+import { useStickyBottomBar } from '@/hooks/useStickyBottomBar'
 import { BookingStepHeader } from '@/components/booking/BookingStepHeader'
 import { BookingSummaryCard } from '@/components/booking/BookingSummaryCard'
 import { AppButton } from '@/components/ui/AppButton'
@@ -37,6 +38,7 @@ const ReviewScreen = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { trackUserAction } = useTrackAnalytics()
+    const { bottomBarStyle, contentPaddingBottom } = useStickyBottomBar()
 
     const bookingFlow = useAppSelector(selectBookingFlow)
     const status = useAppSelector(selectBookingFlowStatus)
@@ -91,7 +93,11 @@ const ReviewScreen = () => {
         <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <BookingStepHeader title="Review Booking" />
 
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: contentPaddingBottom }}
+                showsVerticalScrollIndicator={false}
+            >
                 <BookingSummaryCard businessName={businessData?.name ?? ''} services={selectedServices} dateLabel={dateLabel} timeLabel={timeLabel} />
 
                 <View className="mt-6">
@@ -115,7 +121,7 @@ const ReviewScreen = () => {
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
                 <AppButton title="Confirm Booking" onPress={handleConfirm} disabled={!isReady} loading={status === 'submitting'} />
             </View>
         </SafeAreaView>

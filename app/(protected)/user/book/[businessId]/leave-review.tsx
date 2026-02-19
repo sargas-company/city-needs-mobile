@@ -5,6 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import Feather from '@expo/vector-icons/Feather'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
+import { useStickyBottomBar } from '@/hooks/useStickyBottomBar'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
@@ -17,6 +18,7 @@ import { DoubleStar } from '@/components/ui/DoubleMoon'
 const LeaveReviewScreen = () => {
     const router = useRouter()
     const { businessId, bookingId } = useLocalSearchParams<{ businessId: string; bookingId: string }>()
+    const { bottomBarStyle, contentPaddingBottom, keyboardBottomOffset } = useStickyBottomBar()
     const [userRating, setUserRating] = useState(0)
     const [reviewText, setReviewText] = useState('')
 
@@ -47,10 +49,10 @@ const LeaveReviewScreen = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView className="flex-1 bg-white">
                 <KeyboardAwareScrollView
-                    contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                    contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: contentPaddingBottom }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
-                    bottomOffset={24}
+                    bottomOffset={keyboardBottomOffset}
                 >
                     {/* Back button */}
                     <View className="flex-row justify-start mb-4">
@@ -128,7 +130,7 @@ const LeaveReviewScreen = () => {
                     />
                 </KeyboardAwareScrollView>
 
-                <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
+                <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
                     <AppButton title="Submit" onPress={handleSubmit} disabled={userRating === 0} loading={isSubmitting} className="bg-[#0C2A63]" />
                 </View>
             </SafeAreaView>

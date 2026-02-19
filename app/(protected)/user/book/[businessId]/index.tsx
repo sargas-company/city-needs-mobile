@@ -6,6 +6,7 @@ import Feather from '@expo/vector-icons/Feather'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
+import { useStickyBottomBar } from '@/hooks/useStickyBottomBar'
 import { MediaGalleryModal } from '@/components/modals/MediaGalleryModal'
 import { AppButton } from '@/components/ui/AppButton'
 import { AppPressable } from '@/components/ui/AppPressable'
@@ -162,6 +163,7 @@ const BusinessDetailScreen = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { trackUserAction } = useTrackAnalytics()
+    const { bottomBarStyle, contentPaddingBottom } = useStickyBottomBar()
     const [activeTab, setActiveTab] = useState<TabKey>('about')
     const [callModalVisible, setCallModalVisible] = useState(false)
     const [smsModalVisible, setSmsModalVisible] = useState(false)
@@ -279,7 +281,7 @@ const BusinessDetailScreen = () => {
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView
                 className="flex-1"
-                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: contentPaddingBottom }}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Back button */}
@@ -451,7 +453,7 @@ const BusinessDetailScreen = () => {
             </ScrollView>
 
             {/* Book Appointment button */}
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
                 <AppButton title="Book Appointment" onPress={handleBookNow} className="bg-[#0C2A63]" />
             </View>
 

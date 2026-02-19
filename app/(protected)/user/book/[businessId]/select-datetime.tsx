@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
+import { useStickyBottomBar } from '@/hooks/useStickyBottomBar'
 import { BookingStepHeader } from '@/components/booking/BookingStepHeader'
 import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker'
 import { AppButton } from '@/components/ui/AppButton'
@@ -48,6 +49,7 @@ const SelectDateTimeScreen = () => {
     const { businessId } = useLocalSearchParams<{ businessId: string }>()
     const router = useRouter()
     const dispatch = useAppDispatch()
+    const { bottomBarStyle, contentPaddingBottom } = useStickyBottomBar()
 
     const selectedServiceIds = useAppSelector(selectSelectedServiceIds)
     const selectedDate = useAppSelector(selectSelectedDate)
@@ -134,7 +136,11 @@ const SelectDateTimeScreen = () => {
         <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
             <BookingStepHeader title="Choose date" />
 
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: contentPaddingBottom }}
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Business name */}
                 <AppText className="text-[18px] font-poppins-semibold text-brand mb-4">Grooming Center</AppText>
 
@@ -211,7 +217,7 @@ const SelectDateTimeScreen = () => {
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
                 <AppButton title="Continue" onPress={handleContinue} disabled={!selectedDate || !selectedTimeSlot} className="bg-brand]" />
             </View>
         </SafeAreaView>

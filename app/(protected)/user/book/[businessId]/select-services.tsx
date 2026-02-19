@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
+import { useStickyBottomBar } from '@/hooks/useStickyBottomBar'
 import { BookingStepHeader } from '@/components/booking/BookingStepHeader'
 import { ServiceSelectCard } from '@/components/booking/ServiceSelectCard'
 import { AppButton } from '@/components/ui/AppButton'
@@ -21,17 +22,13 @@ const SelectServicesScreen = () => {
     const selectedIds = useAppSelector(selectSelectedServiceIds)
     const { data, isLoading, error } = useGetPublicBusinessServicesQuery(businessId!)
 
-    const activeServices = useMemo(() => (data?.data ?? []).filter((s) => s.status === 'ACTIVE'), [data?.data])
+    const { bottomBarStyle, contentPaddingBottom } = useStickyBottomBar()
 
+    const activeServices = useMemo(() => (data?.data ?? []).filter((s) => s.status === 'ACTIVE'), [data?.data])
     const hasSelection = selectedIds.length > 0
 
-    const handleToggle = (id: string) => {
-        dispatch(toggleService(id))
-    }
-
-    const handleContinue = () => {
-        router.push(`/(protected)/user/book/${businessId}/select-datetime`)
-    }
+    const handleToggle = (id: string) => dispatch(toggleService(id))
+    const handleContinue = () => router.push(`/(protected)/user/book/${businessId}/select-datetime`)
 
     const renderItem = ({ item }: { item: PublicServiceDto }) => (
         <ServiceSelectCard
@@ -65,12 +62,12 @@ const SelectServicesScreen = () => {
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
                     ListHeaderComponent={<AppText className="text-[18px] font-poppins-semibold text-[#0C2A63] mb-2">Grooming Center</AppText>}
-                    contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 120 }}
+                    contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: contentPaddingBottom }}
                     showsVerticalScrollIndicator={false}
                 />
             )}
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
                 <AppButton title="Continue" onPress={handleContinue} disabled={!hasSelection} className="bg-[#0C2A63]" />
             </View>
         </SafeAreaView>

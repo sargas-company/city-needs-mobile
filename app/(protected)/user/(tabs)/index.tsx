@@ -6,7 +6,6 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
-import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
@@ -326,13 +325,13 @@ export default function HomeScreen() {
         <View className="flex-1 bg-white">
             <WaveHeader />
 
-            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
+            <SafeAreaView className="flex-1" edges={['left', 'right']}>
                 <FlatList
                     data={sections}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 120 }}
+                    contentContainerStyle={{ paddingTop: 160, paddingBottom: 140 }}
                     initialNumToRender={4}
                     maxToRenderPerBatch={2}
                     windowSize={5}

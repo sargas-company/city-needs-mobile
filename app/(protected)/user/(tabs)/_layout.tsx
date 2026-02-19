@@ -2,6 +2,7 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Tabs } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
@@ -18,6 +19,7 @@ function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['
 export default function ProtectedTabsLayout() {
     const colorScheme = useColorScheme()
     const active = Colors[colorScheme ?? 'light'].tint
+    const insets = useSafeAreaInsets()
 
     return (
         <Tabs
@@ -30,9 +32,8 @@ export default function ProtectedTabsLayout() {
                 tabBarInactiveTintColor: '#C9C9C9',
 
                 tabBarStyle: {
-                    height: 'auto',
                     paddingTop: 10,
-                    paddingBottom: 24,
+                    paddingBottom: Math.max(insets.bottom, 16),
                     paddingHorizontal: 24,
 
                     backgroundColor: '#efefef',
@@ -44,9 +45,9 @@ export default function ProtectedTabsLayout() {
                     position: 'absolute',
                     left: 0,
                     right: 0,
-                    bottom: 0,
-                    zIndex: 100,
-                    elevation: 100,
+                    bottom: 8,
+                    zIndex: 10,
+                    elevation: 10,
                 },
 
                 tabBarLabelStyle: {
