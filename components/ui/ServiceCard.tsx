@@ -15,9 +15,9 @@ import PeopleImage from '@/assets/images/people-reviews.png'
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
 }
 
 type ServiceCardProps = {
@@ -76,7 +76,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                     )}
 
                     <View className="flex-1">
-                        <View className="flex-row items-center justify-between gap-2">
+                        <View className="flex-row items-center justify-between gap-2.5">
                             <AppText className="shrink text-lg font-poppins-medium text-brand" numberOfLines={1}>
                                 {business.name}
                             </AppText>
@@ -146,11 +146,11 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                 </View>
 
                 {/* Row 4: Reviews + Price */}
-                <View className="flex-row items-center gap-3">
-                    <Image source={PeopleImage} style={{ width: 80, height: 24 }} />
+                <View className="flex-row items-center justify-between gap-3">
+                    <Image source={PeopleImage} style={{ width: 117, height: 45 }} />
 
-                    <View className="flex-row items-baseline">
-                        <AppText className="text-subtitle font-poppins-bold text-orange">${business.price}</AppText>
+                    <View className="flex-row items-baseline mr-3">
+                        <AppText className="text-[21px] font-poppins-semibold text-brand">${business.price}</AppText>
                     </View>
                 </View>
             </View>

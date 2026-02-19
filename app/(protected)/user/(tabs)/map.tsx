@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Keyboard, StyleSheet, View } from 'react-native'
+import { useIsFocused } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { FilterModal } from '@/components/filters/FilterModal'
@@ -33,6 +34,7 @@ function businessesToMarkers(businesses: { id: string; name: string; lat?: numbe
  * Map and data layer are separate: you can swap query or map component easily.
  */
 export default function MapScreen() {
+    const isFocused = useIsFocused()
     const { location: userLocation } = useEnsureLocation()
 
     // Map center for search: user location or default city
@@ -57,7 +59,8 @@ export default function MapScreen() {
     }, [debouncedSearchText, appliedFilters, userLocation])
 
     const insets = useSafeAreaInsets()
-    const { data } = useSearchBusinessesQuery(queryArgs)
+    // Skip query when tab is not focused to prevent background API calls and memory pressure
+    const { data } = useSearchBusinessesQuery(queryArgs, { skip: !isFocused })
     const businesses = useMemo(() => data?.data ?? [], [data?.data])
     const markers = useMemo(() => businessesToMarkers(businesses), [businesses])
 
@@ -125,7 +128,7 @@ export default function MapScreen() {
                 hasSearch={!!debouncedSearchText.trim()}
             />
 
-            {/* Single business card overlay */}
+            {/* Singloverlay */}
             {selectedBusiness && (
                 <View style={[styles.cardContainer, { paddingBottom: insets.bottom + 100 }]} pointerEvents="box-none">
                     <BusinessMapCard business={selectedBusiness} onClose={handleCloseCard} />
