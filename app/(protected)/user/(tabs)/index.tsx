@@ -29,13 +29,13 @@ type CategoryCardProps = {
 
 const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor }: CategoryCardProps) {
     return (
-        <AppPressable className="flex-1 overflow-hidden rounded-2xl" style={{ backgroundColor: bgColor, height: 100 }}>
-            <View className="flex-1 flex-row items-end p-3">
+        <AppPressable className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
+            <View className="flex-1 flex-row items-end p-3 gap-2">
                 <AppText className="text-lg">{emoji}</AppText>
-                <AppText className="text-subtitle font-poppins-semibold text-white">{title}</AppText>
+                <AppText className="text-[16px] font-poppins-semibold text-white">{title}</AppText>
             </View>
             <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
-                <Image source={image} style={{ width: 80, height: 80 }} />
+                <Image source={image} style={{ width: 100, height: 100 }} />
             </View>
         </AppPressable>
     )
@@ -260,12 +260,14 @@ export default function HomeScreen() {
                 case 'categories':
                     return (
                         <View className="mb-6 px-screen">
-                            <View className="mb-3 flex-row items-center justify-between">
-                                <AppText className="text-xl font-poppins-semibold text-brand">What service do you need?</AppText>
-                                <AppPressable>
-                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                            <View className="mb-3 flex-row items-end justify-between">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
+
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
+
                             <View className="gap-3">
                                 <View className="flex-row gap-3">
                                     <CategoryCard {...CATEGORIES[0]} />
@@ -282,10 +284,11 @@ export default function HomeScreen() {
                 case 'top-picks':
                     return (
                         <View className="mb-6 px-screen">
-                            <View className="mb-3 flex-row items-center justify-between">
-                                <AppText className="text-xl font-poppins-semibold text-brand">Top Picks Today</AppText>
-                                <AppPressable>
-                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                            <View className="mb-3 flex-row items-end justify-between">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
+
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
                             <View className="gap-3">
@@ -304,11 +307,11 @@ export default function HomeScreen() {
                 case 'section':
                     return (
                         <View className="mb-6">
-                            {/* Section header */}
-                            <View className="mb-3 flex-row items-center justify-between px-screen">
-                                <AppText className="text-xl font-poppins-semibold text-brand">{item.title}</AppText>
-                                <AppPressable>
-                                    <AppText className="text-status font-poppins-medium text-orange">See All</AppText>
+                            <View className="mb-3 flex-row items-end justify-between px-screen">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
+
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
                             <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
