@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
-import { AppState, AppStateStatus } from 'react-native'
+import { AppState, AppStateStatus, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 
 import { authApi } from '@/store/features/auth/authApi'
@@ -100,5 +100,5 @@ export const BusinessVerificationGuard = ({ children }: PropsWithChildren) => {
         }
     }, [verification?.graceDeadlineAt, isAuth, authStatus]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    return <>{children}</>
+    return <View style={{ flex: 1 }}>{children}</View>
 }

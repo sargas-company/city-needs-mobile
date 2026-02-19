@@ -298,7 +298,7 @@ export default function SearchScreen() {
                         ListHeaderComponent={ListHeader}
                         ListFooterComponent={ListFooter}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 20 }}
+                        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
                         initialNumToRender={5}
                         maxToRenderPerBatch={4}
                         windowSize={5}

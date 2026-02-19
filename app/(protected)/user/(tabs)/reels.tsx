@@ -184,7 +184,7 @@ export default function ReelsScreen() {
                         renderItem={renderItem}
                         ListFooterComponent={ListFooter}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 20 }}
+                        contentContainerStyle={{ paddingBottom: 120 }}
                         initialNumToRender={3}
                         maxToRenderPerBatch={5}
                         windowSize={5}

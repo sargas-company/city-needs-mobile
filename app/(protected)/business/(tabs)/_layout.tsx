@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
+import { useTabBarReLayout } from '@/hooks/useTabBarReLayout'
 
 function TabIcon({
     icon,
@@ -28,6 +29,7 @@ export default function BusinessTabsLayout() {
     const colorScheme = useColorScheme()
     const active = Colors[colorScheme ?? 'light'].tint
     const insets = useSafeAreaInsets()
+    const reLayout = useTabBarReLayout()
 
     return (
         <Tabs
@@ -39,8 +41,9 @@ export default function BusinessTabsLayout() {
                 tabBarInactiveTintColor: '#C9C9C9',
 
                 tabBarStyle: {
-                    paddingTop: 10,
-                    paddingBottom: Math.max(insets.bottom, 16),
+                    height: 105,
+                    paddingTop: 12,
+                    paddingBottom: Math.max(insets.bottom, 26),
                     paddingHorizontal: 24,
 
                     backgroundColor: '#efefef',
@@ -52,9 +55,10 @@ export default function BusinessTabsLayout() {
                     position: 'absolute',
                     left: 0,
                     right: 0,
-                    bottom: 8,
+                    bottom: 0,
                     zIndex: 10,
                     elevation: 10,
+                    ...reLayout,
                 },
 
                 tabBarLabelStyle: {

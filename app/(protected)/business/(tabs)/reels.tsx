@@ -104,7 +104,7 @@ export default function BusinessReelsScreen() {
                     </View>
                 ) : (
                     <ScrollView
-                        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: insets.bottom + 100 }}
+                        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: insets.bottom + 120 }}
                         showsVerticalScrollIndicator={false}
                         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} />}
                     >
