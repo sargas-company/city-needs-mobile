@@ -24,6 +24,7 @@ export default function ProtectedTabsLayout() {
             screenOptions={{
                 headerShown: false,
                 tabBarButton: HapticTab,
+                lazy: true,
 
                 tabBarActiveTintColor: active,
                 tabBarInactiveTintColor: '#C9C9C9',

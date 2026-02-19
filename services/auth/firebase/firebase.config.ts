@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app'
 // @ts-ignore
-import { initializeAuth, getReactNativePersistence, onAuthStateChanged, User } from 'firebase/auth'
+import { initializeAuth, getAuth, getReactNativePersistence, onAuthStateChanged, User } from 'firebase/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const firebaseConfig = {
@@ -14,9 +14,17 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 
-export const firebaseAuth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-})
+function getOrInitializeAuth() {
+    try {
+        return getAuth(app)
+    } catch {
+        return initializeAuth(app, {
+            persistence: getReactNativePersistence(AsyncStorage),
+        })
+    }
+}
+
+export const firebaseAuth = getOrInitializeAuth()
 
 /**
  * Waits for Firebase Auth to restore the session from AsyncStorage.
