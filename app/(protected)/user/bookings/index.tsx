@@ -114,7 +114,8 @@ const UserBookingsScreen = () => {
 
     const closeSheet = useCallback(() => {
         setIsSheetOpen(false)
-        setSelectedBooking(null)
+        // Delay clearing booking to allow sheet close animation to complete
+        setTimeout(() => setSelectedBooking(null), 300)
     }, [])
 
     const handleCancel = useCallback(async () => {

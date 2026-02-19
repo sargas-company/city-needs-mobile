@@ -128,7 +128,7 @@ const LeaveReviewScreen = () => {
                     />
                 </KeyboardAwareScrollView>
 
-                <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8">
+                <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
                     <AppButton title="Submit" onPress={handleSubmit} disabled={userRating === 0} loading={isSubmitting} className="bg-[#0C2A63]" />
                 </View>
             </SafeAreaView>

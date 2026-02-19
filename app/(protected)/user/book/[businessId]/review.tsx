@@ -115,7 +115,7 @@ const ReviewScreen = () => {
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8">
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8" style={{ zIndex: 10, elevation: 10 }}>
                 <AppButton title="Confirm Booking" onPress={handleConfirm} disabled={!isReady} loading={status === 'submitting'} />
             </View>
         </SafeAreaView>

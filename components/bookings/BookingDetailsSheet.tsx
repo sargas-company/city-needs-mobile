@@ -66,12 +66,10 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
     const [smsModalVisible, setSmsModalVisible] = useState(false)
     const [whatsappModalVisible, setWhatsappModalVisible] = useState(false)
 
-    if (!booking) return null
-
-    const { customer, services, totalPrice, dateLabel, timeLabel, status, hasReview } = booking
-    const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status, role, hasReview)
-    const fullName = `${customer.firstName} ${customer.lastName}`
-    const phoneRaw = (customer.phone ?? '').replace(/\s/g, '')
+    const { customer, services, totalPrice, dateLabel, timeLabel, status, hasReview } = booking ?? {}
+    const { primaryLabel, showCancel, showLeaveReview } = getBookingActions(status ?? BookingStatus.NEW, role, hasReview)
+    const fullName = customer ? `${customer.firstName} ${customer.lastName}` : ''
+    const phoneRaw = (customer?.phone ?? '').replace(/\s/g, '')
 
     const handleCall = () => {
         setCallModalVisible(false)
@@ -96,151 +94,153 @@ export const BookingDetailsSheet = ({ isOpen, booking, role = UserRole.END_USER,
     }
 
     return (
-        <AppBottomSheet isOpen={isOpen && !!booking} onClose={onClose}>
-            <View className="px-6 pt-2">
-                {/* Header: Order Status + Close */}
-                <View className="mb-5 flex-row items-center justify-between">
-                    <AppText className="font-poppins-bold text-[20px] text-brand">Order Status</AppText>
-                    <Pressable onPress={onClose} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
-                        <Feather name="x" size={24} color="#171717" />
-                    </Pressable>
-                </View>
+        <AppBottomSheet isOpen={isOpen} onClose={onClose}>
+            {booking ? (
+                <View className="px-6 pt-2">
+                    {/* Header: Order Status + Close */}
+                    <View className="mb-5 flex-row items-center justify-between">
+                        <AppText className="font-poppins-bold text-[20px] text-brand">Order Status</AppText>
+                        <Pressable onPress={onClose} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                            <Feather name="x" size={24} color="#171717" />
+                        </Pressable>
+                    </View>
 
-                {/* Customer row */}
-                <View className="mb-4 flex-row items-center justify-between">
-                    <View className="flex-row items-center gap-3">
-                        <Avatar
-                            uri={customer.avatarUrl ?? undefined}
-                            size={48}
-                            borderWidth={0}
-                            fallback={
-                                <View className="flex-1 items-center justify-center bg-brand">
-                                    <AppText className="font-poppins-semibold text-[18px] text-white">
-                                        {customer.firstName.charAt(0).toUpperCase()}
-                                    </AppText>
+                    {/* Customer row */}
+                    <View className="mb-4 flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-3">
+                            <Avatar
+                                uri={booking.customer.avatarUrl ?? undefined}
+                                size={48}
+                                borderWidth={0}
+                                fallback={
+                                    <View className="flex-1 items-center justify-center bg-brand">
+                                        <AppText className="font-poppins-semibold text-[18px] text-white">
+                                            {booking.customer.firstName.charAt(0).toUpperCase()}
+                                        </AppText>
+                                    </View>
+                                }
+                            />
+                            <AppText className="font-poppins-semibold text-[16px] text-text">{fullName}</AppText>
+                        </View>
+
+                        {phoneRaw ? (
+                            <View className="flex-row items-center gap-2">
+                                <Pressable
+                                    onPress={() => setSmsModalVisible(true)}
+                                    className="h-9 w-9 items-center justify-center rounded-full bg-white"
+                                    style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                                >
+                                    <Feather name="message-circle" size={18} color="#0C2A63" />
+                                </Pressable>
+                                <Pressable
+                                    onPress={() => setWhatsappModalVisible(true)}
+                                    className="h-9 w-9 items-center justify-center rounded-full bg-white"
+                                    style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                                >
+                                    <FontAwesome name="whatsapp" size={18} color="#0C2A63" />
+                                </Pressable>
+                                <Pressable
+                                    onPress={() => setCallModalVisible(true)}
+                                    className="h-9 w-9 items-center justify-center rounded-full bg-white"
+                                    style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
+                                >
+                                    <Feather name="phone" size={18} color="#0C2A63" />
+                                </Pressable>
+                            </View>
+                        ) : null}
+                    </View>
+
+                    {/* Services */}
+                    <View className="mb-3">
+                        <AppText className="text-[12px] text-text-muted">Services</AppText>
+                        {booking.services.map((s, i) => (
+                            <View key={i} className="mt-1 flex-row items-center justify-between">
+                                <AppText className="font-poppins-medium text-[14px] text-brand">{s.name}</AppText>
+                                {s.price != null && <AppText className="font-poppins-medium text-[14px] text-brand">{formatPrice(s.price)}</AppText>}
+                            </View>
+                        ))}
+                        <View className="mt-2 flex-row items-center justify-between border-t border-[#E5E7EB] pt-2">
+                            <AppText className="font-poppins-semibold text-[15px] text-brand">Total</AppText>
+                            <AppText className="font-poppins-semibold text-[16px] text-brand">{formatPrice(booking.totalPrice)}</AppText>
+                        </View>
+                    </View>
+
+                    {/* Date + Time */}
+                    <View className="mb-6 flex-row items-center gap-4">
+                        <View className="flex-row items-center gap-1">
+                            <Feather name="calendar" size={14} color="#8D8C92" />
+                            <AppText className="text-[13px] text-text-muted">{dateLabel}</AppText>
+                        </View>
+                        <View className="flex-row items-center gap-1">
+                            <Feather name="clock" size={14} color="#8D8C92" />
+                            <AppText className="text-[13px] text-text-muted">{timeLabel}</AppText>
+                        </View>
+                    </View>
+
+                    {(primaryLabel || showCancel || showLeaveReview) && (
+                        <>
+                            {/* Divider */}
+                            <View className="mb-6 h-px bg-[#E5E7EB]" />
+
+                            {/* Actions */}
+                            <View className="gap-3">
+                                {primaryLabel && <AppButton title={primaryLabel} onPress={onConfirm} />}
+                                {showLeaveReview && (
+                                    <AppButton
+                                        title="Leave Review"
+                                        leftIcon={<Feather name="star" size={18} color="#FFFFFF" />}
+                                        onPress={onLeaveReview}
+                                    />
+                                )}
+                                {showCancel && <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />}
+                            </View>
+                        </>
+                    )}
+
+                    {/* Call modal */}
+                    <Modal visible={callModalVisible} transparent animationType="fade" onRequestClose={() => setCallModalVisible(false)}>
+                        <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setCallModalVisible(false)}>
+                            <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                                <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Call</AppText>
+                                <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{customer?.phone ?? ''}</AppText>
+                                <View className="mt-6 gap-3">
+                                    <AppButton title="Call" onPress={handleCall} />
                                 </View>
-                            }
-                        />
-                        <AppText className="font-poppins-semibold text-[16px] text-text">{fullName}</AppText>
-                    </View>
-
-                    {phoneRaw ? (
-                        <View className="flex-row items-center gap-2">
-                            <Pressable
-                                onPress={() => setSmsModalVisible(true)}
-                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
-                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
-                            >
-                                <Feather name="message-circle" size={18} color="#0C2A63" />
                             </Pressable>
-                            <Pressable
-                                onPress={() => setWhatsappModalVisible(true)}
-                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
-                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
-                            >
-                                <FontAwesome name="whatsapp" size={18} color="#0C2A63" />
+                        </Pressable>
+                    </Modal>
+
+                    {/* SMS modal */}
+                    <Modal visible={smsModalVisible} transparent animationType="fade" onRequestClose={() => setSmsModalVisible(false)}>
+                        <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setSmsModalVisible(false)}>
+                            <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                                <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Write a Message</AppText>
+                                <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                                    Write to {customer?.phone ?? ''}
+                                </AppText>
+                                <View className="mt-6">
+                                    <AppButton title="Message" onPress={handleSms} />
+                                </View>
                             </Pressable>
-                            <Pressable
-                                onPress={() => setCallModalVisible(true)}
-                                className="h-9 w-9 items-center justify-center rounded-full bg-white"
-                                style={[iconButtonStyle, ({ pressed }: { pressed: boolean }) => ({ opacity: pressed ? 0.5 : 1 })] as never}
-                            >
-                                <Feather name="phone" size={18} color="#0C2A63" />
+                        </Pressable>
+                    </Modal>
+
+                    {/* WhatsApp modal */}
+                    <Modal visible={whatsappModalVisible} transparent animationType="fade" onRequestClose={() => setWhatsappModalVisible(false)}>
+                        <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setWhatsappModalVisible(false)}>
+                            <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
+                                <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">WhatsApp</AppText>
+                                <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
+                                    Message {customer?.phone ?? ''} on WhatsApp
+                                </AppText>
+                                <View className="mt-6">
+                                    <AppButton title="Open WhatsApp" onPress={handleWhatsapp} className="bg-[#25D366]" />
+                                </View>
                             </Pressable>
-                        </View>
-                    ) : null}
-                </View>
-
-                {/* Services */}
-                <View className="mb-3">
-                    <AppText className="text-[12px] text-text-muted">Services</AppText>
-                    {services.map((s, i) => (
-                        <View key={i} className="mt-1 flex-row items-center justify-between">
-                            <AppText className="font-poppins-medium text-[14px] text-brand">{s.name}</AppText>
-                            {s.price != null && <AppText className="font-poppins-medium text-[14px] text-brand">{formatPrice(s.price)}</AppText>}
-                        </View>
-                    ))}
-                    <View className="mt-2 flex-row items-center justify-between border-t border-[#E5E7EB] pt-2">
-                        <AppText className="font-poppins-semibold text-[15px] text-brand">Total</AppText>
-                        <AppText className="font-poppins-semibold text-[16px] text-brand">{formatPrice(totalPrice)}</AppText>
-                    </View>
-                </View>
-
-                {/* Date + Time */}
-                <View className="mb-6 flex-row items-center gap-4">
-                    <View className="flex-row items-center gap-1">
-                        <Feather name="calendar" size={14} color="#8D8C92" />
-                        <AppText className="text-[13px] text-text-muted">{dateLabel}</AppText>
-                    </View>
-                    <View className="flex-row items-center gap-1">
-                        <Feather name="clock" size={14} color="#8D8C92" />
-                        <AppText className="text-[13px] text-text-muted">{timeLabel}</AppText>
-                    </View>
-                </View>
-
-                {(primaryLabel || showCancel || showLeaveReview) && (
-                    <>
-                        {/* Divider */}
-                        <View className="mb-6 h-px bg-[#E5E7EB]" />
-
-                        {/* Actions */}
-                        <View className="gap-3">
-                            {primaryLabel && <AppButton title={primaryLabel} onPress={onConfirm} />}
-                            {showLeaveReview && (
-                                <AppButton
-                                    title="Leave Review"
-                                    leftIcon={<Feather name="star" size={18} color="#FFFFFF" />}
-                                    onPress={onLeaveReview}
-                                />
-                            )}
-                            {showCancel && <AppButton title="Cancel Booking" variant="outline" onPress={onCancel} />}
-                        </View>
-                    </>
-                )}
-
-                {/* Call modal */}
-                <Modal visible={callModalVisible} transparent animationType="fade" onRequestClose={() => setCallModalVisible(false)}>
-                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setCallModalVisible(false)}>
-                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
-                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Call</AppText>
-                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">{customer.phone ?? ''}</AppText>
-                            <View className="mt-6 gap-3">
-                                <AppButton title="Call" onPress={handleCall} />
-                            </View>
                         </Pressable>
-                    </Pressable>
-                </Modal>
-
-                {/* SMS modal */}
-                <Modal visible={smsModalVisible} transparent animationType="fade" onRequestClose={() => setSmsModalVisible(false)}>
-                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setSmsModalVisible(false)}>
-                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
-                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">Write a Message</AppText>
-                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
-                                Write to {customer.phone ?? ''}
-                            </AppText>
-                            <View className="mt-6">
-                                <AppButton title="Message" onPress={handleSms} />
-                            </View>
-                        </Pressable>
-                    </Pressable>
-                </Modal>
-
-                {/* WhatsApp modal */}
-                <Modal visible={whatsappModalVisible} transparent animationType="fade" onRequestClose={() => setWhatsappModalVisible(false)}>
-                    <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={() => setWhatsappModalVisible(false)}>
-                        <Pressable className="mx-6 w-[85%] rounded-2xl bg-white p-6" onPress={(e) => e.stopPropagation()}>
-                            <AppText className="text-center text-[18px] font-poppins-semibold text-[#0C2A63]">WhatsApp</AppText>
-                            <AppText className="mt-3 text-center text-[16px] font-poppins-medium text-[#171717]">
-                                Message {customer.phone ?? ''} on WhatsApp
-                            </AppText>
-                            <View className="mt-6">
-                                <AppButton title="Open WhatsApp" onPress={handleWhatsapp} className="bg-[#25D366]" />
-                            </View>
-                        </Pressable>
-                    </Pressable>
-                </Modal>
-            </View>
+                    </Modal>
+                </View>
+            ) : null}
         </AppBottomSheet>
     )
 }

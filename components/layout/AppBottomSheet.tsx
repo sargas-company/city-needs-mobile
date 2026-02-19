@@ -45,7 +45,6 @@ export const AppBottomSheet = ({
     return (
         <Modalize
             ref={modalRef}
-            withReactModal
             withHandle={withHandle}
             adjustToContentHeight={sheetHeight ? false : adjustToContentHeight}
             modalHeight={sheetHeight}
