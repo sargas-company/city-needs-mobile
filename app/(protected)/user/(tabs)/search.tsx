@@ -300,7 +300,7 @@ export default function SearchScreen() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingHorizontal: 20 }}
                         initialNumToRender={5}
-                        maxToRenderPerBatch={10}
+                        maxToRenderPerBatch={4}
                         windowSize={5}
                         removeClippedSubviews={true}
                         onEndReached={loadMore}

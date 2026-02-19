@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 import { Pressable, View, ViewStyle } from 'react-native'
 import { Image } from 'expo-image'
 import Feather from '@expo/vector-icons/Feather'
@@ -37,14 +37,20 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
         router.push(`/(protected)/user/book/${business.id}`)
     }, [business.id, analyticsSource, trackProfileView, router])
 
+    useEffect(() => {
+        setSaved(business.isSaved)
+    }, [business.isSaved])
+
     const handleBookmarkPress = useCallback(() => {
-        setSaved((prev) => !prev)
-        if (saved) {
-            removeSaved({ businessId: business.id })
-        } else {
-            addSaved({ businessId: business.id })
-        }
-    }, [saved, business.id, addSaved, removeSaved])
+        setSaved((prev) => {
+            if (prev) {
+                removeSaved({ businessId: business.id })
+            } else {
+                addSaved({ businessId: business.id })
+            }
+            return !prev
+        })
+    }, [business.id, addSaved, removeSaved])
 
     const initial = business.name.charAt(0).toUpperCase()
 
@@ -56,6 +62,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                     {business.logoUrl ? (
                         <Image
                             source={{ uri: business.logoUrl }}
+                            recyclingKey={business.id}
                             className="mr-3 rounded-xl"
                             style={{ width: 56, height: 56 }}
                             cachePolicy="memory-disk"

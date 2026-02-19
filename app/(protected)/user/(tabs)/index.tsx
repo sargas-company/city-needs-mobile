@@ -116,9 +116,9 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
 
 export default function HomeScreen() {
     const { location } = useEnsureLocation()
-    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+    const [_selectedCategoryId, _setSelectedCategoryId] = useState<string | null>(null)
 
-    const { data: categories } = useGetCategoriesQuery()
+    const { data: _categories } = useGetCategoriesQuery()
 
     // Only load first 2 sections initially, others load when visible
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
@@ -127,7 +127,7 @@ export default function HomeScreen() {
     const {
         data: suggestedData,
         isLoading: suggestedLoading,
-        isFetching: suggestedFetching,
+        isFetching: _suggestedFetching,
         refetch: refetchSuggested,
     } = useSearchBusinessesQuery({
         sort: 'top_rated',
@@ -254,76 +254,73 @@ export default function HomeScreen() {
         [isRefreshing, handleRefresh]
     )
 
-    const renderItem: ListRenderItem<SectionItem> = useCallback(
-        ({ item }) => {
-            switch (item.type) {
-                case 'categories':
-                    return (
-                        <View className="mb-6 px-screen">
-                            <View className="mb-3 flex-row items-end justify-between">
-                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
+    const renderItem: ListRenderItem<SectionItem> = useCallback(({ item }) => {
+        switch (item.type) {
+            case 'categories':
+                return (
+                    <View className="mb-6 px-screen">
+                        <View className="mb-3 flex-row items-end justify-between">
+                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
-                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                                </AppPressable>
+                            <AppPressable className="ml-3 shrink-0">
+                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                            </AppPressable>
+                        </View>
+
+                        <View className="gap-3">
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[0]} />
+                                <CategoryCard {...CATEGORIES[1]} />
                             </View>
-
-                            <View className="gap-3">
-                                <View className="flex-row gap-3">
-                                    <CategoryCard {...CATEGORIES[0]} />
-                                    <CategoryCard {...CATEGORIES[1]} />
-                                </View>
-                                <View className="flex-row gap-3">
-                                    <CategoryCard {...CATEGORIES[2]} />
-                                    <CategoryCard {...CATEGORIES[3]} />
-                                </View>
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[2]} />
+                                <CategoryCard {...CATEGORIES[3]} />
                             </View>
                         </View>
-                    )
+                    </View>
+                )
 
-                case 'top-picks':
-                    return (
-                        <View className="mb-6 px-screen">
-                            <View className="mb-3 flex-row items-end justify-between">
-                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
+            case 'top-picks':
+                return (
+                    <View className="mb-6 px-screen">
+                        <View className="mb-3 flex-row items-end justify-between">
+                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
-                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                                </AppPressable>
+                            <AppPressable className="ml-3 shrink-0">
+                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                            </AppPressable>
+                        </View>
+                        <View className="gap-3">
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[3]} />
+                                <CategoryCard {...CATEGORIES[1]} />
                             </View>
-                            <View className="gap-3">
-                                <View className="flex-row gap-3">
-                                    <CategoryCard {...CATEGORIES[3]} />
-                                    <CategoryCard {...CATEGORIES[1]} />
-                                </View>
-                                <View className="flex-row gap-3">
-                                    <CategoryCard {...CATEGORIES[2]} />
-                                    <CategoryCard {...CATEGORIES[0]} />
-                                </View>
+                            <View className="flex-row gap-3">
+                                <CategoryCard {...CATEGORIES[2]} />
+                                <CategoryCard {...CATEGORIES[0]} />
                             </View>
                         </View>
-                    )
+                    </View>
+                )
 
-                case 'section':
-                    return (
-                        <View className="mb-6">
-                            <View className="mb-3 flex-row items-end justify-between px-screen">
-                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
+            case 'section':
+                return (
+                    <View className="mb-6">
+                        <View className="mb-3 flex-row items-end justify-between px-screen">
+                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
-                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                                </AppPressable>
-                            </View>
-                            <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
+                            <AppPressable className="ml-3 shrink-0">
+                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                            </AppPressable>
                         </View>
-                    )
+                        <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
+                    </View>
+                )
 
-                default:
-                    return null
-            }
-        },
-        [categories, selectedCategoryId]
-    )
+            default:
+                return null
+        }
+    }, [])
 
     return (
         <View className="flex-1 bg-white">
