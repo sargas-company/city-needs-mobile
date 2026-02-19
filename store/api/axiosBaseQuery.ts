@@ -5,6 +5,7 @@ import { getTokens, setTokens, clearTokens } from '@/services/auth/session'
 import { refresh } from '@/services/auth/auth.service'
 import { AuthTokens } from '@/services/auth/auth.types'
 import { ApiError } from '@/services/api/errors'
+import { emitSessionExpired } from '@/services/auth/authEvents'
 
 export type AxiosBaseQueryArgs = {
     url: string
@@ -76,6 +77,9 @@ export const axiosBaseQuery =
                     const retryResult = await client(retryConfig)
                     return { data: retryResult.data }
                 } catch (refreshError) {
+                    // Notify that session expired so Redux state can be updated
+                    emitSessionExpired()
+
                     return {
                         error: {
                             status: 401,

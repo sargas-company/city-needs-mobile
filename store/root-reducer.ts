@@ -13,7 +13,7 @@ import { verifyReducer } from './features/onboarding/verify/verify.slice'
 const authPersistConfig = {
     key: 'auth',
     storage: AsyncStorage,
-    whitelist: ['user', 'isAuth'],
+    whitelist: ['user'],
 }
 
 const locationPersistConfig = {

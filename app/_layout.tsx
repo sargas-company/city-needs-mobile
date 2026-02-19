@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { Provider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Stack } from 'expo-router'
@@ -14,7 +14,8 @@ import '@/services/auth'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { useColorScheme } from '@/hooks/use-color-scheme'
-import { bootstrapAuthThunk } from '@/store/features/auth/auth.thunks'
+import { bootstrapAuthThunk, logoutThunk } from '@/store/features/auth/auth.thunks'
+import { setOnSessionExpired } from '@/services/auth/authEvents'
 import { persistor, store } from '@/store'
 import { useAppDispatch } from '@/store/hooks'
 import { MapProvider } from '@/src/features/map'
@@ -28,6 +29,7 @@ if (__DEV__) {
 const RootNavigation = () => {
     const colorScheme = useColorScheme()
     const dispatch = useAppDispatch()
+    const bootstrapRef = useRef(false)
     const [fontsLoaded] = useFonts({
         Poppins_400Regular,
         Poppins_500Medium,
@@ -36,6 +38,14 @@ const RootNavigation = () => {
     })
 
     useEffect(() => {
+        if (bootstrapRef.current) return
+        bootstrapRef.current = true
+
+        // Set up session expired callback to trigger logout
+        setOnSessionExpired(() => {
+            void dispatch(logoutThunk())
+        })
+
         void dispatch(bootstrapAuthThunk())
     }, [dispatch])
 

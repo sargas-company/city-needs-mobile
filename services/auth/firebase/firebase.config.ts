@@ -33,12 +33,17 @@ export const firebaseAuth = getOrInitializeAuth()
  *
  * The `onAuthStateChanged` callback is guaranteed to fire once the auth state
  * is determined (either user exists or not).
+ *
+ * @param timeout - Maximum time to wait in milliseconds (default: 10000)
  */
-export const waitForAuthReady = (): Promise<User | null> => {
-    return new Promise((resolve) => {
-        const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-            unsubscribe()
-            resolve(user)
-        })
-    })
+export const waitForAuthReady = (timeout = 10000): Promise<User | null> => {
+    return Promise.race([
+        new Promise<User | null>((resolve) => {
+            const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+                unsubscribe()
+                resolve(user)
+            })
+        }),
+        new Promise<User | null>((_, reject) => setTimeout(() => reject(new Error('Firebase auth timeout')), timeout)),
+    ])
 }

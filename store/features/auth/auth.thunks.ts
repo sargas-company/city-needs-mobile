@@ -7,6 +7,7 @@ import { LoginPayload, SignUpPayload } from '@/services/auth/auth.types'
 import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth, waitForAuthReady } from '@/services/auth/firebase/firebase.config'
+import { firebaseSignOut } from '@/services/auth/firebase/logout'
 import { getFirebaseLoginErrorMessage } from '@/services/auth'
 import { UserRole, type AppUser } from '@/store/features/profile/profile.types'
 
@@ -43,6 +44,9 @@ export const loginThunk = createAsyncThunk<void, LoginPayload, { dispatch: AppDi
             dispatch(setProfileUser(resolvedMe))
             dispatch(setAuthStatus('authenticated'))
         } catch (error) {
+            // Clear tokens to prevent orphaned Firebase session
+            await clearTokens()
+
             const message = getFirebaseLoginErrorMessage(error)
 
             dispatch(setAuthStatus('unauthenticated'))
@@ -143,6 +147,7 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
     'auth/bootstrap',
     async (_, { dispatch, rejectWithValue }) => {
         dispatch(setAuthStatus('loading'))
+        dispatch(setAuthError(undefined))
         dispatch(setProfileStatus('loading'))
         try {
             // Wait for Firebase to restore the session from AsyncStorage.
@@ -178,6 +183,10 @@ export const bootstrapAuthThunk = createAsyncThunk<void, void, { dispatch: AppDi
             dispatch(clearProfile())
             dispatch(setProfileStatus('idle'))
         } catch (error) {
+            // Sign out from Firebase to prevent desync between Firebase and backend
+            await firebaseSignOut().catch(() => {})
+            await clearTokens()
+
             dispatch(setAuthStatus('unauthenticated'))
             dispatch(clearProfile())
             dispatch(setProfileStatus('idle'))
