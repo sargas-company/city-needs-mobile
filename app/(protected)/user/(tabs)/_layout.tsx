@@ -1,68 +1,77 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs'
+import { Tabs } from 'expo-router'
+import Feather from '@expo/vector-icons/Feather'
 
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 
-export default function ProtectedTabsLayout() {
+export default function TestTabsLayout() {
     const colorScheme = useColorScheme()
     const colors = Colors[colorScheme ?? 'light']
 
     return (
-        <NativeTabs
-            backgroundColor={colors.background}
-            iconColor={{
-                default: colors.tabIconDefault,
-                selected: colors.tabIconSelected,
+        <Tabs
+            initialRouteName="test-gamma"
+            screenOptions={{
+                headerShown: false,
+                tabBarActiveTintColor: colors.tabIconSelected,
+                tabBarInactiveTintColor: colors.tabIconDefault,
+                tabBarStyle: {
+                    backgroundColor: colors.background,
+                    borderTopWidth: 0,
+                    elevation: 0,
+                    shadowOpacity: 0,
+                    paddingBottom: 8,
+                    paddingTop: 8,
+                    height: 85,
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontFamily: 'Poppins-Medium',
+                },
+                freezeOnBlur: false,
+                lazy: false,
             }}
-            labelStyle={{
-                color: colors.tabIconDefault,
-                fontSize: 12,
-            }}
+            detachInactiveScreens={false}
         >
-            <NativeTabs.Trigger
-                name="index"
+            {/* ══════════ TEST TABS ══════════ */}
+            <Tabs.Screen
+                name="test-alpha"
                 options={{
-                    title: 'Home',
-                    icon: { sf: 'house' },
-                    selectedIcon: { sf: 'house.fill' },
+                    title: 'Alpha',
+                    tabBarIcon: ({ color }) => <Feather name="circle" size={24} color={color} />,
                 }}
             />
 
-            <NativeTabs.Trigger
-                name="map"
+            <Tabs.Screen
+                name="test-beta"
                 options={{
-                    title: 'Map',
-                    icon: { sf: 'mappin' },
-                    selectedIcon: { sf: 'mappin.circle.fill' },
+                    title: 'Beta',
+                    tabBarIcon: ({ color }) => <Feather name="square" size={24} color={color} />,
                 }}
             />
 
-            <NativeTabs.Trigger
-                name="search"
+            <Tabs.Screen
+                name="test-gamma"
                 options={{
-                    title: 'Search',
-                    icon: { sf: 'magnifyingglass' },
-                    selectedIcon: { sf: 'magnifyingglass.circle.fill' },
+                    title: 'Gamma',
+                    tabBarIcon: ({ color }) => <Feather name="triangle" size={24} color={color} />,
                 }}
             />
 
-            <NativeTabs.Trigger
-                name="reels"
+            <Tabs.Screen
+                name="test-delta"
                 options={{
-                    title: 'Reels',
-                    icon: { sf: 'play.rectangle' },
-                    selectedIcon: { sf: 'play.rectangle.fill' },
+                    title: 'Delta',
+                    tabBarIcon: ({ color }) => <Feather name="hexagon" size={24} color={color} />,
                 }}
             />
 
-            <NativeTabs.Trigger
-                name="profile"
-                options={{
-                    title: 'Profile',
-                    icon: { sf: 'person' },
-                    selectedIcon: { sf: 'person.fill' },
-                }}
-            />
-        </NativeTabs>
+            {/* ══════════ HIDDEN ORIGINAL TABS ══════════ */}
+            <Tabs.Screen name="index" options={{ href: null }} />
+            <Tabs.Screen name="map" options={{ href: null }} />
+            <Tabs.Screen name="search" options={{ href: null }} />
+            <Tabs.Screen name="reels" options={{ href: null }} />
+            <Tabs.Screen name="profile" options={{ href: null }} />
+        </Tabs>
     )
 }

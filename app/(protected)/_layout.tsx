@@ -53,6 +53,8 @@ export default function ProtectedLayout() {
             >
                 <Stack.Screen name="gate" />
                 <Stack.Screen name="(onboarding)" />
+                <Stack.Screen name="user/(tabs)" />
+                <Stack.Screen name="business/(tabs)" />
                 <Stack.Screen
                     name="user/reel/[id]"
                     options={{

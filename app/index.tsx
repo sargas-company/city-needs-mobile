@@ -1,20 +1,10 @@
 import { Redirect } from 'expo-router'
 
-import { useOnboarding } from '@/hooks/useOnboarding'
+// ══════════════════════════════════════════════════════════════════════════════
+// MINIMAL TEST BUILD - iOS 26 TAB DEBUGGING
+// Direct redirect to test tabs, no auth/onboarding logic
+// ══════════════════════════════════════════════════════════════════════════════
 
-const Index = () => {
-    const { isCompleted, isLoading } = useOnboarding()
-
-    if (isLoading) {
-        return null
-    }
-
-    if (!isCompleted) {
-        return <Redirect href="/(onboarding)/pre-onboarding" />
-    }
-
-    return <Redirect href="/(protected)/gate" />
-    //return <Redirect href="/(protected)/(onboarding)/provider/verify" />
+export default function Index() {
+    return <Redirect href="/(test-tabs)" />
 }
-
-export default Index

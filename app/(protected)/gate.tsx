@@ -18,7 +18,8 @@ const Gate = () => {
 
     const redirectToRoleTabs = useCallback(() => {
         if (role === UserRole.END_USER) {
-            router.replace('/(protected)/user/(tabs)')
+            // TODO: revert to '/(protected)/user/(tabs)' after testing
+            router.replace('/(protected)/user/(tabs)/test-gamma')
             return
         }
 

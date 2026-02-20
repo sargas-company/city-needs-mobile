@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
@@ -9,7 +9,6 @@ import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
-import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
@@ -62,7 +61,9 @@ export default function SearchScreen() {
 
     const { location: userLocation } = useEnsureLocation()
     const appliedFiltersRef = useRef(appliedFilters)
-    appliedFiltersRef.current = appliedFilters
+    useEffect(() => {
+        appliedFiltersRef.current = appliedFilters
+    }, [appliedFilters])
 
     const sortLabel = sort ? (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by') : 'Sort by'
     // "popular" sort is incompatible with top-rated and best-price chips
@@ -212,8 +213,6 @@ export default function SearchScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <WaveHeader />
-
             <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
                 {/* ── Fixed Header ────────────────────────────── */}
                 <View className="px-screen">
@@ -302,7 +301,7 @@ export default function SearchScreen() {
                         initialNumToRender={5}
                         maxToRenderPerBatch={4}
                         windowSize={5}
-                        removeClippedSubviews={true}
+                        removeClippedSubviews={false}
                         onEndReached={loadMore}
                         onEndReachedThreshold={0.5}
                         refreshControl={refreshControl}
@@ -311,36 +310,40 @@ export default function SearchScreen() {
             </SafeAreaView>
 
             {/* ── Sort dropdown modal ──────────────────── */}
-            <Modal visible={sortOpen} transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
-                <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
-                    <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
-                        {SORT_OPTIONS.map((option) => {
-                            const disabled = option.value === 'popular' && isPopularDisabled
-                            return (
-                                <Pressable
-                                    key={option.label}
-                                    disabled={disabled}
-                                    onPress={() => handleSortChange(option.value)}
-                                    className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
-                                    style={disabled ? { opacity: 0.4 } : undefined}
-                                >
-                                    <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
-                                        {option.label}
-                                    </AppText>
-                                </Pressable>
-                            )
-                        })}
-                    </View>
-                </Pressable>
-            </Modal>
+            {sortOpen && (
+                <Modal visible transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
+                    <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
+                        <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
+                            {SORT_OPTIONS.map((option) => {
+                                const disabled = option.value === 'popular' && isPopularDisabled
+                                return (
+                                    <Pressable
+                                        key={option.label}
+                                        disabled={disabled}
+                                        onPress={() => handleSortChange(option.value)}
+                                        className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
+                                        style={disabled ? { opacity: 0.4 } : undefined}
+                                    >
+                                        <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
+                                            {option.label}
+                                        </AppText>
+                                    </Pressable>
+                                )
+                            })}
+                        </View>
+                    </Pressable>
+                </Modal>
+            )}
 
-            <FilterModal
-                visible={filterOpen}
-                onClose={() => setFilterOpen(false)}
-                onApply={handleApplyFilters}
-                initialValues={appliedFiltersRef.current ?? undefined}
-                hasSearch={!!debouncedSearchText.trim()}
-            />
+            {filterOpen && (
+                <FilterModal
+                    visible
+                    onClose={() => setFilterOpen(false)}
+                    onApply={handleApplyFilters}
+                    initialValues={appliedFiltersRef.current ?? undefined}
+                    hasSearch={!!debouncedSearchText.trim()}
+                />
+            )}
         </View>
     )
 }

@@ -21,7 +21,8 @@ const BookingSuccessScreen = () => {
 
     const handleGoHome = () => {
         dispatch(resetBookingFlow())
-        router.replace('/(protected)/user/(tabs)')
+        // TODO: revert to '/(protected)/user/(tabs)' after testing
+        router.replace('/(protected)/user/(tabs)/test-gamma')
     }
 
     return (
