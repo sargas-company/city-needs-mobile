@@ -32,7 +32,12 @@ const PreOnboarding = () => {
         <>
             <StatusBar style="dark" />
             <SafeAreaView className="flex-1 bg-white" edges={['bottom']}>
-                <ScrollView bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+                <ScrollView
+                    bounces={false}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="always"
+                >
                     {/* Hero Image Collage */}
                     <View style={{ height: heroHeight }} className="w-full h-full">
                         <View className="absolute overflow-hidden">
@@ -96,7 +101,7 @@ const PreOnboarding = () => {
                     {/* Login Link */}
                     <View className="flex-row items-center justify-center mb-6">
                         <AppText className="font-poppins-medium text-base text-text">Already Have An Account? </AppText>
-                        <AppPressable onPress={handleLogin}>
+                        <AppPressable onPress={handleLogin} hitSlop={12}>
                             <AppText className="font-poppins-semibold text-base text-brand underline">Login</AppText>
                         </AppPressable>
                     </View>

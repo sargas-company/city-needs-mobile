@@ -121,7 +121,14 @@ const ReviewScreen = () => {
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
+            {/* FIX: pointerEvents="box-none" prevents blocking tab bar touches */}
+            <View
+                className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4"
+                style={bottomBarStyle}
+                pointerEvents="box-none"
+                testID="sticky-bottom-bar-review"
+                accessibilityLabel="sticky-bottom-bar-review"
+            >
                 <AppButton title="Confirm Booking" onPress={handleConfirm} disabled={!isReady} loading={status === 'submitting'} />
             </View>
         </SafeAreaView>

@@ -388,6 +388,14 @@ const BusinessDetailScreen = () => {
                                 </View>
                             </View>
                         </View>
+                        <View
+                            className="bg-white px-6 py-4"
+                            pointerEvents="box-none"
+                            testID="sticky-bottom-bar-business-detail"
+                            accessibilityLabel="sticky-bottom-bar-business-detail"
+                        >
+                            <AppButton title="Book Appointment" onPress={handleBookNow} className="bg-[#0C2A63]" />
+                        </View>
 
                         {(isVideoReady || businessPhotos.length > 0) && (
                             <View className="mt-4">
@@ -453,7 +461,15 @@ const BusinessDetailScreen = () => {
             </ScrollView>
 
             {/* Book Appointment button */}
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
+            {/* FIX: pointerEvents="box-none" allows touches to pass through the container
+                to the tab bar, only intercepting touches on the button itself */}
+            <View
+                className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4"
+                style={bottomBarStyle}
+                pointerEvents="box-none"
+                testID="sticky-bottom-bar-business-detail"
+                accessibilityLabel="sticky-bottom-bar-business-detail"
+            >
                 <AppButton title="Book Appointment" onPress={handleBookNow} className="bg-[#0C2A63]" />
             </View>
 

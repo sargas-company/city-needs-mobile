@@ -217,7 +217,14 @@ const SelectDateTimeScreen = () => {
                 )}
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4" style={bottomBarStyle}>
+            {/* FIX: pointerEvents="box-none" prevents blocking tab bar touches */}
+            <View
+                className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4"
+                style={bottomBarStyle}
+                pointerEvents="box-none"
+                testID="sticky-bottom-bar-select-datetime"
+                accessibilityLabel="sticky-bottom-bar-select-datetime"
+            >
                 <AppButton title="Continue" onPress={handleContinue} disabled={!selectedDate || !selectedTimeSlot} className="bg-brand]" />
             </View>
         </SafeAreaView>

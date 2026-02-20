@@ -103,7 +103,12 @@ export default function MapScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={[styles.searchBarContainer, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+            <View
+                style={[styles.searchBarContainer, { paddingTop: insets.top + 8 }]}
+                pointerEvents="box-none"
+                testID="map-search-bar-container"
+                accessibilityLabel="map-search-bar-container"
+            >
                 <MapSearchBar value={searchText} onChangeText={setSearchText} onSettingsPress={() => setFilterOpen(true)} placeholder="Search" />
             </View>
 
@@ -128,9 +133,14 @@ export default function MapScreen() {
                 hasSearch={!!debouncedSearchText.trim()}
             />
 
-            {/* Singloverlay */}
+            {/* Business card overlay - pointerEvents="box-none" allows tab bar touches through */}
             {selectedBusiness && (
-                <View style={[styles.cardContainer, { paddingBottom: insets.bottom + 100 }]} pointerEvents="box-none">
+                <View
+                    style={[styles.cardContainer, { paddingBottom: insets.bottom + 100 }]}
+                    pointerEvents="box-none"
+                    testID="map-card-container"
+                    accessibilityLabel="map-card-container"
+                >
                     <BusinessMapCard business={selectedBusiness} onClose={handleCloseCard} />
                 </View>
             )}
