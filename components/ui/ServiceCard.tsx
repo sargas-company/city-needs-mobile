@@ -33,6 +33,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
     const { trackProfileView } = useTrackAnalytics()
 
     const handlePress = useCallback(() => {
+        console.log('[TABBAR_DEBUG] overlay pressed')
         trackProfileView({ businessId: business.id, source: analyticsSource })
         router.push(`/(protected)/user/book/${business.id}`)
     }, [business.id, analyticsSource, trackProfileView, router])
