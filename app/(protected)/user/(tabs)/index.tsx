@@ -108,7 +108,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
             initialNumToRender={2}
             maxToRenderPerBatch={3}
             windowSize={3}
-            removeClippedSubviews={true}
+            removeClippedSubviews={false}
             getItemLayout={(_, index) => ({ length: 332, offset: 332 * index, index })}
         />
     )
@@ -336,7 +336,7 @@ export default function HomeScreen() {
                     initialNumToRender={4}
                     maxToRenderPerBatch={2}
                     windowSize={5}
-                    removeClippedSubviews={true}
+                    removeClippedSubviews={false}
                     onViewableItemsChanged={onViewableItemsChanged}
                     viewabilityConfig={viewabilityConfig}
                     refreshControl={refreshControl}

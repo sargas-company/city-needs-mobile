@@ -188,7 +188,7 @@ export default function ReelsScreen() {
                         initialNumToRender={3}
                         maxToRenderPerBatch={5}
                         windowSize={5}
-                        removeClippedSubviews={true}
+                        removeClippedSubviews={false}
                         onEndReached={loadMore}
                         onEndReachedThreshold={0.5}
                         refreshControl={refreshControl}
