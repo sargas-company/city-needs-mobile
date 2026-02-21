@@ -70,7 +70,7 @@ const ProfileScreen = () => {
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView
                 className="flex-1"
-                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 140 }}
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingHorizontal: 24, paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
             >
                 <AppText className="text-center text-[20px] font-poppins-semibold text-[#0C2A63]">My Profile</AppText>

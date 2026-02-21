@@ -332,7 +332,7 @@ export default function HomeScreen() {
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 120 }}
+                    contentContainerStyle={{ paddingBottom: 20 }}
                     initialNumToRender={4}
                     maxToRenderPerBatch={2}
                     windowSize={5}

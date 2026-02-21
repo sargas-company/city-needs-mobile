@@ -5,14 +5,12 @@ import { useEffect, useRef } from 'react'
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Stack } from 'expo-router'
-// eslint-disable-next-line import/order
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import 'react-native-reanimated'
 
 import '../global.css'
 import '@/services/auth'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { bootstrapAuthThunk, logoutThunk } from '@/store/features/auth/auth.thunks'
 import { setOnSessionExpired } from '@/services/auth/authEvents'
@@ -26,22 +24,16 @@ if (__DEV__) {
     initAsyncStorageDebug()
 }
 
-const RootNavigation = () => {
+// AppContent: Contains KeyboardProvider INSIDE Redux context (critical for touch handling)
+function AppContent() {
     const colorScheme = useColorScheme()
     const dispatch = useAppDispatch()
     const bootstrapRef = useRef(false)
-    const [fontsLoaded] = useFonts({
-        Poppins_400Regular,
-        Poppins_500Medium,
-        Poppins_600SemiBold,
-        Poppins_700Bold,
-    })
 
     useEffect(() => {
         if (bootstrapRef.current) return
         bootstrapRef.current = true
 
-        // Set up session expired callback to trigger logout
         setOnSessionExpired(() => {
             void dispatch(logoutThunk())
         })
@@ -49,36 +41,44 @@ const RootNavigation = () => {
         void dispatch(bootstrapAuthThunk())
     }, [dispatch])
 
+    return (
+        <KeyboardProvider>
+            <MapProvider engine="google">
+                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <Stack screenOptions={{ headerShown: false }}>
+                        <Stack.Screen name="index" />
+                        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
+                        <Stack.Screen name="(onboarding)" />
+                        <Stack.Screen name="(auth)" />
+                        <Stack.Screen name="(protected)" />
+                        <Stack.Screen name="+not-found" />
+                    </Stack>
+                    <StatusBar style="auto" />
+                </ThemeProvider>
+            </MapProvider>
+        </KeyboardProvider>
+    )
+}
+
+export default function RootLayout() {
+    const [fontsLoaded] = useFonts({
+        Poppins_400Regular,
+        Poppins_500Medium,
+        Poppins_600SemiBold,
+        Poppins_700Bold,
+    })
+
     if (!fontsLoaded) {
         return null
     }
 
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <MapProvider engine="google">
-                <Stack>
-                    <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-                    <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-                    <Stack.Screen name="+not-found" />
-                </Stack>
-                <StatusBar style="auto" />
-            </MapProvider>
-        </ThemeProvider>
-    )
-}
-
-export default function RootLayout() {
-    return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <KeyboardProvider>
-                <Provider store={store}>
-                    <PersistGate loading={null} persistor={persistor}>
-                        <RootNavigation />
-                    </PersistGate>
-                </Provider>
-            </KeyboardProvider>
+            <Provider store={store}>
+                <PersistGate loading={null} persistor={persistor}>
+                    <AppContent />
+                </PersistGate>
+            </Provider>
         </GestureHandlerRootView>
     )
 }

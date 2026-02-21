@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Tabs } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
@@ -24,13 +24,16 @@ export default function ProtectedTabsLayout() {
             screenOptions={{
                 headerShown: false,
                 tabBarButton: HapticTab,
-                lazy: true,
+
+                // Stability options (prevent touch issues on iOS with New Architecture)
+                lazy: false,
+                freezeOnBlur: false,
 
                 tabBarActiveTintColor: active,
                 tabBarInactiveTintColor: '#C9C9C9',
 
                 tabBarStyle: {
-                    height: 'auto',
+                    height: 100,
                     paddingTop: 10,
                     paddingBottom: 24,
                     paddingHorizontal: 24,
@@ -41,22 +44,24 @@ export default function ProtectedTabsLayout() {
                     borderTopLeftRadius: 32,
                     borderTopRightRadius: 32,
 
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    // Clip the rounded corners
+                    overflow: 'hidden',
+
                     elevation: 0,
+                    shadowOpacity: 0,
                 },
 
                 tabBarLabelStyle: {
                     fontSize: 16,
                     marginTop: 8,
+                    fontFamily: 'Poppins_500Medium',
                 },
 
                 tabBarItemStyle: {
                     paddingVertical: 2,
                 },
             }}
+            detachInactiveScreens={false}
         >
             <Tabs.Screen
                 name="index"
@@ -79,7 +84,6 @@ export default function ProtectedTabsLayout() {
                     tabBarIcon: ({ color }) => <TabIcon icon="search" color={color} />,
                 }}
             />
-
             <Tabs.Screen
                 name="reels"
                 options={{
@@ -87,7 +91,6 @@ export default function ProtectedTabsLayout() {
                     tabBarIcon: ({ color }) => <TabIcon icon="video" color={color} />,
                 }}
             />
-
             <Tabs.Screen
                 name="profile"
                 options={{
@@ -99,33 +102,11 @@ export default function ProtectedTabsLayout() {
     )
 }
 
-const BUMP_SIZE = 74
-const DOT_SIZE = 14
-
 const styles = StyleSheet.create({
     iconWrap: {
         width: 64,
         height: 42,
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative',
-    },
-
-    bump: {
-        position: 'absolute',
-        top: -BUMP_SIZE / 2,
-        width: BUMP_SIZE,
-        height: BUMP_SIZE,
-        borderRadius: BUMP_SIZE / 2,
-        backgroundColor: '#0B1A4B',
-    },
-
-    dot: {
-        position: 'absolute',
-        top: -6,
-        width: DOT_SIZE,
-        height: DOT_SIZE,
-        borderRadius: DOT_SIZE / 2,
-        backgroundColor: '#2F55FF',
     },
 })
