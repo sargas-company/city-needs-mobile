@@ -29,7 +29,7 @@ export default function TestTabsLayout() {
                 tabBarInactiveTintColor: '#C9C9C9',
 
                 tabBarStyle: {
-                    height: 'auto',
+                    height: 103,
                     paddingTop: 10,
                     paddingBottom: 24,
                     paddingHorizontal: 24,
@@ -61,21 +61,28 @@ export default function TestTabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="beta"
+                name="map"
                 options={{
                     title: 'Map',
                     tabBarIcon: ({ color }) => <TabIcon icon="map-pin" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="gamma"
+                name="search"
                 options={{
                     title: 'Search',
                     tabBarIcon: ({ color }) => <TabIcon icon="search" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="delta"
+                name="reels"
+                options={{
+                    title: 'Reels',
+                    tabBarIcon: ({ color }) => <TabIcon icon="video" color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="profile"
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => <TabIcon icon="user" color={color} />,
