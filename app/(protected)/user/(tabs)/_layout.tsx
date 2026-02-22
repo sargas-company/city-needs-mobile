@@ -1,11 +1,14 @@
 import type React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Tabs } from 'expo-router'
+import { NativeTabs } from 'expo-router/unstable-native-tabs'
 import Feather from '@expo/vector-icons/Feather'
 
 import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
+
+const IS_IOS_26_PLUS = Platform.OS === 'ios' && Number(Platform.Version) >= 26
 
 function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['name']; color: string }) {
     return (
@@ -15,7 +18,67 @@ function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['
     )
 }
 
-export default function ProtectedTabsLayout() {
+function NativeTabsLayout() {
+    const colorScheme = useColorScheme()
+    const colors = Colors[colorScheme ?? 'light']
+
+    return (
+        <NativeTabs
+            backgroundColor={colors.background}
+            iconColor={{
+                default: colors.tabIconDefault,
+                selected: colors.tabIconSelected,
+            }}
+            labelStyle={{
+                color: colors.tabIconDefault,
+                fontSize: 12,
+            }}
+        >
+            <NativeTabs.Trigger
+                name="index"
+                options={{
+                    title: 'Home',
+                    icon: { sf: 'house' },
+                    selectedIcon: { sf: 'house.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="map"
+                options={{
+                    title: 'Map',
+                    icon: { sf: 'mappin' },
+                    selectedIcon: { sf: 'mappin.circle.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="search"
+                options={{
+                    title: 'Search',
+                    icon: { sf: 'magnifyingglass' },
+                    selectedIcon: { sf: 'magnifyingglass.circle.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="reels"
+                options={{
+                    title: 'Reels',
+                    icon: { sf: 'play.rectangle' },
+                    selectedIcon: { sf: 'play.rectangle.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="profile"
+                options={{
+                    title: 'Profile',
+                    icon: { sf: 'person' },
+                    selectedIcon: { sf: 'person.fill' },
+                }}
+            />
+        </NativeTabs>
+    )
+}
+
+function ClassicTabsLayout() {
     const colorScheme = useColorScheme()
     const active = Colors[colorScheme ?? 'light'].tint
 
@@ -25,15 +88,11 @@ export default function ProtectedTabsLayout() {
                 headerShown: false,
                 tabBarButton: HapticTab,
 
-                // Stability options (prevent touch issues on iOS with New Architecture)
-                lazy: false,
-                freezeOnBlur: false,
-
                 tabBarActiveTintColor: active,
                 tabBarInactiveTintColor: '#C9C9C9',
 
                 tabBarStyle: {
-                    height: 100,
+                    height: 'auto',
                     paddingTop: 10,
                     paddingBottom: 24,
                     paddingHorizontal: 24,
@@ -44,11 +103,11 @@ export default function ProtectedTabsLayout() {
                     borderTopLeftRadius: 32,
                     borderTopRightRadius: 32,
 
-                    // Clip the rounded corners
-                    overflow: 'hidden',
-
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
                     elevation: 0,
-                    shadowOpacity: 0,
                 },
 
                 tabBarLabelStyle: {
@@ -61,7 +120,6 @@ export default function ProtectedTabsLayout() {
                     paddingVertical: 2,
                 },
             }}
-            detachInactiveScreens={false}
         >
             <Tabs.Screen
                 name="index"
@@ -100,6 +158,10 @@ export default function ProtectedTabsLayout() {
             />
         </Tabs>
     )
+}
+
+export default function ProtectedTabsLayout() {
+    return IS_IOS_26_PLUS ? <NativeTabsLayout /> : <ClassicTabsLayout />
 }
 
 const styles = StyleSheet.create({

@@ -1,21 +1,16 @@
-import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import type React from 'react'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Tabs } from 'expo-router'
+import { NativeTabs } from 'expo-router/unstable-native-tabs'
 import Feather from '@expo/vector-icons/Feather'
 
 import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 
-function TabIcon({
-    icon,
+const IS_IOS_26_PLUS = Platform.OS === 'ios' && Number(Platform.Version) >= 26
 
-    color,
-}: {
-    icon: React.ComponentProps<typeof Feather>['name']
-
-    color: string
-}) {
+function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['name']; color: string }) {
     return (
         <View style={styles.iconWrap}>
             <Feather name={icon} size={28} color={color} />
@@ -23,7 +18,67 @@ function TabIcon({
     )
 }
 
-export default function BusinessTabsLayout() {
+function NativeTabsLayout() {
+    const colorScheme = useColorScheme()
+    const colors = Colors[colorScheme ?? 'light']
+
+    return (
+        <NativeTabs
+            backgroundColor={colors.background}
+            iconColor={{
+                default: colors.tabIconDefault,
+                selected: colors.tabIconSelected,
+            }}
+            labelStyle={{
+                color: colors.tabIconDefault,
+                fontSize: 12,
+            }}
+        >
+            <NativeTabs.Trigger
+                name="index"
+                options={{
+                    title: 'Dashboard',
+                    icon: { sf: 'square.grid.2x2' },
+                    selectedIcon: { sf: 'square.grid.2x2.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="profile"
+                options={{
+                    title: 'Profile',
+                    icon: { sf: 'person' },
+                    selectedIcon: { sf: 'person.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="reels"
+                options={{
+                    title: 'Reels',
+                    icon: { sf: 'play.rectangle' },
+                    selectedIcon: { sf: 'play.rectangle.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="analytics"
+                options={{
+                    title: 'Analytics',
+                    icon: { sf: 'chart.bar' },
+                    selectedIcon: { sf: 'chart.bar.fill' },
+                }}
+            />
+            <NativeTabs.Trigger
+                name="subscription"
+                options={{
+                    title: 'Subscription',
+                    icon: { sf: 'star' },
+                    selectedIcon: { sf: 'star.fill' },
+                }}
+            />
+        </NativeTabs>
+    )
+}
+
+function ClassicTabsLayout() {
     const colorScheme = useColorScheme()
     const active = Colors[colorScheme ?? 'light'].tint
 
@@ -104,8 +159,9 @@ export default function BusinessTabsLayout() {
     )
 }
 
-const BUMP_SIZE = 74
-const DOT_SIZE = 14
+export default function BusinessTabsLayout() {
+    return IS_IOS_26_PLUS ? <NativeTabsLayout /> : <ClassicTabsLayout />
+}
 
 const styles = StyleSheet.create({
     iconWrap: {
@@ -113,24 +169,5 @@ const styles = StyleSheet.create({
         height: 42,
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative',
-    },
-
-    bump: {
-        position: 'absolute',
-        top: -BUMP_SIZE / 2,
-        width: BUMP_SIZE,
-        height: BUMP_SIZE,
-        borderRadius: BUMP_SIZE / 2,
-        backgroundColor: '#0B1A4B',
-    },
-
-    dot: {
-        position: 'absolute',
-        top: -6,
-        width: DOT_SIZE,
-        height: DOT_SIZE,
-        borderRadius: DOT_SIZE / 2,
-        backgroundColor: '#2F55FF',
     },
 })
