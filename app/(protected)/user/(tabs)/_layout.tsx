@@ -1,5 +1,5 @@
 import type React from 'react'
-import { View, StyleSheet, Platform } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { Tabs } from 'expo-router'
 import { NativeTabs } from 'expo-router/unstable-native-tabs'
 import Feather from '@expo/vector-icons/Feather'
@@ -7,8 +7,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { HapticTab } from '@/components/haptic-tab'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
-
-const IS_IOS_26_PLUS = Platform.OS === 'ios' && Number(Platform.Version) >= 26
+import { IS_IOS_LIQUID_GLASS } from '@/utils/platform'
 
 function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['name']; color: string }) {
     return (
@@ -161,7 +160,7 @@ function ClassicTabsLayout() {
 }
 
 export default function ProtectedTabsLayout() {
-    return IS_IOS_26_PLUS ? <NativeTabsLayout /> : <ClassicTabsLayout />
+    return IS_IOS_LIQUID_GLASS ? <NativeTabsLayout /> : <ClassicTabsLayout />
 }
 
 const styles = StyleSheet.create({
