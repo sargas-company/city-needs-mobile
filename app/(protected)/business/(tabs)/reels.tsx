@@ -27,7 +27,7 @@ export default function BusinessReelsScreen() {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            await deleteReel().unwrap()
+                            await deleteReel({ reelId: item.id }).unwrap()
                         } catch {
                             Alert.alert('Error', 'Failed to delete reel.')
                         }

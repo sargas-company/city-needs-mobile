@@ -25,6 +25,10 @@ export type UpsertMyReelResponse = {
     reel: MyReel
 }
 
+export type DeleteMyReelArgs = {
+    reelId: string
+}
+
 export type DeleteMyReelResponse = {
     code?: number
     deleted: true
@@ -52,6 +56,7 @@ export type ReelFeedBusiness = {
 export type ReelFeedItem = {
     id: string
     videoUrl: string
+    thumbnailUrl: string
     createdAt: string
     business: ReelFeedBusiness
 }

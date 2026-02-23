@@ -1,6 +1,7 @@
 import { baseApi } from '@/store/api/baseApi'
 
 import type {
+    DeleteMyReelArgs,
     DeleteMyReelResponse,
     GetMyReelResponse,
     GetReelsFeedArgs,
@@ -43,9 +44,9 @@ export const reelsApi = baseApi.injectEndpoints({
             ],
         }),
 
-        deleteMyReel: builder.mutation<DeleteMyReelResponse, void>({
-            query: () => ({
-                url: '/business/me/reel',
+        deleteMyReel: builder.mutation<DeleteMyReelResponse, DeleteMyReelArgs>({
+            query: ({ reelId }) => ({
+                url: `/business/me/reel/${reelId}`,
                 method: 'DELETE',
             }),
             invalidatesTags: [
