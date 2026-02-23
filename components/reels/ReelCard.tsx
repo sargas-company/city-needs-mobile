@@ -61,7 +61,7 @@ export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
                     {/* Rating + City */}
                     <View className="mt-0.5 flex-row items-center gap-1">
                         <DoubleStar />
-                        <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                        <AppText className="text-status text-text">({business.ratingAvg.toFixed(1)})</AppText>
                         <Feather name="map-pin" size={13} color="#e89f48" />
                         <AppText className="text-status text-text">{business.address.city}</AppText>
                     </View>

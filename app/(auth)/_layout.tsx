@@ -47,6 +47,8 @@ export default function AuthLayout() {
                     },
                 }}
             >
+                <Stack.Screen name="sign-in" options={{ contentStyle: { paddingTop: 0 } }} />
+                <Stack.Screen name="sign-up" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="reset-password" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="reset-password-success" options={{ contentStyle: { paddingTop: 0 } }} />
             </Stack>

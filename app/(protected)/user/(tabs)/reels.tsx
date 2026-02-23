@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View } from 'react-native'
+import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 
@@ -123,37 +123,63 @@ export default function ReelsScreen() {
                     </View>
                 </View>
 
-                {/* ── Category chips (horizontal scroll) ────────────────────────── */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="mb-4 max-h-10"
-                    contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
-                >
-                    <AppPressable
-                        onPress={() => handleCategoryPress(null)}
-                        className={
-                            selectedCategoryId === null
-                                ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
-                        }
-                    >
-                        <AppText
-                            className={
-                                selectedCategoryId === null
-                                    ? 'text-status font-poppins-medium text-white'
-                                    : 'text-status font-poppins-medium text-text'
-                            }
-                        >
-                            All
-                        </AppText>
-                    </AppPressable>
+                {/* ── Category chips (horizontal scroll) ──────────────────────────── */}
+                {/*<ScrollView*/}
+                {/*    horizontal*/}
+                {/*    showsHorizontalScrollIndicator={false}*/}
+                {/*    className="mb-3"*/}
+                {/*    contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}*/}
+                {/*>*/}
+                {/*    <AppPressable*/}
+                {/*        onPress={() => handleCategoryPress(null)}*/}
+                {/*        className={*/}
+                {/*            selectedCategoryId === null*/}
+                {/*                ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'*/}
+                {/*                : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'*/}
+                {/*        }*/}
+                {/*    >*/}
+                {/*        <AppText*/}
+                {/*            className={*/}
+                {/*                selectedCategoryId === null*/}
+                {/*                    ? 'text-status font-poppins-medium text-white'*/}
+                {/*                    : 'text-status font-poppins-medium text-text'*/}
+                {/*            }*/}
+                {/*        >*/}
+                {/*            All*/}
+                {/*        </AppText>*/}
+                {/*        {selectedCategoryId === null && <Feather name="x" size={14} color="#fff" />}*/}
+                {/*    </AppPressable>*/}
 
+                {/*    {categories?.map((cat) => {*/}
+                {/*        const active = selectedCategoryId === cat.id*/}
+                {/*        return (*/}
+                {/*            <AppPressable*/}
+                {/*                key={cat.id}*/}
+                {/*                onPress={() => handleCategoryPress(cat.id)}*/}
+                {/*                className={*/}
+                {/*                    active*/}
+                {/*                        ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'*/}
+                {/*                        : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'*/}
+                {/*                }*/}
+                {/*            >*/}
+                {/*                <AppText*/}
+                {/*                    className={active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'}*/}
+                {/*                >*/}
+                {/*                    {cat.title}*/}
+                {/*                </AppText>*/}
+                {/*                {active && <Feather name="x" size={14} color="#fff" />}*/}
+                {/*            </AppPressable>*/}
+                {/*        )*/}
+                {/*    })}*/}
+                {/*</ScrollView>*/}
+
+                <View className="mb-3 flex-row flex-wrap gap-2 px-screen">
                     {categories?.map((cat) => {
                         const active = selectedCategoryId === cat.id
                         return (
                             <AppPressable
                                 key={cat.id}
+                                disabledClassName=""
                                 onPress={() => handleCategoryPress(cat.id)}
                                 className={
                                     active
@@ -166,11 +192,10 @@ export default function ReelsScreen() {
                                 >
                                     {cat.title}
                                 </AppText>
-                                {active && <Feather name="x" size={14} color="#fff" />}
                             </AppPressable>
                         )
                     })}
-                </ScrollView>
+                </View>
 
                 {/* ── Scrollable List with Pull-to-Refresh ────────────────────────────── */}
                 {isLoading ? (

@@ -12,7 +12,7 @@ module.exports = {
         scheme: 'cityneedsfrontend',
         userInterfaceStyle: 'automatic',
         jsEngine: 'hermes',
-        newArchEnabled: false,
+        newArchEnabled: true,
         ios: {
             supportsTablet: true,
             infoPlist: {
