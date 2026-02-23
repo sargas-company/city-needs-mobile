@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, View }
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
+import { Image } from 'expo-image'
 
 import { AppText } from '@/components/ui/AppText'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
@@ -15,7 +16,6 @@ export default function BusinessReelsScreen() {
     const { data, isLoading, isFetching, error, refetch } = useGetMyReelQuery()
     const [deleteReel] = useDeleteMyReelMutation()
 
-    // @ts-ignore
     const reel = data?.reel ?? null
 
     const handleDelete = useCallback(
@@ -40,9 +40,18 @@ export default function BusinessReelsScreen() {
 
     const renderReelCard = (item: MyReel) => (
         <View key={item.id} className="flex-row items-center rounded-2xl border border-[#E5E7EB] bg-white px-5 py-4">
-            <View className="mr-3 h-10 w-10 items-center justify-center rounded-xl bg-[#EAF0FF]">
-                <Feather name="film" size={20} color="#0C2A63" />
-            </View>
+            {item.thumbnailUrl ? (
+                <Image
+                    source={{ uri: item.thumbnailUrl }}
+                    style={{ width: 40, height: 40, borderRadius: 12, marginRight: 12 }}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                />
+            ) : (
+                <View className="mr-3 h-10 w-10 items-center justify-center rounded-xl bg-[#EAF0FF]">
+                    <Feather name="film" size={20} color="#0C2A63" />
+                </View>
+            )}
 
             <View className="flex-1">
                 <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">Business Reel</AppText>
