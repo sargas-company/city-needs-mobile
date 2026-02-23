@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Alert, Pressable, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Feather from '@expo/vector-icons/Feather'
+import { Image } from 'expo-image'
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
+import * as VideoThumbnails from 'expo-video-thumbnails'
 
 import { AppButton } from '@/components/ui/AppButton'
 import { AppText } from '@/components/ui/AppText'
@@ -14,6 +16,7 @@ type PickedVideo = {
     uri: string
     name: string
     type: string
+    thumbnailUri: string | null
 }
 
 const UploadReelScreen = () => {
@@ -30,10 +33,20 @@ const UploadReelScreen = () => {
         if (result.canceled || !result.assets?.length) return
 
         const asset = result.assets[0]
+
+        let thumbnailUri: string | null = null
+        try {
+            const thumbnail = await VideoThumbnails.getThumbnailAsync(asset.uri, { time: 0 })
+            thumbnailUri = thumbnail.uri
+        } catch {
+            // Fallback to no thumbnail if generation fails
+        }
+
         setPickedVideo({
             uri: asset.uri,
             name: asset.fileName ?? 'reel.mp4',
             type: asset.mimeType ?? 'video/mp4',
+            thumbnailUri,
         })
     }
 
@@ -65,14 +78,21 @@ const UploadReelScreen = () => {
                 <View className="mt-6 flex-1">
                     {pickedVideo ? (
                         <View className="items-center">
-                            <View className="h-48 w-full items-center justify-center rounded-2xl bg-[#0C2A63]">
-                                <Feather name="film" size={40} color="rgba(255,255,255,0.7)" />
-                                <AppText className="mt-2 text-[13px] font-poppins-medium text-white/70">Video selected</AppText>
-                            </View>
+                            {pickedVideo.thumbnailUri ? (
+                                <Image
+                                    source={{ uri: pickedVideo.thumbnailUri }}
+                                    style={{ width: 120, height: 213, borderRadius: 12 }}
+                                    contentFit="cover"
+                                />
+                            ) : (
+                                <View className="items-center justify-center rounded-xl bg-[#0C2A63]" style={{ width: 120, height: 213 }}>
+                                    <Feather name="film" size={32} color="rgba(255,255,255,0.7)" />
+                                </View>
+                            )}
 
-                            <AppText className="mt-3 self-start text-[13px] font-poppins text-[#8E94A3]">{pickedVideo.name}</AppText>
+                            <AppText className="mt-3 text-center text-[13px] font-poppins text-[#8E94A3]">{pickedVideo.name}</AppText>
 
-                            <Pressable onPress={handlePickVideo} className="mt-2 self-start" hitSlop={8}>
+                            <Pressable onPress={handlePickVideo} className="mt-2" hitSlop={8}>
                                 <AppText className="font-poppins-medium text-[13px] text-[#3B82F6]">Choose different video</AppText>
                             </Pressable>
                         </View>
