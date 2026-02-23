@@ -93,7 +93,7 @@ const LeaveReviewScreen = () => {
                             ) : null}
                             <DoubleStar />
 
-                            <AppText className="text-[13px] font-poppins-medium text-[#171717]">({businessRating})</AppText>
+                            <AppText className="text-[13px] font-poppins-medium text-[#171717]">({businessRating.toFixed(1)})</AppText>
                         </View>
                     </View>
 

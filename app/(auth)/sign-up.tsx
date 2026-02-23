@@ -13,7 +13,8 @@ import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter'
 import { FormPhoneInput } from '@/components/ui/FormPhoneInput'
 import { SignUpPayload } from '@/services/auth/auth.types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { selectAuthError, selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { setAuthError } from '@/store/features/auth/auth.slice'
 import { signUpThunk } from '@/store/features/auth/auth.thunks'
 import { AppButton } from '@/components/ui/AppButton'
 
@@ -83,7 +84,7 @@ const CheckboxField = ({ value, onChange, error, onPressTerms }: CheckboxFieldPr
 const SignUp = () => {
     const dispatch = useAppDispatch()
     const status = useAppSelector(selectAuthStatus)
-    const [submitError, setSubmitError] = useState<string | null>(null)
+    const authError = useAppSelector(selectAuthError)
     const [isTermsVisible, setIsTermsVisible] = useState(false)
 
     const {
@@ -110,7 +111,7 @@ const SignUp = () => {
     const isLoading = status === 'loading' || isSubmitting
 
     const onSubmit = async (values: SignUpFormValues) => {
-        setSubmitError(null)
+        dispatch(setAuthError(undefined))
         const digitsPhone = values.phone ? values.phone.replace(/\D/g, '') : undefined
 
         const payload: SignUpPayload = {
@@ -119,17 +120,7 @@ const SignUp = () => {
             password: values.password,
             phone: digitsPhone,
         }
-        try {
-            await dispatch(signUpThunk(payload)).unwrap()
-        } catch (err) {
-            let message = 'Sign up failed. Please try again.'
-            if (typeof err === 'string') {
-                message = err
-            } else if (err instanceof Error && err.message) {
-                message = err.message
-            }
-            setSubmitError(message)
-        }
+        await dispatch(signUpThunk(payload))
     }
 
     return (
@@ -228,7 +219,7 @@ const SignUp = () => {
                         className="mt-2"
                     />
 
-                    {submitError ? <Text className="text-center font-poppins text-base text-danger">{submitError}</Text> : null}
+                    {authError ? <Text className="text-center font-poppins text-base text-danger">{authError}</Text> : null}
 
                     <View className="mt-4 items-center gap-2">
                         <Text className="font-poppins text-base text-text">

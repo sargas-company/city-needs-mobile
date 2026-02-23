@@ -1,5 +1,4 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { isAxiosError } from 'axios'
 
 import { AppDispatch, RootState } from '@/store/store'
 import { login, logout as logoutService, signUp } from '@/services/auth/auth.service'
@@ -8,7 +7,7 @@ import { authApi } from '@/store/features/auth/authApi'
 import { clearTokens, setTokens } from '@/services/auth/session'
 import { firebaseAuth, waitForAuthReady } from '@/services/auth/firebase/firebase.config'
 import { firebaseSignOut } from '@/services/auth/firebase/logout'
-import { getFirebaseLoginErrorMessage } from '@/services/auth'
+import { getFirebaseLoginErrorMessage, getFirebaseSignUpErrorMessage } from '@/services/auth'
 import { UserRole, type AppUser } from '@/store/features/profile/profile.types'
 
 import { clearProfile, setProfileStatus, setProfileUser } from '../profile/profile.slice'
@@ -85,10 +84,12 @@ export const signUpThunk = createAsyncThunk<void, SignUpPayload, { dispatch: App
                 }
             }
         } catch (error) {
+            const message = getFirebaseSignUpErrorMessage(error)
+
             dispatch(setAuthStatus('unauthenticated'))
             dispatch(setProfileStatus('error'))
-            dispatch(setAuthError(isAxiosError(error) ? error.message : 'Sign up failed'))
-            return rejectWithValue(error)
+            dispatch(setAuthError(message))
+            return rejectWithValue(message)
         }
     }
 )

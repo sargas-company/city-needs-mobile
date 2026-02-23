@@ -174,6 +174,24 @@ export default function ReelsScreen() {
                 {/*</ScrollView>*/}
 
                 <View className="mb-3 flex-row flex-wrap gap-2 px-screen">
+                    <AppPressable
+                        onPress={() => handleCategoryPress(null)}
+                        className={
+                            selectedCategoryId === null
+                                ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                        }
+                    >
+                        <AppText
+                            className={
+                                selectedCategoryId === null
+                                    ? 'text-status font-poppins-medium text-white'
+                                    : 'text-status font-poppins-medium text-text'
+                            }
+                        >
+                            All
+                        </AppText>
+                    </AppPressable>
                     {categories?.map((cat) => {
                         const active = selectedCategoryId === cat.id
                         return (

@@ -10,7 +10,8 @@ import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
 
 import { LoginPayload } from '@/services/auth/auth.types'
 import { loginThunk } from '@/store/features/auth/auth.thunks'
-import { selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { selectAuthError, selectAuthStatus } from '@/store/features/auth/auth.selectors'
+import { setAuthError } from '@/store/features/auth/auth.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { FormInput } from '@/components/ui/FormInput'
 import { AppButton } from '@/components/ui/AppButton'
@@ -25,8 +26,8 @@ type SignInFormValues = z.infer<typeof signInSchema>
 const SignIn = () => {
     const dispatch = useAppDispatch()
     const status = useAppSelector(selectAuthStatus)
+    const authError = useAppSelector(selectAuthError)
 
-    const [submitError, setSubmitError] = useState<string | null>(null)
     const [showPassword, setShowPassword] = useState(false)
 
     const {
@@ -45,19 +46,14 @@ const SignIn = () => {
     })
 
     const onSubmit = async (values: SignInFormValues) => {
-        setSubmitError(null)
+        dispatch(setAuthError(undefined))
 
         const payload: LoginPayload = {
             email: values.email.trim(),
             password: values.password,
         }
 
-        try {
-            await dispatch(loginThunk(payload)).unwrap()
-        } catch (err) {
-            const message = typeof err === 'string' ? err : ((err as Error)?.message ?? 'Login failed. Please try again.')
-            setSubmitError(message)
-        }
+        await dispatch(loginThunk(payload))
     }
 
     const isLoading = status === 'loading' || isSubmitting
@@ -116,7 +112,7 @@ const SignIn = () => {
                             className="mt-2"
                         />
 
-                        {submitError ? <Text className="mt-2 text-sm text-red-600 text-center">{submitError}</Text> : null}
+                        {authError ? <Text className="mt-2 text-sm text-red-600 text-center">{authError}</Text> : null}
 
                         <Link href="/(auth)/reset-password" className="text-center font-semibold text-brand  leading-[21px] tracking-normal">
                             Forgot password?
