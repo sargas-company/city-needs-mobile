@@ -143,6 +143,7 @@ export function GoogleMapAdapter({
         >
             {userLocation && searchRadiusKm && (
                 <Circle
+                    key="search-radius-circle"
                     center={{
                         latitude: userLocation.lat,
                         longitude: userLocation.lng,
@@ -156,6 +157,7 @@ export function GoogleMapAdapter({
 
             {userLocation && (
                 <Marker
+                    key="user-location-marker"
                     coordinate={{
                         latitude: userLocation.lat,
                         longitude: userLocation.lng,
