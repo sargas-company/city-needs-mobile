@@ -23,7 +23,7 @@ export default function AuthLayout() {
     }, [isAuth, router, status])
 
     // Show loading during bootstrap (idle → loading → authenticated/unauthenticated)
-    if (status === 'idle' || status === 'loading') {
+    if (status === 'idle') {
         return (
             <View className="flex-1 items-center justify-center gap-5 bg-brand">
                 <LogoSvg width={140} height={140} />
@@ -47,6 +47,8 @@ export default function AuthLayout() {
                     },
                 }}
             >
+                <Stack.Screen name="sign-in" options={{ contentStyle: { paddingTop: 0 } }} />
+                <Stack.Screen name="sign-up" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="reset-password" options={{ contentStyle: { paddingTop: 0 } }} />
                 <Stack.Screen name="reset-password-success" options={{ contentStyle: { paddingTop: 0 } }} />
             </Stack>

@@ -6,6 +6,7 @@ import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
@@ -107,7 +108,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
             initialNumToRender={2}
             maxToRenderPerBatch={3}
             windowSize={3}
-            removeClippedSubviews={true}
+            removeClippedSubviews={false}
             getItemLayout={(_, index) => ({ length: 332, offset: 332 * index, index })}
         />
     )
@@ -325,17 +326,17 @@ export default function HomeScreen() {
         <View className="flex-1 bg-white">
             <WaveHeader />
 
-            <SafeAreaView className="flex-1" edges={['left', 'right']}>
+            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
                 <FlatList
                     data={sections}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingTop: 160, paddingBottom: 140 }}
+                    contentContainerStyle={{ paddingBottom: 20 }}
                     initialNumToRender={4}
                     maxToRenderPerBatch={2}
                     windowSize={5}
-                    removeClippedSubviews={true}
+                    removeClippedSubviews={false}
                     onViewableItemsChanged={onViewableItemsChanged}
                     viewabilityConfig={viewabilityConfig}
                     refreshControl={refreshControl}

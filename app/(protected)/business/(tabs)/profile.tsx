@@ -288,7 +288,7 @@ const BusinessProfileScreen = () => {
                             </>
                         ) : null}
                         <DoubleStar />
-                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg})</AppText>
+                        <AppText className="text-[13px] font-poppins-medium text-[#171717]">({ratingAvg.toFixed(1)})</AppText>
                     </View>
                 </View>
 

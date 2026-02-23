@@ -1,15 +1,14 @@
-import React, { memo, useCallback, useEffect } from 'react'
+import React, { memo, useCallback } from 'react'
 import { View, ViewStyle } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
-import { useIsFocused } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
-import { useVideoPlayer, VideoView } from 'expo-video'
+import { Image } from 'expo-image'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
-import type { ReelFeedItem } from '@/store/features/reels/reels.types'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
+import type { ReelFeedItem } from '@/store/features/reels/reels.types'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -23,39 +22,8 @@ type ReelCardProps = {
     reel: ReelFeedItem
 }
 
-/** Video thumbnail - only renders when visible to save memory */
-const VideoThumbnail = memo(function VideoThumbnail({ videoUrl }: { videoUrl: string }) {
-    const player = useVideoPlayer(videoUrl, (p) => {
-        p.loop = false
-        p.muted = true
-    })
-
-    // Cleanup: pause player on unmount to release native resources faster
-    useEffect(() => {
-        return () => {
-            try {
-                player.pause()
-            } catch {
-                // Player already released by expo-video
-            }
-        }
-    }, [player])
-
-    return (
-        <VideoView
-            player={player}
-            style={{ width: '33%', height: '100%', borderRadius: 12 }}
-            contentFit="cover"
-            nativeControls={false}
-            allowsFullscreen={false}
-            allowsPictureInPicture={false}
-        />
-    )
-})
-
 export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
     const router = useRouter()
-    const isFocused = useIsFocused()
     const { business } = reel
 
     const initial = business.name.charAt(0).toUpperCase()
@@ -93,26 +61,22 @@ export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
                     {/* Rating + City */}
                     <View className="mt-0.5 flex-row items-center gap-1">
                         <DoubleStar />
-                        <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                        <AppText className="text-status text-text">({business.ratingAvg.toFixed(1)})</AppText>
                         <Feather name="map-pin" size={13} color="#e89f48" />
                         <AppText className="text-status text-text">{business.address.city}</AppText>
                     </View>
                 </View>
             </AppPressable>
 
-            {/* Row 2: Video thumbnail with play overlay - navigates to reel player */}
-            {/* Only render VideoThumbnail when tab is focused to save memory */}
+            {/* Row 2: Thumbnail - navigates to reel player */}
             <AppPressable onPress={handleVideoPress} className="mt-1 overflow-hidden rounded-xl" style={{ height: 160 }}>
-                {isFocused ? (
-                    <VideoThumbnail videoUrl={reel.videoUrl} />
-                ) : (
-                    <View style={{ width: '33%', height: '100%', borderRadius: 12, backgroundColor: '#E5E5E5' }} />
-                )}
-                {/*<View className="absolute inset-0 w-4/12 items-center justify-center">*/}
-                {/*    <View className="items-center justify-center rounded-full bg-black/40" style={{ width: 48, height: 48 }}>*/}
-                {/*        <Feather name="play" size={24} color="#fff" />*/}
-                {/*    </View>*/}
-                {/*</View>*/}
+                <Image
+                    source={{ uri: reel.thumbnailUrl }}
+                    style={{ width: '33%', height: '100%', borderRadius: 12 }}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={200}
+                />
             </AppPressable>
         </View>
     )

@@ -90,7 +90,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                         <View className="mt-0.5 flex-row items-center justify-between">
                             <View className="flex-row items-center gap-1">
                                 <DoubleStar />
-                                <AppText className="text-status text-text">({business.ratingAvg})</AppText>
+                                <AppText className="text-status text-text">({business.ratingAvg.toFixed(1)})</AppText>
                                 <AppText className="text-border">|</AppText>
                                 <AppText className="text-status text-text">{business.ratingCount} reviews</AppText>
                             </View>

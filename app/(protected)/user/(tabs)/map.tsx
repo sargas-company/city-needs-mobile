@@ -60,9 +60,28 @@ export default function MapScreen() {
 
     const insets = useSafeAreaInsets()
     // Skip query when tab is not focused to prevent background API calls and memory pressure
-    const { data } = useSearchBusinessesQuery(queryArgs, { skip: !isFocused })
+    const { data, isFetching } = useSearchBusinessesQuery(queryArgs, { skip: !isFocused })
+
+    // Preserve previous markers while fetching to prevent native MapView child index crash
+    // The crash occurs when markers array rapidly changes from populated -> empty -> populated
+    const previousMarkersRef = useRef<MapMarker[]>([])
     const businesses = useMemo(() => data?.data ?? [], [data?.data])
-    const markers = useMemo(() => businessesToMarkers(businesses), [businesses])
+    const currentMarkers = useMemo(() => businessesToMarkers(businesses), [businesses])
+
+    // Only update markers when we have actual data, keep previous markers while fetching
+    const markers = useMemo(() => {
+        if (currentMarkers.length > 0) {
+            previousMarkersRef.current = currentMarkers
+            return currentMarkers
+        }
+        // If fetching and no current data, keep showing previous markers
+        if (isFetching) {
+            return previousMarkersRef.current
+        }
+        // Only clear markers when we're sure there are no results (not fetching, empty data)
+        previousMarkersRef.current = []
+        return []
+    }, [currentMarkers, isFetching])
 
     // Auto-select first business when search results arrive
     useEffect(() => {

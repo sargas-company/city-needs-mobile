@@ -1,12 +1,35 @@
+export type ReelProcessingStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+
 export type ReelVideo = {
+    id: string
     url: string
+    storageKey: string
+    type: string
+    mimeType: string
+    sizeBytes: number
+    originalName: string
+    businessId: string
+    createdAt: string
+    updatedAt: string
 }
 
 export type MyReel = {
     id: string
     businessId: string
-    video: ReelVideo
+    videoFileId: string
+    processingStatus: ReelProcessingStatus
+    processedUrl: string | null
+    thumbnailUrl: string | null
+    durationSeconds: number | null
+    width: number | null
+    height: number | null
+    processingStartedAt: string | null
+    processingFinishedAt: string | null
+    lastError: string | null
+    retryCount: number
     createdAt: string
+    updatedAt: string
+    video: ReelVideo
 }
 
 export type GetMyReelResponse = {
@@ -23,6 +46,10 @@ export type UpsertMyReelArgs = {
 export type UpsertMyReelResponse = {
     code?: number
     reel: MyReel
+}
+
+export type DeleteMyReelArgs = {
+    reelId: string
 }
 
 export type DeleteMyReelResponse = {
@@ -52,6 +79,7 @@ export type ReelFeedBusiness = {
 export type ReelFeedItem = {
     id: string
     videoUrl: string
+    thumbnailUrl: string
     createdAt: string
     business: ReelFeedBusiness
 }
