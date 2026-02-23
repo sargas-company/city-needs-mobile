@@ -92,7 +92,7 @@ const LocationManual = () => {
                 dispatch(setProfileLocation(response.location))
             }
             if (isFromProfile) {
-                router.dismiss(2)
+                router.replace('/(protected)/user/(tabs)/profile')
             } else {
                 router.replace('/(protected)/gate')
             }

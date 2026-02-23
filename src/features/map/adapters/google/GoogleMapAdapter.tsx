@@ -141,33 +141,34 @@ export function GoogleMapAdapter({
             scrollEnabled={true}
             zoomEnabled={true}
         >
-            {userLocation && searchRadiusKm && (
+            {/* Always render Circle to prevent child index shifts when filter toggles */}
+            {userLocation && (
                 <Circle
                     key="search-radius-circle"
                     center={{
                         latitude: userLocation.lat,
                         longitude: userLocation.lng,
                     }}
-                    radius={searchRadiusKm * 1000}
-                    fillColor="rgba(231, 159, 72, 0.08)"
-                    strokeColor="#E79F48"
-                    strokeWidth={3}
+                    radius={searchRadiusKm ? searchRadiusKm * 1000 : 0}
+                    fillColor={searchRadiusKm ? 'rgba(231, 159, 72, 0.08)' : 'transparent'}
+                    strokeColor={searchRadiusKm ? '#E79F48' : 'transparent'}
+                    strokeWidth={searchRadiusKm ? 3 : 0}
                 />
             )}
 
-            {userLocation && (
-                <Marker
-                    key="user-location-marker"
-                    coordinate={{
-                        latitude: userLocation.lat,
-                        longitude: userLocation.lng,
-                    }}
-                    anchor={{ x: 0.5, y: 0.5 }}
-                    tracksViewChanges={false}
-                >
-                    <UserLocationPin />
-                </Marker>
-            )}
+            {/* Always render user location marker to prevent child index shifts */}
+            <Marker
+                key="user-location-marker"
+                coordinate={{
+                    latitude: userLocation?.lat ?? 0,
+                    longitude: userLocation?.lng ?? 0,
+                }}
+                anchor={{ x: 0.5, y: 0.5 }}
+                tracksViewChanges={false}
+                opacity={userLocation ? 1 : 0}
+            >
+                <UserLocationPin />
+            </Marker>
 
             {markers.map((marker) => (
                 <Marker
@@ -176,7 +177,7 @@ export function GoogleMapAdapter({
                         latitude: marker.position.lat,
                         longitude: marker.position.lng,
                     }}
-                    tracksViewChanges={false}
+                    tracksViewChanges={true}
                     onPress={() => handleMarkerPress(marker.id)}
                     opacity={selectedMarkerId && selectedMarkerId !== marker.id ? 0.6 : 1}
                 >
