@@ -36,12 +36,16 @@ export const searchApi = baseApi.injectEndpoints({
             },
 
             forceRefetch: ({ currentArg, previousArg }) => {
+                // Always refetch when any args change (except for same cache key with same cursor)
+                const { cursor: currCursor, ...currFilters } = currentArg ?? {}
+                const { cursor: prevCursor, ...prevFilters } = previousArg ?? {}
+
                 // Refetch when cursor changes (pagination)
-                if ((currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null)) return true
-                // Refetch when sort changes (including clearing to null)
-                if ((currentArg?.sort ?? null) !== (previousArg?.sort ?? null)) return true
-                // Refetch when bestPrice changes
-                if ((currentArg?.bestPrice ?? null) !== (previousArg?.bestPrice ?? null)) return true
+                if ((currCursor ?? null) !== (prevCursor ?? null)) return true
+
+                // Refetch when any filter changes
+                if (JSON.stringify(currFilters) !== JSON.stringify(prevFilters)) return true
+
                 return false
             },
 

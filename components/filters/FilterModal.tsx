@@ -59,7 +59,12 @@ export function FilterModal({ visible, onClose, onApply, initialValues, hasSearc
                         onProximityChange={(v) => update('proximity', v)}
                     />
 
-                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} />
+                    <PriceFilter
+                        priceMin={values.priceMin}
+                        priceMax={values.priceMax}
+                        onPriceMinChange={(v) => update('priceMin', v)}
+                        onPriceMaxChange={(v) => update('priceMax', v)}
+                    />
 
                     {hasSearch && (
                         <>

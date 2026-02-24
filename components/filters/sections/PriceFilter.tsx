@@ -1,44 +1,65 @@
 import React from 'react'
-import { View } from 'react-native'
-import Slider from '@react-native-community/slider'
+import { View, TextInput } from 'react-native'
 
 import { AppText } from '@/components/ui/AppText'
 
 type Props = {
-    value: number
-    onChange: (value: number) => void
+    priceMin: number | null
+    priceMax: number | null
+    onPriceMinChange: (value: number | null) => void
+    onPriceMaxChange: (value: number | null) => void
     disabled?: boolean
 }
 
-const PRICE_LABELS = ['$100', '$500', '$1k', '$2k', '$3k', '$4k']
+export function PriceFilter({ priceMin, priceMax, onPriceMinChange, onPriceMaxChange, disabled }: Props) {
+    const handleMinChange = (text: string) => {
+        const num = parseInt(text, 10)
+        onPriceMinChange(isNaN(num) ? null : Math.max(0, num))
+    }
 
-export function PriceFilter({ value, onChange, disabled }: Props) {
+    const handleMaxChange = (text: string) => {
+        const num = parseInt(text, 10)
+        onPriceMaxChange(isNaN(num) ? null : Math.max(0, num))
+    }
+
     return (
         <View className="mb-5" style={disabled ? { opacity: 0.4 } : undefined}>
-            <View className="mb-2 flex-row items-center justify-between">
-                <AppText className="text-subtitle font-poppins-semibold text-text">Price</AppText>
-            </View>
+            <AppText className="mb-3 text-subtitle font-poppins-semibold text-text">Price Range</AppText>
 
-            <AppText className="mb-2 text-body font-poppins-medium text-orange">Up to ${value.toLocaleString()}</AppText>
+            <View className="flex-row items-center gap-3">
+                <View className="flex-1">
+                    <AppText className="mb-1 text-caption text-text-muted">Min</AppText>
+                    <View className="flex-row items-center rounded-xl border border-border bg-white px-3 py-2.5">
+                        <AppText className="mr-1 text-body text-text-muted">$</AppText>
+                        <TextInput
+                            value={priceMin != null ? String(priceMin) : ''}
+                            onChangeText={handleMinChange}
+                            placeholder="0"
+                            placeholderTextColor="#8D8C92"
+                            keyboardType="number-pad"
+                            editable={!disabled}
+                            className="flex-1 text-body font-poppins-regular text-text"
+                        />
+                    </View>
+                </View>
 
-            <Slider
-                minimumValue={100}
-                maximumValue={4000}
-                step={100}
-                value={value}
-                onValueChange={onChange}
-                minimumTrackTintColor="#e89f48"
-                maximumTrackTintColor="#CBCBCB"
-                thumbTintColor="#e89f48"
-                disabled={disabled}
-            />
+                <AppText className="mt-5 text-body text-text-muted">-</AppText>
 
-            <View className="mt-1 flex-row justify-between">
-                {PRICE_LABELS.map((label) => (
-                    <AppText key={label} className="text-[11px] text-text-muted">
-                        {label}
-                    </AppText>
-                ))}
+                <View className="flex-1">
+                    <AppText className="mb-1 text-caption text-text-muted">Max</AppText>
+                    <View className="flex-row items-center rounded-xl border border-border bg-white px-3 py-2.5">
+                        <AppText className="mr-1 text-body text-text-muted">$</AppText>
+                        <TextInput
+                            value={priceMax != null ? String(priceMax) : ''}
+                            onChangeText={handleMaxChange}
+                            placeholder="999"
+                            placeholderTextColor="#8D8C92"
+                            keyboardType="number-pad"
+                            editable={!disabled}
+                            className="flex-1 text-body font-poppins-regular text-text"
+                        />
+                    </View>
+                </View>
             </View>
         </View>
     )

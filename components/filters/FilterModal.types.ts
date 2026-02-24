@@ -7,7 +7,8 @@ export type FilterValues = {
     categoryId: string | null
     city: City | null
     proximity: ProximityOption | null
-    priceMax: number
+    priceMin: number | null
+    priceMax: number | null
     availabilityDate: string | null
     availabilityHour: number
     availabilityMinute: number
@@ -18,7 +19,8 @@ export const DEFAULT_FILTER_VALUES: FilterValues = {
     categoryId: null,
     city: null,
     proximity: null,
-    priceMax: 4000,
+    priceMin: null,
+    priceMax: null,
     availabilityDate: null,
     availabilityHour: 12,
     availabilityMinute: 0,
@@ -77,12 +79,16 @@ export function filterValuesToSearchArgs(
         }
     }
 
+    // Price filters (always applied)
+    if (filters.priceMin != null) {
+        args.priceMin = filters.priceMin
+    }
+    if (filters.priceMax != null) {
+        args.priceMax = filters.priceMax
+    }
+
     // Service filters (only applied when searching for services)
     if (hasSearch) {
-        if (filters.priceMax < 4000) {
-            args.priceMax = filters.priceMax
-        }
-
         if (filters.availabilityDate) {
             args.availabilityDate = filters.availabilityDate
 
