@@ -20,6 +20,7 @@ function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['
 function NativeTabsLayout() {
     const colorScheme = useColorScheme()
     const colors = Colors[colorScheme ?? 'light']
+    const active = Colors[colorScheme ?? 'light'].tint
 
     return (
         <NativeTabs
@@ -29,8 +30,10 @@ function NativeTabsLayout() {
                 selected: colors.tabIconSelected,
             }}
             labelStyle={{
-                color: colors.tabIconDefault,
+                color: active,
                 fontSize: 12,
+                fontWeight: '700',
+                fontFamily: 'Poppins_600SemiBold',
             }}
         >
             <NativeTabs.Trigger

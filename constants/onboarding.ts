@@ -23,7 +23,7 @@ export const onboardingSlides: OnboardingSlide[] = [
     },
     {
         id: 3,
-        title: 'Farmers, caterers,\n plumbers, drivers — all in\n one place.',
+        title: 'Farmers, caterers,\n plumbers — all in\n one place.',
         image: onboarding3,
     },
 ]
