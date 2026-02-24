@@ -35,7 +35,15 @@ export const searchApi = baseApi.injectEndpoints({
                 return JSON.stringify(filters)
             },
 
-            forceRefetch: ({ currentArg, previousArg }) => (currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null),
+            forceRefetch: ({ currentArg, previousArg }) => {
+                // Refetch when cursor changes (pagination)
+                if ((currentArg?.cursor ?? null) !== (previousArg?.cursor ?? null)) return true
+                // Refetch when sort changes (including clearing to null)
+                if ((currentArg?.sort ?? null) !== (previousArg?.sort ?? null)) return true
+                // Refetch when bestPrice changes
+                if ((currentArg?.bestPrice ?? null) !== (previousArg?.bestPrice ?? null)) return true
+                return false
+            },
 
             merge: (currentCache, newResp, ctx) => {
                 const cursor = ctx.arg?.cursor ?? null

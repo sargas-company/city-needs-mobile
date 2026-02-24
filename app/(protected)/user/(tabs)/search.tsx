@@ -28,11 +28,10 @@ type FilterChip = {
 
 const FILTER_CHIPS: FilterChip[] = [
     { id: 'open-now', label: 'Open Now', getParams: () => ({ openNow: true }) },
-    { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }), requiresSearch: true },
+    { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }) },
 ]
 
-const SORT_OPTIONS: { value: BusinessSort | null; label: string }[] = [
-    { value: null, label: 'None' },
+const SORT_OPTIONS: { value: BusinessSort; label: string }[] = [
     { value: 'popular', label: 'Popular' },
     { value: 'top_rated', label: 'Top Rated' },
     { value: 'nearby', label: 'Nearby' },
@@ -69,8 +68,6 @@ export default function SearchScreen() {
     }, [appliedFilters])
 
     const sortLabel = sort ? (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by') : 'Sort by'
-    // Sort is disabled when best-price chip is active
-    const isSortDisabled = activeChips.has('best-price')
 
     const displayCity = appliedFilters?.city ?? 'All Cities'
 
@@ -113,17 +110,18 @@ export default function SearchScreen() {
     const toggleChip = useCallback((chipId: string) => {
         setActiveChips((prev) => {
             const next = new Set(prev)
-            if (next.has(chipId)) {
+            const wasActive = next.has(chipId)
+            if (wasActive) {
                 next.delete(chipId)
             } else {
                 next.add(chipId)
             }
+            // best-price: clear sort when activated, restore to popular when deactivated
+            if (chipId === 'best-price') {
+                setSort(wasActive ? 'popular' : null)
+            }
             return next
         })
-        // best-price clears any sort
-        if (chipId === 'best-price') {
-            setSort(null)
-        }
         setCursor(null)
     }, [])
 
@@ -153,10 +151,17 @@ export default function SearchScreen() {
         refetch()
     }, [refetch])
 
-    const handleSortChange = useCallback((value: BusinessSort | null) => {
+    const handleSortChange = useCallback((value: BusinessSort) => {
         setSort(value)
         setSortOpen(false)
         setCursor(null)
+        // Deactivate best-price when a sort is selected
+        setActiveChips((prev) => {
+            if (!prev.has('best-price')) return prev
+            const next = new Set(prev)
+            next.delete('best-price')
+            return next
+        })
     }, [])
 
     const handleApplyFilters = useCallback((values: FilterValues) => {
@@ -274,12 +279,7 @@ export default function SearchScreen() {
 
                     {/* ── Sort & advanced filter row ────────────── */}
                     <View className="mb-4 flex-row items-center justify-between">
-                        <AppPressable
-                            onPress={() => setSortOpen(true)}
-                            disabled={isSortDisabled}
-                            disabledClassName=""
-                            className={`flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5 ${isSortDisabled ? 'opacity-40' : ''}`}
-                        >
+                        <AppPressable onPress={() => setSortOpen(true)} className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
                             <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
                             <Feather name="chevron-down" size={16} color="#fff" />
                         </AppPressable>
@@ -319,22 +319,17 @@ export default function SearchScreen() {
                 <Modal visible transparent animationType="fade" onRequestClose={() => setSortOpen(false)}>
                     <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
                         <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
-                            {SORT_OPTIONS.map((option) => {
-                                const disabled = option.value !== null && isSortDisabled
-                                return (
-                                    <Pressable
-                                        key={option.label}
-                                        disabled={disabled}
-                                        onPress={() => handleSortChange(option.value)}
-                                        className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
-                                        style={disabled ? { opacity: 0.4 } : undefined}
-                                    >
-                                        <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
-                                            {option.label}
-                                        </AppText>
-                                    </Pressable>
-                                )
-                            })}
+                            {SORT_OPTIONS.map((option) => (
+                                <Pressable
+                                    key={option.label}
+                                    onPress={() => handleSortChange(option.value)}
+                                    className={`rounded-xl px-4 py-3 ${option.value === sort ? 'bg-[#F0F3FB]' : ''}`}
+                                >
+                                    <AppText className={`font-poppins-medium text-[14px] ${option.value === sort ? 'text-brand' : 'text-text'}`}>
+                                        {option.label}
+                                    </AppText>
+                                </Pressable>
+                            ))}
                         </View>
                     </Pressable>
                 </Modal>

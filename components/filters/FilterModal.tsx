@@ -13,7 +13,7 @@ import { DateFilter } from './sections/DateFilter'
 import { TimeFilter } from './sections/TimeFilter'
 import { DEFAULT_FILTER_VALUES, type FilterModalProps, type FilterValues } from './FilterModal.types'
 
-export function FilterModal({ visible, onClose, onApply, initialValues, hasSearch = false }: FilterModalProps) {
+export function FilterModal({ visible, onClose, onApply, initialValues, hasSearch }: FilterModalProps) {
     const insets = useSafeAreaInsets()
     const [values, setValues] = useState<FilterValues>({ ...DEFAULT_FILTER_VALUES, ...initialValues })
 
@@ -59,19 +59,21 @@ export function FilterModal({ visible, onClose, onApply, initialValues, hasSearc
                         onProximityChange={(v) => update('proximity', v)}
                     />
 
-                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} disabled={!hasSearch} />
+                    <PriceFilter value={values.priceMax} onChange={(v) => update('priceMax', v)} />
 
-                    <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} disabled={!hasSearch} />
-
-                    <TimeFilter
-                        hour={values.availabilityHour}
-                        minute={values.availabilityMinute}
-                        period={values.availabilityPeriod}
-                        onHourChange={(v) => update('availabilityHour', v)}
-                        onMinuteChange={(v) => update('availabilityMinute', v)}
-                        onPeriodChange={(v) => update('availabilityPeriod', v)}
-                        disabled={!hasSearch}
-                    />
+                    {hasSearch && (
+                        <>
+                            <DateFilter value={values.availabilityDate} onChange={(v) => update('availabilityDate', v)} />
+                            <TimeFilter
+                                hour={values.availabilityHour}
+                                minute={values.availabilityMinute}
+                                period={values.availabilityPeriod}
+                                onHourChange={(v) => update('availabilityHour', v)}
+                                onMinuteChange={(v) => update('availabilityMinute', v)}
+                                onPeriodChange={(v) => update('availabilityPeriod', v)}
+                            />
+                        </>
+                    )}
                 </ScrollView>
 
                 {/* Footer */}
