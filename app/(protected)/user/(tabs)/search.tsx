@@ -28,13 +28,14 @@ type FilterChip = {
 
 const FILTER_CHIPS: FilterChip[] = [
     { id: 'open-now', label: 'Open Now', getParams: () => ({ openNow: true }) },
-    { id: 'top-rated', label: 'Top Rated', getParams: () => ({ topRated: true }) },
     { id: 'best-price', label: 'Best Price', getParams: () => ({ bestPrice: true }), requiresSearch: true },
 ]
 
 const SORT_OPTIONS: { value: BusinessSort | null; label: string }[] = [
     { value: null, label: 'None' },
     { value: 'popular', label: 'Popular' },
+    { value: 'top_rated', label: 'Top Rated' },
+    { value: 'nearby', label: 'Nearby' },
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
 ]
@@ -68,8 +69,8 @@ export default function SearchScreen() {
     }, [appliedFilters])
 
     const sortLabel = sort ? (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by') : 'Sort by'
-    // "popular" sort is incompatible with top-rated and best-price chips
-    const isPopularDisabled = activeChips.has('top-rated') || activeChips.has('best-price')
+    // Sort is disabled when best-price chip is active
+    const isSortDisabled = activeChips.has('best-price')
 
     const displayCity = appliedFilters?.city ?? 'All Cities'
 
@@ -115,16 +116,13 @@ export default function SearchScreen() {
             if (next.has(chipId)) {
                 next.delete(chipId)
             } else {
-                // top-rated and best-price are mutually exclusive
-                if (chipId === 'top-rated') next.delete('best-price')
-                if (chipId === 'best-price') next.delete('top-rated')
                 next.add(chipId)
             }
             return next
         })
-        // top-rated and best-price are incompatible with "popular" sort
-        if (chipId === 'top-rated' || chipId === 'best-price') {
-            setSort((prev) => (prev === 'popular' ? null : prev))
+        // best-price clears any sort
+        if (chipId === 'best-price') {
+            setSort(null)
         }
         setCursor(null)
     }, [])
@@ -276,7 +274,12 @@ export default function SearchScreen() {
 
                     {/* ── Sort & advanced filter row ────────────── */}
                     <View className="mb-4 flex-row items-center justify-between">
-                        <AppPressable onPress={() => setSortOpen(true)} className="flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5">
+                        <AppPressable
+                            onPress={() => setSortOpen(true)}
+                            disabled={isSortDisabled}
+                            disabledClassName=""
+                            className={`flex-row items-center gap-1 rounded-pill bg-brand px-5 py-2.5 ${isSortDisabled ? 'opacity-40' : ''}`}
+                        >
                             <AppText className="text-status font-poppins-medium text-white">{sortLabel}</AppText>
                             <Feather name="chevron-down" size={16} color="#fff" />
                         </AppPressable>
@@ -317,7 +320,7 @@ export default function SearchScreen() {
                     <Pressable className="flex-1 items-center justify-center bg-black/30" onPress={() => setSortOpen(false)}>
                         <View className="w-[220px] rounded-2xl bg-white p-2" style={dropdownShadow}>
                             {SORT_OPTIONS.map((option) => {
-                                const disabled = option.value === 'popular' && isPopularDisabled
+                                const disabled = option.value !== null && isSortDisabled
                                 return (
                                     <Pressable
                                         key={option.label}
