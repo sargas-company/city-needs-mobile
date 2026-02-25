@@ -34,6 +34,18 @@ const UploadReelScreen = () => {
 
         const asset = result.assets[0]
 
+        // Validate video duration (max 20 seconds)
+        if (asset.duration && asset.duration > 20000) {
+            Alert.alert('Video Too Long', 'Please select a video that is 20 seconds or less.')
+            return
+        }
+
+        // Validate file size (max 100 MB)
+        if (asset.fileSize && asset.fileSize > 100 * 1024 * 1024) {
+            Alert.alert('File Too Large', 'Please select a video under 100 MB.')
+            return
+        }
+
         let thumbnailUri: string | null = null
         try {
             const thumbnail = await VideoThumbnails.getThumbnailAsync(asset.uri, { time: 0 })
@@ -104,7 +116,7 @@ const UploadReelScreen = () => {
                         >
                             <Feather name="upload" size={28} color="#0C2A63" />
                             <AppText className="mt-2 font-poppins-semibold text-[15px] text-[#0C2A63]">Choose video</AppText>
-                            <AppText className="mt-1 text-[12px] font-poppins text-[#8E94A3]">MP4 or MOV, max 30MB</AppText>
+                            <AppText className="mt-1 text-[12px] font-poppins text-[#8E94A3]">MP4 or MOV, max 20 sec / 100 MB</AppText>
                         </Pressable>
                     )}
                 </View>
