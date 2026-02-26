@@ -273,7 +273,7 @@ const BusinessProfileScreen = () => {
                             }
                         />
 
-                        <View className="absolute bottom-1 right-1 h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#e89f48]">
+                        <View className="absolute bottom-1 right-1 h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#e89f48] opacity-0 pointer-events-none">
                             <Feather name="check" size={16} color="#FFFFFF" />
                         </View>
                     </View>

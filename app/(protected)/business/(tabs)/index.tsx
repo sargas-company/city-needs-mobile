@@ -12,7 +12,6 @@ import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { StatCard } from '@/components/ui/StatCard'
 import { ActivityChart } from '@/components/ui/ActivityChart'
-import { PeriodSelector } from '@/components/ui/PeriodSelector'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 
@@ -59,19 +58,28 @@ export default function BusinessHomeScreen() {
             >
                 {/* Header row: action icon + title + avatar */}
                 <View className="mb-6 flex-row items-center justify-between">
-                    <AppPressable className="relative h-10 w-10 items-center justify-center rounded-xl bg-[#F0F3FB]">
+                    <AppPressable className="relative h-10 w-10 items-center justify-center rounded-xl bg-[#F0F3FB] opacity-0 pointer-events-none">
                         <Feather name="mail" size={20} color="#0C2A63" />
                         <View className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-[1.5px] border-white bg-danger" />
                     </AppPressable>
 
                     <AppText className="font-poppins-semibold text-subtitle text-brand">Home</AppText>
 
-                    <Avatar
-                        size={40}
-                        borderWidth={2}
-                        borderColor="#FFFFFF"
-                        uri="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
-                    />
+                    <AppPressable onPress={() => router.push('/(protected)/business/(tabs)/profile')}>
+                        <Avatar
+                            size={40}
+                            borderWidth={2}
+                            borderColor="#FFFFFF"
+                            uri={business?.logo?.url ?? undefined}
+                            fallback={
+                                <View className="flex-1 items-center justify-center bg-[#E5E7EB]">
+                                    <AppText className="text-[16px] font-poppins-bold text-[#0C2A63]">
+                                        {(business?.name ?? 'B')[0].toUpperCase()}
+                                    </AppText>
+                                </View>
+                            }
+                        />
+                    </AppPressable>
                 </View>
 
                 {/* Business info card */}
@@ -104,9 +112,8 @@ export default function BusinessHomeScreen() {
                 </AppPressable>
 
                 {/* Stats section */}
-                <View className="mt-6 flex-row items-center justify-between">
+                <View className="mt-6">
                     <AppText className="font-poppins-bold text-[20px] text-brand">Stats</AppText>
-                    <PeriodSelector value={period} options={PERIOD_OPTIONS} onChange={setPeriod} />
                 </View>
 
                 <View className="mt-4 flex-row gap-3">
