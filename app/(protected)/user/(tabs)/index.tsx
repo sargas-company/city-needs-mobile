@@ -417,25 +417,23 @@ export default function HomeScreen() {
     )
 
     return (
-        <View className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white">
             <WaveHeader />
 
-            <SafeAreaView className="flex-1" style={{ paddingTop: HEADER_CONTENT_OFFSET }}>
-                <FlatList
-                    data={sections}
-                    keyExtractor={keyExtractor}
-                    renderItem={renderItem}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 20 }}
-                    initialNumToRender={4}
-                    maxToRenderPerBatch={2}
-                    windowSize={5}
-                    removeClippedSubviews={false}
-                    onViewableItemsChanged={onViewableItemsChanged}
-                    viewabilityConfig={viewabilityConfig}
-                    refreshControl={refreshControl}
-                />
-            </SafeAreaView>
-        </View>
+            <FlatList
+                data={sections}
+                keyExtractor={keyExtractor}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingTop: HEADER_CONTENT_OFFSET, paddingBottom: 20 }}
+                initialNumToRender={4}
+                maxToRenderPerBatch={2}
+                windowSize={5}
+                removeClippedSubviews={false}
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={viewabilityConfig}
+                refreshControl={refreshControl}
+            />
+        </SafeAreaView>
     )
 }
