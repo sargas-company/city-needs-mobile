@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 
 import { LoginPayload } from '@/services/auth/auth.types'
 import { loginThunk } from '@/store/features/auth/auth.thunks'
@@ -80,7 +80,6 @@ const SignIn = () => {
                 >
                     <View className="w-full max-w-md self-center gap-6">
                         <Text className="text-3xl font-bold text-brand text-center w-full">Your local community{'\n'}starts here.</Text>
-
                         <FormInput<SignInFormValues>
                             control={control}
                             name="email"
@@ -91,7 +90,6 @@ const SignIn = () => {
                             keyboardType="email-address"
                             editable={!isLoading}
                         />
-
                         <FormInput<SignInFormValues>
                             control={control}
                             name="password"
@@ -103,7 +101,6 @@ const SignIn = () => {
                             rightIcon={<Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#CBCBCB" />}
                             onRightIconPress={() => setShowPassword((prev) => !prev)}
                         />
-
                         <AppButton
                             title={isLoading ? 'Logging in…' : 'Log In'}
                             onPress={handleSubmit(onSubmit)}
@@ -111,33 +108,26 @@ const SignIn = () => {
                             disabled={isLoading}
                             className="mt-2"
                         />
-
                         {authError ? <Text className="mt-2 text-sm text-red-600 text-center">{authError}</Text> : null}
-
                         <Link href="/(auth)/reset-password" className="text-center font-semibold text-brand  leading-[21px] tracking-normal">
                             Forgot password?
                         </Link>
-
-                        <View className="flex-row items-center mb-6">
-                            <View className="flex-1 h-px bg-gray-300" />
-                            <Text className="mx-4 text-gray-400 text-sm">Or login with</Text>
-                            <View className="flex-1 h-px bg-gray-300" />
-                        </View>
-
-                        <View className="flex-row justify-between mb-8">
-                            <SocialButton>
-                                <AntDesign name="google" size={22} color="#DB4437" />
-                            </SocialButton>
-
-                            <SocialButton>
-                                <FontAwesome name="facebook" size={22} color="#1877F2" />
-                            </SocialButton>
-
-                            <SocialButton>
-                                <AntDesign name="apple" size={22} color="#000" />
-                            </SocialButton>
-                        </View>
-
+                        {/*<View className="flex-row items-center mb-6">*/}
+                        {/*    <View className="flex-1 h-px bg-gray-300" />*/}
+                        {/*    <Text className="mx-4 text-gray-400 text-sm">Or login with</Text>*/}
+                        {/*    <View className="flex-1 h-px bg-gray-300" />*/}
+                        {/*</View>*/}
+                        {/*<View className="flex-row justify-between mb-8">*/}
+                        {/*    <SocialButton>*/}
+                        {/*        <AntDesign name="google" size={22} color="#DB4437" />*/}
+                        {/*    </SocialButton>*/}
+                        {/*    <SocialButton>*/}
+                        {/*        <FontAwesome name="facebook" size={22} color="#1877F2" />*/}
+                        {/*    </SocialButton>*/}
+                        {/*    <SocialButton>*/}
+                        {/*        <AntDesign name="apple" size={22} color="#000" />*/}
+                        {/*    </SocialButton>*/}
+                        {/*</View>*/}
                         <View className="flex-row justify-center">
                             <Text className="text-base text-black">New here? </Text>
                             <Link href="/(auth)/sign-up" className="text-base text-yellow-600 font-semibold">

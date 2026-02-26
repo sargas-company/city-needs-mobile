@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Pressable, ScrollView, Switch, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import { router } from 'expo-router'
 import { getAuth } from 'firebase/auth'
@@ -101,7 +101,7 @@ const ProfileScreen = () => {
                     />
                 </View>
 
-                <View className="mt-8">
+                <View className="mt-4">
                     <View className="rounded-2xl">
                         <MenuRow
                             icon="bookmark"
@@ -125,8 +125,20 @@ const ProfileScreen = () => {
                             subtitle={profileLocation?.formattedAddress ?? 'Set your location'}
                             onPress={() => router.push('/(protected)/(onboarding)/location?fromProfile=true')}
                         />
+                        <View className="h-px bg-gray-200" />
+                        <Pressable onPress={onLogout} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                            <View className="min-h-[74px] flex-row items-center justify-between py-4">
+                                <View className="flex-1 flex-row items-center gap-3.5">
+                                    <View className="h-11 w-11 items-center justify-center rounded-[12px]">
+                                        <Feather name="log-out" size={22} color="#FF4D4D" />
+                                    </View>
+                                    <AppText className="font-poppins-medium text-[13px] leading-[20px] text-[#FF4D4D]">Log out</AppText>
+                                </View>
+                            </View>
+                        </Pressable>
                     </View>
 
+                    {/* Notifications section hidden
                     <View className="mt-5 rounded-2xl">
                         <View className="min-h-[74px] flex-row items-center justify-between py-4">
                             <View className="flex-1 flex-row items-center gap-3.5">
@@ -142,20 +154,8 @@ const ProfileScreen = () => {
                                 thumbColor="#F6F7FB"
                             />
                         </View>
-
-                        <View className="h-px bg-gray-200" />
-
-                        <Pressable onPress={onLogout} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-                            <View className="min-h-[74px] flex-row items-center justify-between py-4">
-                                <View className="flex-1 flex-row items-center gap-3.5">
-                                    <View className="h-11 w-11 items-center justify-center rounded-[12px]">
-                                        <Feather name="log-out" size={22} color="#FF4D4D" />
-                                    </View>
-                                    <AppText className="font-poppins-medium text-[13px] leading-[20px] text-[#FF4D4D]">Log out</AppText>
-                                </View>
-                            </View>
-                        </Pressable>
                     </View>
+                    */}
                 </View>
             </ScrollView>
         </SafeAreaView>

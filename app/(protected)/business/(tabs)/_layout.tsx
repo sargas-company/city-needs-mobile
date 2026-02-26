@@ -57,22 +57,22 @@ function NativeTabsLayout() {
                     selectedIcon: { sf: 'play.rectangle.fill' },
                 }}
             />
-            <NativeTabs.Trigger
-                name="analytics"
-                options={{
-                    title: 'Analytics',
-                    icon: { sf: 'chart.bar' },
-                    selectedIcon: { sf: 'chart.bar.fill' },
-                }}
-            />
-            <NativeTabs.Trigger
-                name="subscription"
-                options={{
-                    title: 'Subscription',
-                    icon: { sf: 'star' },
-                    selectedIcon: { sf: 'star.fill' },
-                }}
-            />
+            {/*<NativeTabs.Trigger*/}
+            {/*    name="analytics"*/}
+            {/*    options={{*/}
+            {/*        title: 'Analytics',*/}
+            {/*        icon: { sf: 'chart.bar' },*/}
+            {/*        selectedIcon: { sf: 'chart.bar.fill' },*/}
+            {/*    }}*/}
+            {/*/>*/}
+            {/*<NativeTabs.Trigger*/}
+            {/*    name="subscription"*/}
+            {/*    options={{*/}
+            {/*        title: 'Subscription',*/}
+            {/*        icon: { sf: 'star' },*/}
+            {/*        selectedIcon: { sf: 'star.fill' },*/}
+            {/*    }}*/}
+            {/*/>*/}
         </NativeTabs>
     )
 }
