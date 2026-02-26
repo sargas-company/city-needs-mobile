@@ -52,10 +52,20 @@ const dropdownShadow = {
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
 export default function SearchScreen() {
-    const { categorySlug } = useLocalSearchParams<{ categorySlug?: string }>()
+    const { categorySlug, query } = useLocalSearchParams<{ categorySlug?: string; query?: string }>()
     const { data: categories = [] } = useGetCategoriesQuery()
 
     const [searchText, setSearchText] = useState('')
+
+    // Apply search query from route params
+    useEffect(() => {
+        if (query) {
+            setSearchText(query)
+            setCursor(null)
+        } else {
+            setSearchText('')
+        }
+    }, [query])
     const debouncedSearchText = useDebounce(searchText, 300)
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
     const [sort, setSort] = useState<BusinessSort | null>('popular')
@@ -215,7 +225,8 @@ export default function SearchScreen() {
     )
 
     const ListHeader = useMemo(
-        () => (totalCount != null ? <AppText className="mb-4 text-title font-poppins-bold text-brand">{totalCount} Results Found</AppText> : null),
+        () =>
+            totalCount != null ? <AppText className="mb-4 text-[20px] font-poppins-semibold text-brand">{totalCount} Results Found</AppText> : null,
         [totalCount]
     )
 
@@ -258,16 +269,18 @@ export default function SearchScreen() {
                     {/* ── Location row ─────────────────────────── */}
                     <View className="mb-3 flex-row items-center justify-between">
                         <View>
-                            <AppText className="text-status text-text-muted">Location</AppText>
-                            <View className="flex-row items-center gap-1">
+                            <AppText className="text-[12px] text-text-muted mb-1">Location</AppText>
+                            <View className="flex-row items-center gap-2">
                                 <Feather name="map-pin" size={16} color="#e89f48" />
-                                <AppText className="text-subtitle font-poppins-semibold text-text">{displayCity}</AppText>
+                                <AppPressable onPress={() => setFilterOpen(true)}>
+                                    <AppText className="text-subtitle font-poppins-medium text-brand">{displayCity}</AppText>
+                                </AppPressable>
                             </View>
                         </View>
                     </View>
 
                     {/* ── Search bar row ────────────────────────── */}
-                    <View className="mb-3 flex-row items-center gap-3">
+                    <View className="mb-4 flex-row items-center gap-3">
                         <View className="flex-1">
                             <AppInput
                                 leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
@@ -280,7 +293,7 @@ export default function SearchScreen() {
                     </View>
 
                     {/* ── Filter chips ──────────────────────────── */}
-                    <View className="mb-3 flex-row flex-wrap gap-2">
+                    <View className="mb-4 flex-row flex-wrap gap-2">
                         {FILTER_CHIPS.map((chip) => {
                             const active = activeChips.has(chip.id)
                             const disabled = chip.requiresSearch && !searchText.trim()
@@ -336,7 +349,7 @@ export default function SearchScreen() {
                         ListHeaderComponent={ListHeader}
                         ListFooterComponent={ListFooter}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
+                        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120 }}
                         initialNumToRender={5}
                         maxToRenderPerBatch={4}
                         windowSize={5}

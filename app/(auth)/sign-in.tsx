@@ -1,5 +1,5 @@
 import { Link } from 'expo-router'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
@@ -15,6 +15,7 @@ import { setAuthError } from '@/store/features/auth/auth.slice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { FormInput } from '@/components/ui/FormInput'
 import { AppButton } from '@/components/ui/AppButton'
+import LogoSvg from '@/assets/images/main_logo.svg'
 
 const signInSchema = z.object({
     email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -79,6 +80,9 @@ const SignIn = () => {
                     bottomOffset={24}
                 >
                     <View className="w-full max-w-md self-center gap-6">
+                        <View className={'flex w-full items-center justify-center'}>
+                            <LogoSvg width={100} height={100} />
+                        </View>
                         <Text className="text-3xl font-bold text-brand text-center w-full">Your local community{'\n'}starts here.</Text>
                         <FormInput<SignInFormValues>
                             control={control}

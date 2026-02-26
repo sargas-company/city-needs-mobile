@@ -43,16 +43,16 @@ export default function BusinessHomeScreen() {
 
     // Hardcoded mock data
     const summary = {
-        profileViews: { total: 1247, deltaPercent: 12.5 },
-        userActions: { total: 384, deltaPercent: 8.3 },
+        profileViews: { total: 0, deltaPercent: 0 },
+        userActions: { total: 0, deltaPercent: 0 },
     }
     const chartData = [
-        { month: 'Jan', views: 120, actions: 45 },
-        { month: 'Feb', views: 180, actions: 62 },
-        { month: 'Mar', views: 150, actions: 58 },
-        { month: 'Apr', views: 220, actions: 85 },
-        { month: 'May', views: 280, actions: 95 },
-        { month: 'Jun', views: 250, actions: 78 },
+        { month: 'Jan', views: 0, actions: 0 },
+        { month: 'Feb', views: 0, actions: 0 },
+        { month: 'Mar', views: 0, actions: 0 },
+        { month: 'Apr', views: 0, actions: 0 },
+        { month: 'May', views: 0, actions: 0 },
+        { month: 'Jun', views: 0, actions: 0 },
     ]
 
     return (

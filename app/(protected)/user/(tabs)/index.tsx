@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, Pressable, RefreshControl, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
+import Feather from '@expo/vector-icons/Feather'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -147,6 +148,17 @@ export default function HomeScreen() {
         router.push({ pathname: '/(protected)/user/(tabs)/search', params: { categorySlug: '' } })
     }, [router])
 
+    // Search bar state
+    const [searchText, setSearchText] = useState('')
+    const [searchFocused, setSearchFocused] = useState(false)
+
+    const handleSearchSubmit = useCallback(() => {
+        if (searchText.trim()) {
+            router.push({ pathname: '/(protected)/user/(tabs)/search', params: { query: searchText.trim(), categorySlug: '' } })
+            setSearchText('')
+        }
+    }, [router, searchText])
+
     // Only load first 2 sections initially, others load when visible
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
 
@@ -284,6 +296,38 @@ export default function HomeScreen() {
     const renderItem: ListRenderItem<SectionItem> = useCallback(
         ({ item }) => {
             switch (item.type) {
+                case 'header':
+                    return (
+                        <View className="mb-6 px-screen">
+                            <View
+                                className="flex-row items-center rounded-xl border bg-white px-3"
+                                style={{
+                                    borderColor: searchFocused ? '#e89f48' : '#E5E7EB',
+                                    borderWidth: 1.5,
+                                    minHeight: 48,
+                                }}
+                            >
+                                <Feather name="search" size={18} color={searchFocused ? '#e89f48' : '#8D8C92'} style={{ marginRight: 8 }} />
+                                <TextInput
+                                    className="flex-1 font-poppins text-base text-text"
+                                    placeholder="Search services..."
+                                    placeholderTextColor="#9CA3AF"
+                                    value={searchText}
+                                    onChangeText={setSearchText}
+                                    onFocus={() => setSearchFocused(true)}
+                                    onBlur={() => setSearchFocused(false)}
+                                    onSubmitEditing={handleSearchSubmit}
+                                    returnKeyType="search"
+                                />
+                                {searchText.length > 0 && (
+                                    <Pressable hitSlop={8} onPress={() => setSearchText('')} className="ml-1 p-1">
+                                        <Feather name="x" size={18} color="#8D8C92" />
+                                    </Pressable>
+                                )}
+                            </View>
+                        </View>
+                    )
+
                 case 'categories':
                     return (
                         <View className="mb-6 px-screen">
@@ -413,7 +457,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, handleSeeAllPress, displayCategories]
+        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText, searchFocused]
     )
 
     return (

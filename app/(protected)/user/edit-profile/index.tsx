@@ -218,14 +218,14 @@ const EditProfileScreen = () => {
 
                     <FormPhoneInput<EditProfileForm> control={control} name="phone" label="Mobile Number" required={false} />
 
-                    <FormInput<EditProfileForm>
-                        control={control}
-                        name="password"
-                        label="Password"
-                        placeholder="Enter new password"
-                        secureTextEntry
-                        editable={!isSaving}
-                    />
+                    {/*<FormInput<EditProfileForm>*/}
+                    {/*    control={control}*/}
+                    {/*    name="password"*/}
+                    {/*    label="Password"*/}
+                    {/*    placeholder="Enter new password"*/}
+                    {/*    secureTextEntry*/}
+                    {/*    editable={!isSaving}*/}
+                    {/*/>*/}
                 </View>
 
                 {!!submitError && <AppText className="mt-3 text-center text-sm text-[#FF4D4D]">{submitError}</AppText>}
