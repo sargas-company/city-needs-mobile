@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { AppText } from '@/components/ui/AppText'
 import { useAppSelector } from '@/store/hooks'
-import { useGetAnalyticsActivityQuery, useGetAnalyticsSummaryQuery } from '@/store/features/analytics/analyticsApi'
+// import { useGetAnalyticsActivityQuery, useGetAnalyticsSummaryQuery } from '@/store/features/analytics/analyticsApi'
 import { selectBusiness } from '@/store/features/profile/profile.selectors'
 import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -38,16 +38,22 @@ export default function BusinessHomeScreen() {
     const router = useRouter()
     const [period, setPeriod] = useState('Monthly')
     const business = useAppSelector(selectBusiness)
-    const { data: activityResponse } = useGetAnalyticsActivityQuery()
-    const { data: summaryResponse } = useGetAnalyticsSummaryQuery()
+    // const { data: activityResponse } = useGetAnalyticsActivityQuery()
+    // const { data: summaryResponse } = useGetAnalyticsSummaryQuery()
 
-    const summary = summaryResponse
-    const chartData =
-        activityResponse?.data?.map((item) => ({
-            month: item.label,
-            views: item.views,
-            actions: item.actions,
-        })) ?? []
+    // Hardcoded mock data
+    const summary = {
+        profileViews: { total: 1247, deltaPercent: 12.5 },
+        userActions: { total: 384, deltaPercent: 8.3 },
+    }
+    const chartData = [
+        { month: 'Jan', views: 120, actions: 45 },
+        { month: 'Feb', views: 180, actions: 62 },
+        { month: 'Mar', views: 150, actions: 58 },
+        { month: 'Apr', views: 220, actions: 85 },
+        { month: 'May', views: 280, actions: 95 },
+        { month: 'Jun', views: 250, actions: 78 },
+    ]
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -120,20 +126,20 @@ export default function BusinessHomeScreen() {
                     <StatCard
                         icon="eye"
                         label="Profile views"
-                        value={formatNumber(summary?.profileViews.total ?? 0)}
-                        changePercent={summary?.profileViews.deltaPercent ?? 0}
+                        value={formatNumber(summary.profileViews.total)}
+                        changePercent={summary.profileViews.deltaPercent}
                     />
                     <StatCard
                         icon="zap"
                         label="User actions"
-                        value={formatNumber(summary?.userActions.total ?? 0)}
-                        changePercent={summary?.userActions.deltaPercent ?? 0}
+                        value={formatNumber(summary.userActions.total)}
+                        changePercent={summary.userActions.deltaPercent}
                     />
                 </View>
 
                 {/* Activity overview section */}
                 <AppText className="mb-4 mt-8 font-poppins-bold text-[20px] text-brand">Activity overview</AppText>
-                {chartData.length > 0 && <ActivityChart data={chartData} />}
+                <ActivityChart data={chartData} />
             </ScrollView>
         </SafeAreaView>
     )
