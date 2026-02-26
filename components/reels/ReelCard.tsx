@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from 'react'
 import { View, ViewStyle } from 'react-native'
-import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
 import { Image } from 'expo-image'
 
@@ -9,6 +8,8 @@ import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
 import { DoubleStar } from '@/components/ui/DoubleMoon'
 import type { ReelFeedItem } from '@/store/features/reels/reels.types'
+import MapMarkerIcon from '@/assets/images/map-marker.svg'
+import PlayButtonIcon from '@/assets/images/play-button.svg'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -43,7 +44,7 @@ export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
                 <View className="mr-3">
                     <Avatar
                         uri={business.logoUrl ?? undefined}
-                        size={56}
+                        size={65}
                         borderWidth={2}
                         borderColor="#E8A230"
                         recyclingKey={`reel-avatar-${reel.id}`}
@@ -56,13 +57,13 @@ export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
                 </View>
 
                 <View className="flex-1">
-                    <AppText className="text-lg font-poppins-semibold text-text">{business.name}</AppText>
+                    <AppText className="text-lg font-poppins-semibold text-brand">{business.name}</AppText>
 
                     {/* Rating + City */}
                     <View className="mt-0.5 flex-row items-center gap-1">
                         <DoubleStar />
-                        <AppText className="text-status text-text">({business.ratingAvg.toFixed(1)})</AppText>
-                        <Feather name="map-pin" size={13} color="#e89f48" />
+                        <AppText className="text-status text-text mr-2">({business.ratingAvg.toFixed(1)})</AppText>
+                        <MapMarkerIcon width={22} height={22} />
                         <AppText className="text-status text-text">{business.address.city}</AppText>
                     </View>
                 </View>
@@ -77,6 +78,9 @@ export const ReelCard = memo(function ReelCard({ reel }: ReelCardProps) {
                     cachePolicy="memory-disk"
                     transition={200}
                 />
+                <View className="absolute inset-0 items-center justify-center" style={{ width: '33%' }}>
+                    <PlayButtonIcon width={50} height={50} />
+                </View>
             </AppPressable>
         </View>
     )

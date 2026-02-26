@@ -57,7 +57,21 @@ const dropdownShadow = {
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
 export default function SearchScreen() {
-    const { categorySlug, query } = useLocalSearchParams<{ categorySlug?: string; query?: string }>()
+    const {
+        categorySlug,
+        query,
+        sort: sortParam,
+        lat: latParam,
+        lng: lngParam,
+        withinKm: withinKmParam,
+    } = useLocalSearchParams<{
+        categorySlug?: string
+        query?: string
+        sort?: BusinessSort
+        lat?: string
+        lng?: string
+        withinKm?: string
+    }>()
     const { data: categories = [] } = useGetCategoriesQuery()
 
     const [searchText, setSearchText] = useState('')
@@ -71,13 +85,85 @@ export default function SearchScreen() {
             setSearchText('')
         }
     }, [query])
+
     const debouncedSearchText = useDebounce(searchText, 300)
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
-    const [sort, setSort] = useState<BusinessSort | null>('popular')
+    const [sort, setSort] = useState<BusinessSort | null>(sortParam ?? 'popular')
+    const [nearbyParams, setNearbyParams] = useState<{ lat?: number; lng?: number; withinKm?: 1 | 5 } | null>(() => {
+        if (latParam && lngParam) {
+            const parsedKm = withinKmParam ? parseInt(withinKmParam, 10) : 5
+            const withinKm: 1 | 5 = parsedKm === 1 ? 1 : 5
+            return {
+                lat: parseFloat(latParam),
+                lng: parseFloat(lngParam),
+                withinKm,
+            }
+        }
+        return null
+    })
     const [sortOpen, setSortOpen] = useState(false)
     const [cursor, setCursor] = useState<string | null>(null)
     const [filterOpen, setFilterOpen] = useState(false)
-    const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
+    const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(() => {
+        // Initialize with proximity if coming from "Near You" See All
+        if (latParam && lngParam && withinKmParam) {
+            const parsedKm = parseInt(withinKmParam, 10)
+            const withinKm: 1 | 5 = parsedKm === 1 ? 1 : 5
+            return {
+                categoryId: null,
+                city: null,
+                proximity: withinKm === 1 ? 'within_1km' : 'within_5km',
+                priceMin: null,
+                priceMax: null,
+                availabilityDate: null,
+                availabilityHour: 12,
+                availabilityMinute: 0,
+                availabilityPeriod: 'AM',
+            }
+        }
+        return null
+    })
+
+    // Apply sort and nearby params from route params
+    useEffect(() => {
+        if (sortParam) {
+            setSort(sortParam)
+        } else {
+            setSort('popular')
+        }
+        setCursor(null)
+
+        if (latParam && lngParam) {
+            const parsedKm = withinKmParam ? parseInt(withinKmParam, 10) : 5
+            const withinKm: 1 | 5 = parsedKm === 1 ? 1 : 5
+            setNearbyParams({
+                lat: parseFloat(latParam),
+                lng: parseFloat(lngParam),
+                withinKm,
+            })
+            // Set proximity filter for FilterModal chip
+            setAppliedFilters((prev) => ({
+                ...(prev ?? {
+                    categoryId: null,
+                    city: null,
+                    priceMin: null,
+                    priceMax: null,
+                    availabilityDate: null,
+                    availabilityHour: 12,
+                    availabilityMinute: 0,
+                    availabilityPeriod: 'AM' as const,
+                }),
+                proximity: withinKm === 1 ? 'within_1km' : 'within_5km',
+            }))
+        } else {
+            // Reset nearby params and proximity when navigating without location params
+            setNearbyParams(null)
+            setAppliedFilters((prev) => {
+                if (!prev?.proximity) return prev
+                return { ...prev, proximity: null }
+            })
+        }
+    }, [sortParam, latParam, lngParam, withinKmParam])
 
     const { location: userLocation } = useEnsureLocation()
     const dispatch = useAppDispatch()
@@ -135,6 +221,13 @@ export default function SearchScreen() {
             args.sort = sort
         }
 
+        // Apply nearby params from route (for "Near You" see all)
+        if (nearbyParams) {
+            if (nearbyParams.lat != null) args.lat = nearbyParams.lat
+            if (nearbyParams.lng != null) args.lng = nearbyParams.lng
+            if (nearbyParams.withinKm != null) args.withinKm = nearbyParams.withinKm
+        }
+
         for (const chip of FILTER_CHIPS) {
             if (activeChips.has(chip.id)) {
                 // Skip service-specific chips when no search
@@ -150,7 +243,7 @@ export default function SearchScreen() {
         }
 
         return args
-    }, [debouncedSearchText, activeChips, sort, cursor, appliedFilters, userLocation])
+    }, [debouncedSearchText, activeChips, sort, cursor, appliedFilters, userLocation, nearbyParams])
 
     const { data, isLoading, isFetching, refetch } = useSearchBusinessesQuery(queryArgs)
 

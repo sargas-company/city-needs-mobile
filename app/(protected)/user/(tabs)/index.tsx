@@ -154,6 +154,18 @@ export default function HomeScreen() {
         router.push({ pathname: '/(protected)/user/(tabs)/search', params: { categorySlug: '' } })
     }, [router])
 
+    const handleNearYouSeeAllPress = useCallback(() => {
+        router.push({
+            pathname: '/(protected)/user/(tabs)/search',
+            params: {
+                sort: 'nearby',
+                lat: location?.lat?.toString() ?? '',
+                lng: location?.lng?.toString() ?? '',
+                withinKm: 5,
+            },
+        })
+    }, [router, location])
+
     // Search bar state
     const [searchText, setSearchText] = useState('')
 
@@ -403,7 +415,10 @@ export default function HomeScreen() {
                             <View className="mb-3 flex-row items-end justify-between px-screen">
                                 <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
 
-                                <AppPressable onPress={handleSeeAllPress} className="ml-3 shrink-0">
+                                <AppPressable
+                                    onPress={item.key === 'nearby' ? handleNearYouSeeAllPress : handleSeeAllPress}
+                                    className="ml-3 shrink-0"
+                                >
                                     <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
@@ -415,7 +430,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText, selectedCity]
+        [handleCategoryPress, handleSeeAllPress, handleNearYouSeeAllPress, handleSearchSubmit, displayCategories, searchText, selectedCity]
     )
 
     return (
