@@ -16,6 +16,9 @@ import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
+import { setSelectedCity } from '@/store/features/location/location.slice'
+import { selectSelectedCity } from '@/store/features/location/location.selectors'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import type { BusinessCardDto, BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
 
 // ── Filter chip config ──────────────────────────────────────────────────────────
@@ -75,6 +78,8 @@ export default function SearchScreen() {
     const [appliedFilters, setAppliedFilters] = useState<FilterValues | null>(null)
 
     const { location: userLocation } = useEnsureLocation()
+    const dispatch = useAppDispatch()
+    const selectedCity = useAppSelector(selectSelectedCity)
     const appliedFiltersRef = useRef(appliedFilters)
 
     // Apply category filter from route params (or reset when no category)
@@ -113,7 +118,7 @@ export default function SearchScreen() {
 
     const sortLabel = sort ? (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Sort by') : 'Sort by'
 
-    const displayCity = appliedFilters?.city ?? 'All Cities'
+    const displayCity = appliedFilters?.city ?? selectedCity ?? 'All Cities'
 
     const queryArgs = useMemo<SearchBusinessesArgs>(() => {
         const args: SearchBusinessesArgs = {
@@ -208,10 +213,15 @@ export default function SearchScreen() {
         })
     }, [])
 
-    const handleApplyFilters = useCallback((values: FilterValues) => {
-        setAppliedFilters(values)
-        setCursor(null)
-    }, [])
+    const handleApplyFilters = useCallback(
+        (values: FilterValues) => {
+            setAppliedFilters(values)
+            setCursor(null)
+            // Sync city to Redux for cross-screen access
+            dispatch(setSelectedCity(values.city ?? null))
+        },
+        [dispatch]
+    )
 
     const keyExtractor = useCallback((item: BusinessCardDto) => item.id, [])
 

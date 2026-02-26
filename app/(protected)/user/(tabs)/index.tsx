@@ -14,6 +14,8 @@ import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
 import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
+import { selectSelectedCity } from '@/store/features/location/location.selectors'
+import { useAppSelector } from '@/store/hooks'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
 
 // Category card images
@@ -127,6 +129,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
 export default function HomeScreen() {
     const router = useRouter()
     const { location } = useEnsureLocation()
+    const selectedCity = useAppSelector(selectSelectedCity)
 
     const { data: categories = [] } = useGetCategoriesQuery()
 
@@ -305,7 +308,7 @@ export default function HomeScreen() {
                                     <AppText className="mb-1 text-[12px] text-text-muted">Location</AppText>
                                     <View className="flex-row items-center gap-2">
                                         <Feather name="map-pin" size={16} color="#e89f48" />
-                                        <AppText className="font-poppins-medium text-subtitle text-brand">All Cities</AppText>
+                                        <AppText className="font-poppins-medium text-subtitle text-brand">{selectedCity ?? 'All Cities'}</AppText>
                                     </View>
                                 </View>
                             </View>
@@ -451,7 +454,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText]
+        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText, selectedCity]
     )
 
     return (

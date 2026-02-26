@@ -6,12 +6,14 @@ export type LocationState = {
     location: StoredLocation | null
     permission: LocationPermissionStatus
     error: string | null
+    selectedCity: string | null
 }
 
 const initialState: LocationState = {
     location: null,
     permission: 'undetermined',
     error: null,
+    selectedCity: null,
 }
 
 const locationSlice = createSlice({
@@ -32,8 +34,11 @@ const locationSlice = createSlice({
             state.location = null
             state.error = null
         },
+        setSelectedCity: (state, action: PayloadAction<string | null>) => {
+            state.selectedCity = action.payload
+        },
     },
 })
 
-export const { setLocation, setLocationPermission, setLocationError, clearLocation } = locationSlice.actions
+export const { setLocation, setLocationPermission, setLocationError, clearLocation, setSelectedCity } = locationSlice.actions
 export const locationReducer = locationSlice.reducer
