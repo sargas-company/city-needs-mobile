@@ -1,10 +1,11 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
+import { FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppInput } from '@/components/ui/AppInput'
+import { AppLoader } from '@/components/ui/AppLoader'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
@@ -24,6 +25,7 @@ import BeautyImage from '@/assets/images/home-page/beauty.png'
 import RepairsImage from '@/assets/images/home-page/repairs.png'
 import PetsImage from '@/assets/images/home-page/pets.png'
 import NoDataImage from '@/assets/images/system/NoData.svg'
+import MapMarkerIcon from '@/assets/images/map-marker.svg'
 
 type CategoryCardProps = {
     title: string
@@ -95,7 +97,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
     if (isLoading) {
         return (
             <View className="items-center py-10">
-                <ActivityIndicator size="small" />
+                <AppLoader size="xs" showTitle />
             </View>
         )
     }
@@ -165,17 +167,6 @@ export default function HomeScreen() {
     // Only load first 2 sections initially, others load when visible
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
 
-    // Suggested for you - top rated (loads immediately)
-    const {
-        data: suggestedData,
-        isLoading: suggestedLoading,
-        isFetching: _suggestedFetching,
-        refetch: refetchSuggested,
-    } = useSearchBusinessesQuery({
-        sort: 'top_rated',
-        limit: 5, // Reduced limit for performance
-    })
-
     // Near you - nearby (requires location, loads immediately)
     const {
         data: nearbyData,
@@ -204,36 +195,15 @@ export default function HomeScreen() {
         { skip: !loadedSections.has('trending') }
     )
 
-    // New on City Needs (lazy loaded)
-    const {
-        data: newData,
-        isLoading: newLoading,
-        refetch: refetchNew,
-    } = useSearchBusinessesQuery(
-        {
-            sort: 'popular',
-            limit: 5,
-        },
-        { skip: !loadedSections.has('new') }
-    )
-
     const [isRefreshing, setIsRefreshing] = useState(false)
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true)
-        await Promise.all([
-            refetchSuggested(),
-            location ? refetchNearby() : Promise.resolve(),
-            loadedSections.has('trending') ? refetchTrending() : Promise.resolve(),
-            loadedSections.has('new') ? refetchNew() : Promise.resolve(),
-        ])
+        await Promise.all([location ? refetchNearby() : Promise.resolve(), loadedSections.has('trending') ? refetchTrending() : Promise.resolve()])
         setIsRefreshing(false)
-    }, [refetchSuggested, refetchNearby, refetchTrending, refetchNew, location, loadedSections])
+    }, [refetchNearby, refetchTrending, location, loadedSections])
 
-    const suggestedBusinesses = useMemo(() => suggestedData?.data ?? [], [suggestedData])
     const nearbyBusinesses = useMemo(() => nearbyData?.data ?? [], [nearbyData])
-    const trendingBusinesses = useMemo(() => trendingData?.data ?? [], [trendingData])
-    const newBusinesses = useMemo(() => newData?.data ?? [], [newData])
 
     // Build section data for FlatList
     const sections = useMemo<SectionItem[]>(
@@ -258,18 +228,7 @@ export default function HomeScreen() {
             //     isLoading: newLoading || !loadedSections.has('new'),
             // },
         ],
-        [
-            suggestedBusinesses,
-            suggestedLoading,
-            nearbyBusinesses,
-            nearbyLoading,
-            location,
-            trendingBusinesses,
-            trendingLoading,
-            newBusinesses,
-            newLoading,
-            loadedSections,
-        ]
+        [nearbyBusinesses, nearbyLoading, location, trendingLoading, loadedSections]
     )
 
     // Track which sections become visible
@@ -303,12 +262,14 @@ export default function HomeScreen() {
                     return (
                         <View className="mb-6 px-screen">
                             {/* ── Location row ─────────────────────────── */}
-                            <View className="mb-3 flex-row items-center justify-between">
+                            <View className="mb-6 flex-row items-center justify-between">
                                 <View>
-                                    <AppText className="mb-1 text-[12px] text-text-muted">Location</AppText>
-                                    <View className="flex-row items-center gap-2">
-                                        <Feather name="map-pin" size={16} color="#e89f48" />
+                                    <AppText className="text-[12px] text-text-muted mb-3">Location</AppText>
+                                    <View className="flex-row items-center gap-3.5">
+                                        <MapMarkerIcon width={24} height={24} />
                                         <AppText className="font-poppins-medium text-subtitle text-brand">{selectedCity ?? 'All Cities'}</AppText>
+
+                                        <Feather name="chevron-down" size={20} color="#e89f48" className={'mt-1'} />
                                     </View>
                                 </View>
                             </View>

@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, View } from 'react-native'
+import { FlatList, Modal, Pressable, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
 
+import MapMarkerIcon from '@/assets/images/map-marker.svg'
 import { AppInput } from '@/components/ui/AppInput'
+import { AppLoader } from '@/components/ui/AppLoader'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
@@ -248,11 +250,7 @@ export default function SearchScreen() {
                 {/* ── Load more ───────────────────── */}
                 {meta?.hasNextPage && (
                     <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
-                        {isFetching ? (
-                            <ActivityIndicator size="small" />
-                        ) : (
-                            <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
-                        )}
+                        {isFetching ? <AppLoader size="sm" /> : <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>}
                     </AppPressable>
                 )}
 
@@ -277,15 +275,14 @@ export default function SearchScreen() {
                 {/* ── Fixed Header ────────────────────────────── */}
                 <View className="px-screen">
                     {/* ── Location row ─────────────────────────── */}
-                    <View className="mb-3 flex-row items-center justify-between">
+                    <View className="mb-6 flex-row items-center justify-between">
                         <View>
-                            <AppText className="text-[12px] text-text-muted mb-1">Location</AppText>
-                            <View className="flex-row items-center gap-2">
-                                <Feather name="map-pin" size={16} color="#e89f48" />
-                                <AppPressable onPress={() => setFilterOpen(true)}>
-                                    <AppText className="text-subtitle font-poppins-medium text-brand">{displayCity}</AppText>
-                                </AppPressable>
-                            </View>
+                            <AppText className="text-[12px] text-text-muted mb-3">Location</AppText>
+                            <AppPressable onPress={() => setFilterOpen(true)} className="flex-row items-center gap-3.5">
+                                <MapMarkerIcon width={24} height={24} />
+                                <AppText className="text-subtitle font-poppins-medium text-brand">{displayCity}</AppText>
+                                <Feather name="chevron-down" size={20} color="#e89f48" className={'mt-1'} />
+                            </AppPressable>
                         </View>
                     </View>
 
@@ -349,7 +346,7 @@ export default function SearchScreen() {
                 {/* ── Scrollable List with Pull-to-Refresh ────────────────────────────── */}
                 {isLoading ? (
                     <View className="flex-1 items-center justify-center">
-                        <ActivityIndicator size="large" />
+                        <AppLoader size="sm" showTitle showSubtitle />
                     </View>
                 ) : (
                     <FlatList

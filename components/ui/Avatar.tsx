@@ -32,8 +32,8 @@ export const Avatar = ({ uri, size = 73, borderWidth = 3, borderColor = '#FFFFFF
                 // shadow (iOS)
                 shadowColor: '#000',
                 shadowOffset: { width: 2, height: 1 },
-                shadowOpacity: 0.48,
-                shadowRadius: 4,
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
 
                 // shadow (Android)
                 elevation: 6,

@@ -1,6 +1,5 @@
 import React from 'react'
 import { View } from 'react-native'
-import Feather from '@expo/vector-icons/Feather'
 
 import { AppText } from '@/components/ui/AppText'
 import { Avatar } from '@/components/ui/Avatar'
@@ -48,8 +47,8 @@ export const ReviewCard = ({ review }: Props) => {
     return (
         <View className="py-4">
             {/* Header: avatar + name/stars + time ago */}
-            <View className="flex-row items-start justify-between">
-                <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-4">
                     <View className="relative">
                         <Avatar
                             uri={authorAvatarUrl ?? undefined}
@@ -63,14 +62,14 @@ export const ReviewCard = ({ review }: Props) => {
                                 </View>
                             }
                         />
-                        <View className="absolute -bottom-0.5 -right-0.5 h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-white bg-[#4A90D9]">
-                            <Feather name="check" size={11} color="#FFFFFF" />
-                        </View>
+                        {/*<View className="absolute -bottom-0.5 -right-0.5 h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-white bg-[#4A90D9]">*/}
+                        {/*    <Feather name="check" size={11} color="#FFFFFF" />*/}
+                        {/*</View>*/}
                     </View>
 
-                    <View>
-                        <AppText className="font-poppins-semibold text-[15px] text-[#0C2A63]">{authorName}</AppText>
-                        <StarRating rating={rating} readonly size={16} />
+                    <View className={'flex gap-2'}>
+                        <AppText className="font-semibold text-[14px] text-[#0C2A63]">{authorName}</AppText>
+                        <StarRating rating={rating} readonly size={14} />
                     </View>
                 </View>
 

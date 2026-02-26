@@ -11,6 +11,7 @@ import { useAddSavedBusinessMutation, useRemoveSavedBusinessMutation } from '@/s
 import { DoubleStar } from '@/components/ui/DoubleMoon'
 import { AnalyticsSource, useTrackAnalytics } from '@/hooks/useTrackAnalytics'
 import PeopleImage from '@/assets/images/people-reviews.png'
+import MapMarkerIcon from '@/assets/images/map-marker.svg'
 
 const cardShadow: ViewStyle = {
     shadowColor: '#000',
@@ -87,7 +88,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                         </View>
 
                         {/* Rating */}
-                        <View className="mt-0.5 flex-row items-center justify-between">
+                        <View className="mt-2.5 flex-row items-center justify-between">
                             <View className="flex-row items-center gap-1">
                                 <DoubleStar />
                                 <AppText className="text-status text-text">({business.ratingAvg.toFixed(1)})</AppText>
@@ -103,9 +104,9 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                 </View>
 
                 {/* Row 2: Location | Service type */}
-                <View className="mb-2 flex-row items-center gap-3">
+                <View className="mt-3 mb-2 flex-row items-center gap-3">
                     <View className="flex-row items-center gap-1">
-                        <Feather name="map-pin" size={13} color="#e89f48" />
+                        <MapMarkerIcon width={24} height={24} />
                         <AppText className="text-status text-text">{business.city}</AppText>
                     </View>
                     {business.serviceInStudio && (
@@ -147,7 +148,7 @@ export const ServiceCard = memo(function ServiceCard({ business, analyticsSource
                 </View>
 
                 {/* Row 4: Reviews + Price */}
-                <View className="flex-row items-center justify-between gap-3">
+                <View className=" mt-3  flex-row items-center justify-between gap-3">
                     <Image source={PeopleImage} style={{ width: 117, height: 45 }} />
 
                     <View className="flex-row items-baseline mr-3">
