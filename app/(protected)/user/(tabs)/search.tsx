@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useLocalSearchParams } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
 
 import { AppInput } from '@/components/ui/AppInput'
@@ -12,6 +13,7 @@ import { filterValuesToSearchArgs, type FilterValues } from '@/components/filter
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useSearchBusinessesQuery } from '@/store/features/search/searchApi'
+import { useGetCategoriesQuery } from '@/store/api/categoriesApi'
 import { useEnsureLocation } from '@/hooks/useEnsureLocation'
 import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import type { BusinessCardDto, BusinessSort, SearchBusinessesArgs } from '@/store/features/search/search.types'
@@ -50,6 +52,9 @@ const dropdownShadow = {
 // ── SearchScreen ───────────────────────────────────────────────────────────────
 
 export default function SearchScreen() {
+    const { categorySlug } = useLocalSearchParams<{ categorySlug?: string }>()
+    const { data: categories = [] } = useGetCategoriesQuery()
+
     const [searchText, setSearchText] = useState('')
     const debouncedSearchText = useDebounce(searchText, 300)
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set())
@@ -61,6 +66,28 @@ export default function SearchScreen() {
 
     const { location: userLocation } = useEnsureLocation()
     const appliedFiltersRef = useRef(appliedFilters)
+
+    // Apply category filter from route params
+    useEffect(() => {
+        if (categorySlug && categories.length > 0) {
+            const category = categories.find((c) => c.slug === categorySlug)
+            if (category) {
+                setAppliedFilters((prev) => ({
+                    ...(prev ?? {}),
+                    categoryId: category.id,
+                    city: prev?.city ?? null,
+                    proximity: prev?.proximity ?? null,
+                    priceMin: prev?.priceMin ?? null,
+                    priceMax: prev?.priceMax ?? null,
+                    availabilityDate: prev?.availabilityDate ?? null,
+                    availabilityHour: prev?.availabilityHour ?? 12,
+                    availabilityMinute: prev?.availabilityMinute ?? 0,
+                    availabilityPeriod: prev?.availabilityPeriod ?? 'AM',
+                }))
+                setCursor(null)
+            }
+        }
+    }, [categorySlug, categories])
 
     // Safe ref update via useEffect (React Compiler compatible)
     useEffect(() => {

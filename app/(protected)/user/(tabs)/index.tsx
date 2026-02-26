@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useRouter } from 'expo-router'
 
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
@@ -25,11 +26,12 @@ type CategoryCardProps = {
     emoji: string
     image: ImageSourcePropType
     bgColor: string
+    onPress?: () => void
 }
 
-const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor }: CategoryCardProps) {
+const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor, onPress }: CategoryCardProps) {
     return (
-        <AppPressable className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
+        <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
             <View className="flex-1 flex-row items-end p-3 gap-2">
                 <AppText className="text-lg">{emoji}</AppText>
                 <AppText className="text-[16px] font-poppins-semibold text-white">{title}</AppText>
@@ -41,12 +43,18 @@ const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor }
     )
 })
 
-const CATEGORIES = [
-    { title: 'Food', emoji: '🍔', image: FoodImage, bgColor: '#F5A3A8' },
-    { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#dfbaf4' },
-    { title: 'Repairs', emoji: '🔧', image: RepairsImage, bgColor: '#F4B778' },
-    { title: 'Pets', emoji: '🐶', image: PetsImage, bgColor: '#D8CFC8' },
-]
+// Visual config for category cards - matched by slug from API
+const CATEGORY_DISPLAY_CONFIG: Record<string, { title: string; emoji: string; image: ImageSourcePropType; bgColor: string }> = {
+    'beauty-wellness': { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#dfbaf4' },
+    'pet-care': { title: 'Pets', emoji: '🐶', image: PetsImage, bgColor: '#D8CFC8' },
+    'home-repairs': { title: 'Repairs', emoji: '🔧', image: RepairsImage, bgColor: '#F4B778' },
+    cleaning: { title: 'Cleaning', emoji: '🧹', image: RepairsImage, bgColor: '#A3C9A8' },
+    'delivery-assistance': { title: 'Delivery', emoji: '🚚', image: FoodImage, bgColor: '#F5A3A8' },
+    other: { title: 'Other', emoji: '📦', image: FoodImage, bgColor: '#B8C5D6' },
+}
+
+// Default display for categories without specific config
+const DEFAULT_CATEGORY_DISPLAY = { title: 'Other', emoji: '📋', image: FoodImage, bgColor: '#B8C5D6' }
 
 // Horizontal business card for sections
 const HorizontalBusinessCard = memo(function HorizontalBusinessCard({ business }: { business: BusinessCardDto }) {
@@ -115,10 +123,25 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
 })
 
 export default function HomeScreen() {
+    const router = useRouter()
     const { location } = useEnsureLocation()
-    const [_selectedCategoryId, _setSelectedCategoryId] = useState<string | null>(null)
 
-    const { data: _categories } = useGetCategoriesQuery()
+    const { data: categories = [] } = useGetCategoriesQuery()
+
+    // Map API categories to display cards (first 4 for grid)
+    const displayCategories = useMemo(() => {
+        return categories.slice(0, 4).map((cat) => ({
+            ...cat,
+            display: CATEGORY_DISPLAY_CONFIG[cat.slug] ?? DEFAULT_CATEGORY_DISPLAY,
+        }))
+    }, [categories])
+
+    const handleCategoryPress = useCallback(
+        (slug: string) => {
+            router.push({ pathname: '/(protected)/user/(tabs)/search', params: { categorySlug: slug } })
+        },
+        [router]
+    )
 
     // Only load first 2 sections initially, others load when visible
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
@@ -254,73 +277,140 @@ export default function HomeScreen() {
         [isRefreshing, handleRefresh]
     )
 
-    const renderItem: ListRenderItem<SectionItem> = useCallback(({ item }) => {
-        switch (item.type) {
-            case 'categories':
-                return (
-                    <View className="mb-6 px-screen">
-                        <View className="mb-3 flex-row items-end justify-between">
-                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
+    const renderItem: ListRenderItem<SectionItem> = useCallback(
+        ({ item }) => {
+            switch (item.type) {
+                case 'categories':
+                    return (
+                        <View className="mb-6 px-screen">
+                            <View className="mb-3 flex-row items-end justify-between">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
 
-                            <AppPressable className="ml-3 shrink-0">
-                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                            </AppPressable>
-                        </View>
-
-                        <View className="gap-3">
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[0]} />
-                                <CategoryCard {...CATEGORIES[1]} />
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                                </AppPressable>
                             </View>
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[2]} />
-                                <CategoryCard {...CATEGORIES[3]} />
+
+                            <View className="gap-3">
+                                <View className="flex-row gap-3">
+                                    {displayCategories[0] && (
+                                        <CategoryCard
+                                            title={displayCategories[0].display.title}
+                                            emoji={displayCategories[0].display.emoji}
+                                            image={displayCategories[0].display.image}
+                                            bgColor={displayCategories[0].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[0].slug)}
+                                        />
+                                    )}
+                                    {displayCategories[1] && (
+                                        <CategoryCard
+                                            title={displayCategories[1].display.title}
+                                            emoji={displayCategories[1].display.emoji}
+                                            image={displayCategories[1].display.image}
+                                            bgColor={displayCategories[1].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[1].slug)}
+                                        />
+                                    )}
+                                </View>
+                                <View className="flex-row gap-3">
+                                    {displayCategories[2] && (
+                                        <CategoryCard
+                                            title={displayCategories[2].display.title}
+                                            emoji={displayCategories[2].display.emoji}
+                                            image={displayCategories[2].display.image}
+                                            bgColor={displayCategories[2].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[2].slug)}
+                                        />
+                                    )}
+                                    {displayCategories[3] && (
+                                        <CategoryCard
+                                            title={displayCategories[3].display.title}
+                                            emoji={displayCategories[3].display.emoji}
+                                            image={displayCategories[3].display.image}
+                                            bgColor={displayCategories[3].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[3].slug)}
+                                        />
+                                    )}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                )
+                    )
 
-            case 'top-picks':
-                return (
-                    <View className="mb-6 px-screen">
-                        <View className="mb-3 flex-row items-end justify-between">
-                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
+                case 'top-picks':
+                    return (
+                        <View className="mb-6 px-screen">
+                            <View className="mb-3 flex-row items-end justify-between">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
 
-                            <AppPressable className="ml-3 shrink-0">
-                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                            </AppPressable>
-                        </View>
-                        <View className="gap-3">
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[3]} />
-                                <CategoryCard {...CATEGORIES[1]} />
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                                </AppPressable>
                             </View>
-                            <View className="flex-row gap-3">
-                                <CategoryCard {...CATEGORIES[2]} />
-                                <CategoryCard {...CATEGORIES[0]} />
+                            <View className="gap-3">
+                                <View className="flex-row gap-3">
+                                    {displayCategories[3] && (
+                                        <CategoryCard
+                                            title={displayCategories[3].display.title}
+                                            emoji={displayCategories[3].display.emoji}
+                                            image={displayCategories[3].display.image}
+                                            bgColor={displayCategories[3].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[3].slug)}
+                                        />
+                                    )}
+                                    {displayCategories[1] && (
+                                        <CategoryCard
+                                            title={displayCategories[1].display.title}
+                                            emoji={displayCategories[1].display.emoji}
+                                            image={displayCategories[1].display.image}
+                                            bgColor={displayCategories[1].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[1].slug)}
+                                        />
+                                    )}
+                                </View>
+                                <View className="flex-row gap-3">
+                                    {displayCategories[2] && (
+                                        <CategoryCard
+                                            title={displayCategories[2].display.title}
+                                            emoji={displayCategories[2].display.emoji}
+                                            image={displayCategories[2].display.image}
+                                            bgColor={displayCategories[2].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[2].slug)}
+                                        />
+                                    )}
+                                    {displayCategories[0] && (
+                                        <CategoryCard
+                                            title={displayCategories[0].display.title}
+                                            emoji={displayCategories[0].display.emoji}
+                                            image={displayCategories[0].display.image}
+                                            bgColor={displayCategories[0].display.bgColor}
+                                            onPress={() => handleCategoryPress(displayCategories[0].slug)}
+                                        />
+                                    )}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                )
+                    )
 
-            case 'section':
-                return (
-                    <View className="mb-6">
-                        <View className="mb-3 flex-row items-end justify-between px-screen">
-                            <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
+                case 'section':
+                    return (
+                        <View className="mb-6">
+                            <View className="mb-3 flex-row items-end justify-between px-screen">
+                                <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
 
-                            <AppPressable className="ml-3 shrink-0">
-                                <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
-                            </AppPressable>
+                                <AppPressable className="ml-3 shrink-0">
+                                    <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
+                                </AppPressable>
+                            </View>
+                            <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
                         </View>
-                        <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
-                    </View>
-                )
+                    )
 
-            default:
-                return null
-        }
-    }, [])
+                default:
+                    return null
+            }
+        },
+        [handleCategoryPress, displayCategories]
+    )
 
     return (
         <View className="flex-1 bg-white">
