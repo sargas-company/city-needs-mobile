@@ -1,9 +1,10 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, Pressable, RefreshControl, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
 
+import { AppInput } from '@/components/ui/AppInput'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
 import { ServiceCard } from '@/components/ui/ServiceCard'
@@ -150,7 +151,6 @@ export default function HomeScreen() {
 
     // Search bar state
     const [searchText, setSearchText] = useState('')
-    const [searchFocused, setSearchFocused] = useState(false)
 
     const handleSearchSubmit = useCallback(() => {
         if (searchText.trim()) {
@@ -299,32 +299,26 @@ export default function HomeScreen() {
                 case 'header':
                     return (
                         <View className="mb-6 px-screen">
-                            <View
-                                className="flex-row items-center rounded-xl border bg-white px-3"
-                                style={{
-                                    borderColor: searchFocused ? '#e89f48' : '#E5E7EB',
-                                    borderWidth: 1.5,
-                                    minHeight: 48,
-                                }}
-                            >
-                                <Feather name="search" size={18} color={searchFocused ? '#e89f48' : '#8D8C92'} style={{ marginRight: 8 }} />
-                                <TextInput
-                                    className="flex-1 font-poppins text-base text-text"
-                                    placeholder="Search services..."
-                                    placeholderTextColor="#9CA3AF"
-                                    value={searchText}
-                                    onChangeText={setSearchText}
-                                    onFocus={() => setSearchFocused(true)}
-                                    onBlur={() => setSearchFocused(false)}
-                                    onSubmitEditing={handleSearchSubmit}
-                                    returnKeyType="search"
-                                />
-                                {searchText.length > 0 && (
-                                    <Pressable hitSlop={8} onPress={() => setSearchText('')} className="ml-1 p-1">
-                                        <Feather name="x" size={18} color="#8D8C92" />
-                                    </Pressable>
-                                )}
+                            {/* ── Location row ─────────────────────────── */}
+                            <View className="mb-3 flex-row items-center justify-between">
+                                <View>
+                                    <AppText className="mb-1 text-[12px] text-text-muted">Location</AppText>
+                                    <View className="flex-row items-center gap-2">
+                                        <Feather name="map-pin" size={16} color="#e89f48" />
+                                        <AppText className="font-poppins-medium text-subtitle text-brand">All Cities</AppText>
+                                    </View>
+                                </View>
                             </View>
+
+                            <AppInput
+                                leftIcon={<Feather name="search" size={18} color="#8D8C92" />}
+                                clearable
+                                value={searchText}
+                                onChangeText={setSearchText}
+                                onSubmitEditing={handleSearchSubmit}
+                                returnKeyType="search"
+                                placeholder="Search services..."
+                            />
                         </View>
                     )
 
@@ -457,7 +451,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText, searchFocused]
+        [handleCategoryPress, handleSeeAllPress, handleSearchSubmit, displayCategories, searchText]
     )
 
     return (
