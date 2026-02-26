@@ -143,6 +143,10 @@ export default function HomeScreen() {
         [router]
     )
 
+    const handleSeeAllPress = useCallback(() => {
+        router.push({ pathname: '/(protected)/user/(tabs)/search', params: { categorySlug: '' } })
+    }, [router])
+
     // Only load first 2 sections initially, others load when visible
     const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set(['suggested', 'nearby']))
 
@@ -286,7 +290,7 @@ export default function HomeScreen() {
                             <View className="mb-3 flex-row items-end justify-between">
                                 <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">What service do you need?</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
+                                <AppPressable onPress={handleSeeAllPress} className="ml-3 shrink-0">
                                     <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
@@ -342,7 +346,7 @@ export default function HomeScreen() {
                             <View className="mb-3 flex-row items-end justify-between">
                                 <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">Top Picks Today</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
+                                <AppPressable onPress={handleSeeAllPress} className="ml-3 shrink-0">
                                     <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
@@ -397,7 +401,7 @@ export default function HomeScreen() {
                             <View className="mb-3 flex-row items-end justify-between px-screen">
                                 <AppText className="flex-1 shrink font-poppins-semibold text-[24px] text-brand">{item.title}</AppText>
 
-                                <AppPressable className="ml-3 shrink-0">
+                                <AppPressable onPress={handleSeeAllPress} className="ml-3 shrink-0">
                                     <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
@@ -409,7 +413,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, displayCategories]
+        [handleCategoryPress, handleSeeAllPress, displayCategories]
     )
 
     return (

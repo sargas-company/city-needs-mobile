@@ -67,7 +67,7 @@ export default function SearchScreen() {
     const { location: userLocation } = useEnsureLocation()
     const appliedFiltersRef = useRef(appliedFilters)
 
-    // Apply category filter from route params
+    // Apply category filter from route params (or reset when no category)
     useEffect(() => {
         if (categorySlug && categories.length > 0) {
             const category = categories.find((c) => c.slug === categorySlug)
@@ -86,6 +86,13 @@ export default function SearchScreen() {
                 }))
                 setCursor(null)
             }
+        } else {
+            // Reset category filter when navigating without categorySlug (empty string or undefined)
+            setAppliedFilters((prev) => {
+                if (!prev?.categoryId) return prev
+                return { ...prev, categoryId: null }
+            })
+            setCursor(null)
         }
     }, [categorySlug, categories])
 
