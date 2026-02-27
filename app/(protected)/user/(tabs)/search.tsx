@@ -9,6 +9,7 @@ import { AppInput } from '@/components/ui/AppInput'
 import { AppLoader } from '@/components/ui/AppLoader'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { FilterModal } from '@/components/filters/FilterModal'
 import { filterValuesToSearchArgs, type FilterValues } from '@/components/filters/FilterModal.types'
@@ -348,11 +349,7 @@ export default function SearchScreen() {
                 )}
 
                 {/* ── Empty state ─────────────────── */}
-                {businesses.length === 0 && (
-                    <View className="items-center py-10">
-                        <AppText className="text-subtitle text-text-muted">No results found</AppText>
-                    </View>
-                )}
+                {businesses.length === 0 && <EmptyState text="No results found" className="py-10" imageWidth={130} imageHeight={130} />}
             </View>
         )
     }, [isLoading, meta?.hasNextPage, loadMore, isFetching, businesses.length])

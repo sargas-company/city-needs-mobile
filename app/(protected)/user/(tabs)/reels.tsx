@@ -6,6 +6,7 @@ import Feather from '@expo/vector-icons/Feather'
 import { AppInput } from '@/components/ui/AppInput'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { ReelCard } from '@/components/reels/ReelCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
@@ -95,11 +96,7 @@ export default function ReelsScreen() {
                 )}
 
                 {/* ── Empty state ─────────────────── */}
-                {reels.length === 0 && (
-                    <View className="items-center py-10">
-                        <AppText className="text-subtitle text-text-muted">No reels found</AppText>
-                    </View>
-                )}
+                {reels.length === 0 && <EmptyState text="No reels found" className="py-10" imageWidth={130} imageHeight={130} />}
             </View>
         )
     }, [isLoading, feedData?.hasNextPage, loadMore, isFetching, reels.length])

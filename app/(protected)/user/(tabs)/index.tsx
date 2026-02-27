@@ -8,6 +8,7 @@ import { AppInput } from '@/components/ui/AppInput'
 import { AppLoader } from '@/components/ui/AppLoader'
 import { AppPressable } from '@/components/ui/AppPressable'
 import { AppText } from '@/components/ui/AppText'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { ServiceCard } from '@/components/ui/ServiceCard'
 import { WaveHeader } from '@/components/layout/WaveHeader'
 import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
@@ -18,7 +19,6 @@ import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import { selectSelectedCity } from '@/store/features/location/location.selectors'
 import { useAppSelector } from '@/store/hooks'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
-import NoDataImage from '@/assets/images/system/NoData.svg'
 import MapMarkerIcon from '@/assets/images/map-marker.svg'
 
 // Default background color when category has no bgColor
@@ -95,12 +95,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
     }
 
     if (businesses.length === 0) {
-        return (
-            <View className="items-center py-6">
-                <NoDataImage width={100} height={100} />
-                <AppText className="mt-2 text-base font-poppins-semibold text-gray-400">No businesses found</AppText>
-            </View>
-        )
+        return <EmptyState text="No businesses found" />
     }
 
     return (
