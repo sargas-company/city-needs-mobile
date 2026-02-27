@@ -1,5 +1,6 @@
 export type CreateReviewDto = {
     bookingId: string
+    businessId: string
     rating: number
     comment?: string
 }

@@ -32,10 +32,11 @@ const LeaveReviewScreen = () => {
     const businessInitial = businessName[0].toUpperCase()
 
     const handleSubmit = async () => {
-        if (!bookingId) return
+        if (!bookingId || !businessId) return
         try {
             await createReview({
                 bookingId,
+                businessId,
                 rating: userRating,
                 comment: reviewText.trim() || undefined,
             }).unwrap()
