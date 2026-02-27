@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, Image, ListRenderItem, RefreshControl, View } from 'react-native'
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
@@ -32,15 +33,38 @@ const TOP_PICKS_SLUGS = ['cleaning', 'mortgage-brokers', 'event-planners', 'tiff
 type CategoryCardProps = {
     title: string
     imageUrl: string | null
-    bgColor: string
+    bgColor?: string
     onPress?: () => void
 }
 
-const CategoryCard = memo(function CategoryCard({ title, imageUrl, bgColor, onPress }: CategoryCardProps) {
+// Helper to adjust color brightness
+const adjustBrightness = (hex: string, percent: number): string => {
+    const num = parseInt(hex.replace('#', ''), 16)
+    const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(2.55 * percent)))
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + Math.round(2.55 * percent)))
+    const b = Math.min(255, Math.max(0, (num & 0x0000ff) + Math.round(2.55 * percent)))
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
+}
+
+const CategoryCard = memo(function CategoryCard({ title, imageUrl, bgColor = DEFAULT_BG_COLOR, onPress }: CategoryCardProps) {
+    const gradientId = useMemo(() => `gradient-${bgColor.replace('#', '')}`, [bgColor])
+    const lighterColor = useMemo(() => adjustBrightness(bgColor, 17), [bgColor])
+    const darkerColor = useMemo(() => adjustBrightness(bgColor, -10), [bgColor])
+
     return (
-        <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
+        <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ height: 100 }}>
+            <Svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+                <Defs>
+                    <RadialGradient id={gradientId} cx="85%" cy="75%" r="80%" fx="85%" fy="75%">
+                        <Stop offset="0%" stopColor={lighterColor} />
+                        <Stop offset="40%" stopColor={bgColor} />
+                        <Stop offset="100%" stopColor={darkerColor} />
+                    </RadialGradient>
+                </Defs>
+                <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${gradientId})`} />
+            </Svg>
             {imageUrl && <Image source={{ uri: imageUrl }} style={{ position: 'absolute', right: 0, bottom: 0, width: 100, height: 100 }} />}
-            <View className="flex-1 justify-end p-3 ">
+            <View className="flex-1 justify-end p-3">
                 <AppText className="text-[15px] font-poppins-semibold text-white mr-16" numberOfLines={2} textBreakStrategy="balanced">
                     {title}
                 </AppText>
