@@ -35,11 +35,12 @@ function businessesToMarkers(businesses: { id: string; name: string; lat?: numbe
  */
 export default function MapScreen() {
     const isFocused = useIsFocused()
-    const { location: userLocation } = useEnsureLocation()
+    const { location, permission } = useEnsureLocation()
 
+    // Only use user location when permission is granted, otherwise show Saskatoon
+    const userLocation = permission === 'granted' ? location : null
     // Map center for search: user location or default city
     const defaultCenter: LatLng = userLocation ?? CITIES.Saskatoon.center
-    const [mapCenter, setMapCenter] = useState<LatLng>(defaultCenter)
     const [searchText, setSearchText] = useState('')
     const debouncedSearchText = useDebounce(searchText, 300)
     const [filterOpen, setFilterOpen] = useState(false)
@@ -98,8 +99,8 @@ export default function MapScreen() {
         [businesses, selectedBusinessId]
     )
 
-    const handleRegionChangeEnd = useCallback((_bounds: Bounds, center: LatLng) => {
-        setMapCenter(center)
+    const handleRegionChangeEnd = useCallback((_bounds: Bounds, _center: LatLng) => {
+        // Currently not tracking map center state; handler exists for future features
     }, [])
 
     const handleMarkerPress = useCallback((markerId: string) => {
@@ -132,14 +133,15 @@ export default function MapScreen() {
             </View>
 
             <Map
-                initialCenter={mapCenter}
-                initialZoom={7}
+                key={permission === 'denied' ? 'denied' : 'default'}
+                initialCenter={defaultCenter}
+                initialZoom={11}
                 markers={markers}
                 selectedMarkerId={selectedBusinessId}
                 onMarkerPress={handleMarkerPress}
                 onRegionChangeEnd={handleRegionChangeEnd}
                 onPress={handleMapPress}
-                showUserLocation={true}
+                showUserLocation={permission === 'granted'}
                 userLocation={userLocation}
                 searchRadiusKm={searchRadiusKm}
             />
