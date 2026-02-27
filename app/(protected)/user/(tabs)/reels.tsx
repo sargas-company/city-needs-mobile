@@ -80,26 +80,22 @@ export default function ReelsScreen() {
     )
 
     const ListFooter = useMemo(() => {
-        if (isLoading) return null
+        if (isLoading || !feedData?.hasNextPage) return null
 
         return (
             <View className="mb-6 px-screen">
-                {/* ── Load more ───────────────────── */}
-                {feedData?.hasNextPage && (
-                    <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
-                        {isFetching ? (
-                            <ActivityIndicator size="small" />
-                        ) : (
-                            <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
-                        )}
-                    </AppPressable>
-                )}
-
-                {/* ── Empty state ─────────────────── */}
-                {reels.length === 0 && <EmptyState text="No reels found" className="py-10" imageWidth={130} imageHeight={130} />}
+                <AppPressable onPress={loadMore} className="items-center rounded-xl bg-brand/10 py-3">
+                    {isFetching ? (
+                        <ActivityIndicator size="small" />
+                    ) : (
+                        <AppText className="text-status font-poppins-medium text-brand">Load more</AppText>
+                    )}
+                </AppPressable>
             </View>
         )
-    }, [isLoading, feedData?.hasNextPage, loadMore, isFetching, reels.length])
+    }, [isLoading, feedData?.hasNextPage, loadMore, isFetching])
+
+    const ListEmpty = useMemo(() => <EmptyState text="No reels found" className="flex-1 justify-center" imageWidth={130} imageHeight={130} />, [])
 
     const refreshControl = useMemo(
         () => <RefreshControl refreshing={isFetching && !isLoading && cursor === null} onRefresh={handleRefresh} tintColor="#0C2A63" />,
@@ -169,8 +165,9 @@ export default function ReelsScreen() {
                         keyExtractor={keyExtractor}
                         renderItem={renderItem}
                         ListFooterComponent={ListFooter}
+                        ListEmptyComponent={ListEmpty}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 120 }}
+                        contentContainerStyle={reels.length === 0 ? { flexGrow: 1 } : { paddingBottom: 120 }}
                         initialNumToRender={3}
                         maxToRenderPerBatch={5}
                         windowSize={5}
