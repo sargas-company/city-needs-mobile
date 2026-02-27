@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Alert, Pressable, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import Feather from '@expo/vector-icons/Feather'
@@ -48,6 +48,8 @@ const mockBusinessInfoDefaults: BusinessInfoFormValues = {
         startTime: weekday < 5 ? '10:00' : null,
         endTime: weekday < 5 ? '18:00' : null,
     })),
+    serviceOnSite: true,
+    serviceInStudio: true,
 }
 
 const mockAddressDefaults: AddressFormValues = {
@@ -154,6 +156,8 @@ const EditBusinessProfileScreen = () => {
     const business = useAppSelector(selectBusiness)
     const profileUser = useAppSelector(selectProfileUser)
 
+    console.log(business, '77777777')
+
     const { data: businessHoursApi } = useGetBusinessHoursQuery(business?.id ?? '', { skip: !business?.id })
     const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError } = useGetCategoriesQuery()
 
@@ -161,10 +165,7 @@ const EditBusinessProfileScreen = () => {
     const [updateMyBusinessLogo, { isLoading: isUpdateLogoLoading }] = useUpdateMyBusinessLogoMutation()
 
     const [selectedLogo, setSelectedLogo] = useState<PickedImage | null>(null)
-    const [serviceOnSite, setServiceOnSite] = useState<boolean>(business?.serviceOnSite ?? true)
-    const [serviceInStudio, setServiceInStudio] = useState<boolean>(business?.serviceInStudio ?? true)
     const [submitError, setSubmitError] = useState<string | null>(null)
-    const hasInitializedServiceFlags = useRef(false)
 
     const derivedBusinessDefaults = useMemo<BusinessInfoFormValues>(() => {
         const hoursSource = businessHoursApi?.length ? businessHoursDayDtoToFlat(businessHoursApi) : (business?.businessHours ?? null)
@@ -176,6 +177,8 @@ const EditBusinessProfileScreen = () => {
             email: business?.email ?? mockBusinessInfoDefaults.email,
             price: business?.price != null ? String(business.price) : mockBusinessInfoDefaults.price,
             businessHours: buildBusinessHoursDefaults(hoursSource),
+            serviceOnSite: business?.serviceOnSite ?? true,
+            serviceInStudio: business?.serviceInStudio ?? true,
         }
     }, [business, businessHoursApi])
 
@@ -195,19 +198,18 @@ const EditBusinessProfileScreen = () => {
 
     const {
         formState: { isSubmitting },
+        watch,
+        setValue,
     } = businessForm
+
+    const serviceOnSite = watch('serviceOnSite')
+    const serviceInStudio = watch('serviceInStudio')
 
     const isSaving = isSubmitting || isUpdateProfileLoading || isUpdateLogoLoading
 
     useEffect(() => {
         businessForm.reset(derivedBusinessDefaults)
-        // Only set service flags on initial load, not after saves
-        if (!hasInitializedServiceFlags.current && business) {
-            setServiceOnSite(business.serviceOnSite ?? true)
-            setServiceInStudio(business.serviceInStudio ?? true)
-            hasInitializedServiceFlags.current = true
-        }
-    }, [business, businessForm, derivedBusinessDefaults])
+    }, [businessForm, derivedBusinessDefaults])
 
     const businessInitial = useMemo(() => {
         const name = derivedBusinessDefaults.businessName || profileUser?.username || ''
@@ -267,8 +269,8 @@ const EditBusinessProfileScreen = () => {
             name: values.businessName?.trim() || undefined,
             phone: normalizeDigits(values.phone || ''),
             description: values.description?.trim() || undefined,
-            serviceOnSite,
-            serviceInStudio,
+            serviceOnSite: values.serviceOnSite,
+            serviceInStudio: values.serviceInStudio,
             price: parsePriceToInt(values.price),
             businessHours: mapBusinessHours(values.businessHours ?? []),
         }
@@ -445,7 +447,7 @@ const EditBusinessProfileScreen = () => {
                             <AppText className="mb-2 font-poppins-medium text-[14px] text-[#171717]">Service Type</AppText>
                             <View className="flex-row gap-3">
                                 <Pressable
-                                    onPress={() => setServiceOnSite((prev) => !prev)}
+                                    onPress={() => setValue('serviceOnSite', !serviceOnSite)}
                                     className={`${servicePillBase} ${serviceOnSite ? 'border-brand bg-brand' : 'border-border bg-white'}`}
                                     accessibilityRole="checkbox"
                                     accessibilityState={{ checked: serviceOnSite }}
@@ -457,7 +459,7 @@ const EditBusinessProfileScreen = () => {
                                 </Pressable>
 
                                 <Pressable
-                                    onPress={() => setServiceInStudio((prev) => !prev)}
+                                    onPress={() => setValue('serviceInStudio', !serviceInStudio)}
                                     className={`${servicePillBase} ${serviceInStudio ? 'border-brand bg-brand' : 'border-border bg-white'}`}
                                     accessibilityRole="checkbox"
                                     accessibilityState={{ checked: serviceInStudio }}

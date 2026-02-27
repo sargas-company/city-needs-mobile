@@ -13,6 +13,8 @@ export const businessInfoSchema = z.object({
         .min(1, 'Price is required')
         .refine((val) => /^\d+(\.\d+)?$/.test(val.trim()), 'Enter a valid number'),
     businessHours: z.array(businessHoursItemSchema).length(7),
+    serviceOnSite: z.boolean(),
+    serviceInStudio: z.boolean(),
 })
 
 export type BusinessInfoFormValues = Omit<z.infer<typeof businessInfoSchema>, 'businessHours'> & {
