@@ -29,8 +29,8 @@ export function PriceFilter({ priceMin, priceMax, onPriceMinChange, onPriceMaxCh
             <View className="flex-row items-center gap-3">
                 <View className="flex-1">
                     <AppText className="mb-1 text-caption text-text-muted">Min</AppText>
-                    <View className="flex-row items-center rounded-xl border border-border bg-white px-3 py-2.5">
-                        <AppText className="mr-1 text-body text-text-muted">$</AppText>
+                    <View className="flex-row items-baseline rounded-xl border border-border bg-white px-3 py-2.5">
+                        <AppText className="text-body text-text-muted">$</AppText>
                         <TextInput
                             value={priceMin != null ? String(priceMin) : ''}
                             onChangeText={handleMinChange}
@@ -47,8 +47,8 @@ export function PriceFilter({ priceMin, priceMax, onPriceMinChange, onPriceMaxCh
 
                 <View className="flex-1">
                     <AppText className="mb-1 text-caption text-text-muted">Max</AppText>
-                    <View className="flex-row items-center rounded-xl border border-border bg-white px-3 py-2.5">
-                        <AppText className="mr-1 text-body text-text-muted">$</AppText>
+                    <View className="flex-row items-baseline rounded-xl border border-border bg-white px-3 py-2.5">
+                        <AppText className="text-body text-text-muted">$</AppText>
                         <TextInput
                             value={priceMax != null ? String(priceMax) : ''}
                             onChangeText={handleMaxChange}
