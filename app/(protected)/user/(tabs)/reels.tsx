@@ -37,7 +37,7 @@ export default function ReelsScreen() {
         return args
     }, [searchText, selectedCategoryId, cursor])
 
-    const { data, isLoading, isFetching, refetch } = useGetReelsFeedQuery(queryArgs)
+    const { data, isLoading, isFetching, refetch } = useGetReelsFeedQuery(queryArgs, { refetchOnMountOrArgChange: true })
 
     const reels = useMemo(() => data?.items ?? [], [data])
     const feedData = data

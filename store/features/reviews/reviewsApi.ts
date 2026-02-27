@@ -1,7 +1,4 @@
 import { baseApi } from '@/store/api/baseApi'
-import { reelsApi } from '@/store/features/reels/reelsApi'
-import { publicBusinessApi } from '@/store/features/public-business/publicBusinessApi'
-import type { GetReelsFeedResponse } from '@/store/features/reels/reels.types'
 
 import type { CreateReviewDto, CreateReviewResponse, GetBusinessReviewsArgs, ReviewListResponse } from './reviews.types'
 
@@ -54,48 +51,6 @@ export const reviewsApi = baseApi.injectEndpoints({
                 { type: 'PublicBusiness', id: businessId },
                 { type: 'Bookings', id: 'LIST' },
             ],
-            async onQueryStarted({ businessId }, { dispatch, queryFulfilled, getState }) {
-                try {
-                    await queryFulfilled
-
-                    // Fetch fresh business data (cache was invalidated, so this gets fresh data)
-                    const businessResult = await dispatch(publicBusinessApi.endpoints.getPublicBusiness.initiate(businessId, { forceRefetch: true }))
-
-                    if (businessResult.data) {
-                        const { ratingAvg, ratingCount } = businessResult.data
-
-                        // Get all reels feed cache keys and update each one
-                        const state = getState() as { api: { queries: Record<string, unknown> } }
-                        const reelsCacheKeys = Object.keys(state.api.queries).filter((key) => key.startsWith('getReelsFeed'))
-
-                        for (const cacheKey of reelsCacheKeys) {
-                            // Extract the serialized args from cache key (format: "getReelsFeed(serializedArgs)")
-                            const argsMatch = cacheKey.match(/^getReelsFeed\((.+)\)$/)
-                            if (argsMatch) {
-                                try {
-                                    const serializedArgs = argsMatch[1]
-                                    // The args were serialized with JSON.stringify, so parse them back
-                                    const args = serializedArgs === 'undefined' ? undefined : JSON.parse(serializedArgs)
-
-                                    dispatch(
-                                        reelsApi.util.updateQueryData('getReelsFeed', args, (draft: GetReelsFeedResponse) => {
-                                            const item = draft.items?.find((r) => r.business.id === businessId)
-                                            if (item) {
-                                                item.business.ratingAvg = ratingAvg ?? 0
-                                                item.business.ratingCount = ratingCount ?? 0
-                                            }
-                                        })
-                                    )
-                                } catch {
-                                    // Skip invalid cache entries
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    // Mutation failed, no cache update needed
-                }
-            },
         }),
     }),
 })
