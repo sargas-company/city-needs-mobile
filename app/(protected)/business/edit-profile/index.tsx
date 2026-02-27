@@ -478,8 +478,8 @@ const EditBusinessProfileScreen = () => {
                             label="Description"
                             required
                             multiline
-                            numberOfLines={4}
-                            inputClassName="min-h-[120px] text-[14px]"
+                            numberOfLines={5}
+                            inputClassName="text-[14px]"
                             editable={!isSaving}
                         />
                     </FormProvider>

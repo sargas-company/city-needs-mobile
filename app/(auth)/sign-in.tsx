@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Feather } from '@expo/vector-icons'
 
+import { HEADER_CONTENT_OFFSET } from '@/constants/layout'
 import { LoginPayload } from '@/services/auth/auth.types'
 import { loginThunk } from '@/store/features/auth/auth.thunks'
 import { selectAuthError, selectAuthStatus } from '@/store/features/auth/auth.selectors'
@@ -69,11 +70,12 @@ const SignIn = () => {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView className="flex-1 bg-white pt-[130]">
+            <SafeAreaView className="flex-1 bg-white">
                 <KeyboardAwareScrollView
                     contentContainerStyle={{
                         flexGrow: 1,
                         justifyContent: 'center',
+                        paddingTop: HEADER_CONTENT_OFFSET,
                         paddingHorizontal: 24,
                     }}
                     keyboardShouldPersistTaps="handled"

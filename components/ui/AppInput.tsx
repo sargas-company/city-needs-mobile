@@ -96,7 +96,7 @@ export const AppInput: React.FC<AppInputProps> = ({
             <View
                 className={cn(
                     'w-full rounded-input border bg-white px-control',
-                    multiline ? 'items-start py-3' : 'flex-row items-center h-12',
+                    multiline ? 'py-3' : 'flex-row items-center h-12',
                     borderColorClass,
                     disabledClass,
                     inputWrapperClassName
@@ -106,7 +106,7 @@ export const AppInput: React.FC<AppInputProps> = ({
 
                 {renderInput ? (
                     renderInput({
-                        className: cn('flex-1 font-poppins text-base text-text', inputClassName),
+                        className: cn(multiline ? 'w-full' : 'flex-1', 'font-poppins text-base text-text', inputClassName),
                         placeholderTextColor,
                         editable,
                         onFocus: handleFocus,
@@ -115,7 +115,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                     })
                 ) : (
                     <TextInput
-                        className={cn('flex-1 font-poppins text-base text-text', inputClassName)}
+                        className={cn(multiline ? 'w-full' : 'flex-1', 'font-poppins text-base text-text', inputClassName)}
                         placeholderTextColor={placeholderTextColor}
                         editable={editable}
                         onFocus={handleFocus}
@@ -124,7 +124,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                         multiline={multiline}
                         numberOfLines={numberOfLines}
                         textAlignVertical={multiline ? 'top' : 'auto'}
-                        scrollEnabled={!multiline}
+                        style={multiline ? { minHeight: (numberOfLines ?? 4) * 20 } : undefined}
                         {...textInputProps}
                     />
                 )}
