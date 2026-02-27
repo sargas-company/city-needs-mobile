@@ -25,11 +25,10 @@ import MapMarkerIcon from '@/assets/images/map-marker.svg'
 const DEFAULT_BG_COLOR = '#B8C5D6'
 
 // Slugs for "What service do you need?" section
-const MAIN_CATEGORY_SLUGS = ['mortgage-brokers', 'event-planners', 'tiffin-services', 'cleaning']
+const MAIN_CATEGORY_SLUGS = ['beauty-wellness', 'pet-care', 'home-repairs', 'delivery-assistance']
 
 // Slugs for "Top Picks Today" section
-const TOP_PICKS_SLUGS = ['cleaning', 'pet-care', 'home-repairs', 'beauty-wellness']
-
+const TOP_PICKS_SLUGS = ['cleaning', 'mortgage-brokers', 'event-planners', 'tiffin-services']
 type CategoryCardProps = {
     title: string
     imageUrl: string | null
