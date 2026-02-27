@@ -1,4 +1,5 @@
 # Node
+# Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -68,6 +69,10 @@ project.xcworkspace/
 *.sln
 *.sw?
 
+# Xcode crash artifacts
+*.xccrashpoint
+*.crash
+error/
 
 # MacOS
 .DS_Store
