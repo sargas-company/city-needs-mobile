@@ -4,6 +4,7 @@ const tokens = require('./design-tokens')
 
 const tintColorLight = '#0C2A63'
 const tintColorDark = '#fff'
+const brandBlue = '#0C2A63'
 
 export const Colors = {
     light: {
@@ -12,7 +13,8 @@ export const Colors = {
         tint: tintColorLight,
         icon: '#687076',
         tabIconDefault: '#687076',
-        tabIconSelected: tintColorLight,
+        tabIconSelected: brandBlue,
+        tabBarBackground: '#efefef',
     },
     dark: {
         text: '#ECEDEE',
@@ -20,7 +22,8 @@ export const Colors = {
         tint: tintColorDark,
         icon: '#9BA1A6',
         tabIconDefault: '#9BA1A6',
-        tabIconSelected: tintColorDark,
+        tabIconSelected: brandBlue,
+        tabBarBackground: '#1c1c1e',
     },
 } as const
 

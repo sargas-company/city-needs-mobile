@@ -20,20 +20,30 @@ function TabIcon({ icon, color }: { icon: React.ComponentProps<typeof Feather>['
 function NativeTabsLayout() {
     const colorScheme = useColorScheme()
     const colors = Colors[colorScheme ?? 'light']
-    const active = Colors[colorScheme ?? 'light'].tint
+    const isDark = colorScheme === 'dark'
 
     return (
         <NativeTabs
             backgroundColor={colors.background}
+            tintColor={colors.tabIconSelected}
+            blurEffect={isDark ? 'systemMaterialDark' : 'systemMaterialLight'}
             iconColor={{
                 default: colors.tabIconDefault,
                 selected: colors.tabIconSelected,
             }}
             labelStyle={{
-                color: active,
-                fontSize: 12,
-                fontWeight: '700',
-                fontFamily: 'Poppins_600SemiBold',
+                default: {
+                    color: colors.tabIconDefault,
+                    fontSize: 12,
+                    fontWeight: '600',
+                    fontFamily: 'Poppins_600SemiBold',
+                },
+                selected: {
+                    color: colors.tabIconSelected,
+                    fontSize: 12,
+                    fontWeight: '700',
+                    fontFamily: 'Poppins_600SemiBold',
+                },
             }}
         >
             <NativeTabs.Trigger
@@ -82,7 +92,7 @@ function NativeTabsLayout() {
 
 function ClassicTabsLayout() {
     const colorScheme = useColorScheme()
-    const active = Colors[colorScheme ?? 'light'].tint
+    const colors = Colors[colorScheme ?? 'light']
 
     return (
         <Tabs
@@ -90,8 +100,8 @@ function ClassicTabsLayout() {
                 headerShown: false,
                 tabBarButton: HapticTab,
 
-                tabBarActiveTintColor: active,
-                tabBarInactiveTintColor: '#C9C9C9',
+                tabBarActiveTintColor: colors.tabIconSelected,
+                tabBarInactiveTintColor: colors.tabIconDefault,
 
                 tabBarStyle: {
                     height: 'auto',
@@ -99,7 +109,7 @@ function ClassicTabsLayout() {
                     paddingBottom: 24,
                     paddingHorizontal: 24,
 
-                    backgroundColor: '#efefef',
+                    backgroundColor: colors.tabBarBackground,
                     borderTopWidth: 0,
 
                     borderTopLeftRadius: 32,
