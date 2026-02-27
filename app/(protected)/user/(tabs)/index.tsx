@@ -39,16 +39,12 @@ type CategoryCardProps = {
 const CategoryCard = memo(function CategoryCard({ title, imageUrl, bgColor, onPress }: CategoryCardProps) {
     return (
         <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
-            <View className="flex-1 justify-end p-3 pr-24">
-                <AppText className="text-[15px] font-poppins-semibold text-white" numberOfLines={2}>
+            {imageUrl && <Image source={{ uri: imageUrl }} style={{ position: 'absolute', right: 0, bottom: 0, width: 100, height: 100 }} />}
+            <View className="flex-1 justify-end p-3 ">
+                <AppText className="text-[15px] font-poppins-semibold text-white mr-16" numberOfLines={2} textBreakStrategy="balanced">
                     {title}
                 </AppText>
             </View>
-            {imageUrl && (
-                <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
-                    <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
-                </View>
-            )}
         </AppPressable>
     )
 })
@@ -260,8 +256,6 @@ export default function HomeScreen() {
                                     <View className="flex-row items-center gap-3.5">
                                         <MapMarkerIcon width={24} height={24} />
                                         <AppText className="font-poppins-medium text-subtitle text-brand">{selectedCity ?? 'All Cities'}</AppText>
-
-                                        <Feather name="chevron-down" size={20} color="#e89f48" className={'mt-1'} />
                                     </View>
                                 </View>
                             </View>
