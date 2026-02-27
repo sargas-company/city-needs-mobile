@@ -62,6 +62,11 @@ export default function ReelsScreen() {
         refetch()
     }, [refetch])
 
+    const categoryChips = useMemo(() => {
+        const allOption = { id: null as string | null, title: 'All' }
+        return [allOption, ...(categories ?? [])]
+    }, [categories])
+
     const keyExtractor = useCallback((item: ReelFeedItem) => item.id, [])
 
     const renderItem = useCallback(
@@ -124,95 +129,36 @@ export default function ReelsScreen() {
                 </View>
 
                 {/* ── Category chips (horizontal scroll) ──────────────────────────── */}
-                {/*<ScrollView*/}
-                {/*    horizontal*/}
-                {/*    showsHorizontalScrollIndicator={false}*/}
-                {/*    className="mb-3"*/}
-                {/*    contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}*/}
-                {/*>*/}
-                {/*    <AppPressable*/}
-                {/*        onPress={() => handleCategoryPress(null)}*/}
-                {/*        className={*/}
-                {/*            selectedCategoryId === null*/}
-                {/*                ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'*/}
-                {/*                : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'*/}
-                {/*        }*/}
-                {/*    >*/}
-                {/*        <AppText*/}
-                {/*            className={*/}
-                {/*                selectedCategoryId === null*/}
-                {/*                    ? 'text-status font-poppins-medium text-white'*/}
-                {/*                    : 'text-status font-poppins-medium text-text'*/}
-                {/*            }*/}
-                {/*        >*/}
-                {/*            All*/}
-                {/*        </AppText>*/}
-                {/*        {selectedCategoryId === null && <Feather name="x" size={14} color="#fff" />}*/}
-                {/*    </AppPressable>*/}
-
-                {/*    {categories?.map((cat) => {*/}
-                {/*        const active = selectedCategoryId === cat.id*/}
-                {/*        return (*/}
-                {/*            <AppPressable*/}
-                {/*                key={cat.id}*/}
-                {/*                onPress={() => handleCategoryPress(cat.id)}*/}
-                {/*                className={*/}
-                {/*                    active*/}
-                {/*                        ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'*/}
-                {/*                        : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'*/}
-                {/*                }*/}
-                {/*            >*/}
-                {/*                <AppText*/}
-                {/*                    className={active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'}*/}
-                {/*                >*/}
-                {/*                    {cat.title}*/}
-                {/*                </AppText>*/}
-                {/*                {active && <Feather name="x" size={14} color="#fff" />}*/}
-                {/*            </AppPressable>*/}
-                {/*        )*/}
-                {/*    })}*/}
-                {/*</ScrollView>*/}
-
-                <View className="mb-3 flex-row flex-wrap gap-2 px-screen">
-                    <AppPressable
-                        onPress={() => handleCategoryPress(null)}
-                        className={
-                            selectedCategoryId === null
-                                ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
-                        }
-                    >
-                        <AppText
-                            className={
-                                selectedCategoryId === null
-                                    ? 'text-status font-poppins-medium text-white'
-                                    : 'text-status font-poppins-medium text-text'
-                            }
-                        >
-                            All
-                        </AppText>
-                    </AppPressable>
-                    {categories?.map((cat) => {
-                        const active = selectedCategoryId === cat.id
-                        return (
-                            <AppPressable
-                                key={cat.id}
-                                disabledClassName=""
-                                onPress={() => handleCategoryPress(cat.id)}
-                                className={
-                                    active
-                                        ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
-                                        : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
-                                }
-                            >
-                                <AppText
-                                    className={active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'}
+                <View className="mb-3 h-10">
+                    <FlatList
+                        horizontal
+                        data={categoryChips}
+                        extraData={selectedCategoryId}
+                        keyExtractor={(item) => item.id ?? 'all'}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 20, gap: 8, alignItems: 'center' }}
+                        renderItem={({ item }) => {
+                            const active = selectedCategoryId === item.id
+                            return (
+                                <AppPressable
+                                    onPress={() => handleCategoryPress(item.id)}
+                                    className={
+                                        active
+                                            ? 'flex-row items-center gap-1 rounded-xl bg-orange px-2.5 py-1.5'
+                                            : 'flex-row items-center rounded-xl border border-border bg-white px-2.5 py-1.5'
+                                    }
                                 >
-                                    {cat.title}
-                                </AppText>
-                            </AppPressable>
-                        )
-                    })}
+                                    <AppText
+                                        className={
+                                            active ? 'text-status font-poppins-medium text-white' : 'text-status font-poppins-medium text-text'
+                                        }
+                                    >
+                                        {item.title}
+                                    </AppText>
+                                </AppPressable>
+                            )
+                        }}
+                    />
                 </View>
 
                 {/* ── Scrollable List with Pull-to-Refresh ────────────────────────────── */}
