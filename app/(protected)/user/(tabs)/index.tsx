@@ -87,7 +87,7 @@ type SectionItem =
     | { type: 'header' }
     | { type: 'categories' }
     | { type: 'top-picks' }
-    | { type: 'section'; key: string; title: string; businesses: BusinessCardDto[]; isLoading: boolean }
+    | { type: 'section'; key: string; title: string; businesses: BusinessCardDto[]; isLoading: boolean; locationDenied?: boolean }
 
 const keyExtractor = (item: SectionItem, index: number) => {
     if (item.type === 'section') return `section-${item.key}`
@@ -98,12 +98,18 @@ const keyExtractor = (item: SectionItem, index: number) => {
 const HorizontalBusinessList = memo(function HorizontalBusinessList({
     businesses,
     isLoading,
+    locationDenied,
 }: {
     businesses: BusinessCardDto[]
     isLoading: boolean
+    locationDenied?: boolean
 }) {
     const renderItem = useCallback(({ item }: { item: BusinessCardDto }) => <HorizontalBusinessCard business={item} />, [])
     const businessKeyExtractor = useCallback((item: BusinessCardDto) => item.id, [])
+
+    if (locationDenied) {
+        return <EmptyState text="Enable location to see nearby services" />
+    }
 
     if (isLoading) {
         return (
@@ -136,7 +142,7 @@ const HorizontalBusinessList = memo(function HorizontalBusinessList({
 
 export default function HomeScreen() {
     const router = useRouter()
-    const { location } = useEnsureLocation()
+    const { location, permission } = useEnsureLocation()
     const selectedCity = useAppSelector(selectSelectedCity)
 
     const { data: categories = [] } = useGetCategoriesQuery()
@@ -224,7 +230,14 @@ export default function HomeScreen() {
             { type: 'categories' },
             { type: 'top-picks' },
             // { type: 'section', key: 'suggested', title: 'Suggested For You', businesses: suggestedBusinesses, isLoading: suggestedLoading },
-            { type: 'section', key: 'nearby', title: 'Near You', businesses: nearbyBusinesses, isLoading: nearbyLoading || !location },
+            {
+                type: 'section',
+                key: 'nearby',
+                title: 'Near You',
+                businesses: nearbyBusinesses,
+                isLoading: nearbyLoading || !location,
+                locationDenied: permission === 'denied',
+            },
             // {
             //     type: 'section',
             //     key: 'trending',
@@ -240,7 +253,7 @@ export default function HomeScreen() {
             //     isLoading: newLoading || !loadedSections.has('new'),
             // },
         ],
-        [nearbyBusinesses, nearbyLoading, location, trendingLoading, loadedSections]
+        [nearbyBusinesses, nearbyLoading, location, trendingLoading, loadedSections, permission]
     )
 
     // Track which sections become visible
@@ -400,7 +413,7 @@ export default function HomeScreen() {
                                     <AppText className="text-status font-poppins-medium text-brand">See All</AppText>
                                 </AppPressable>
                             </View>
-                            <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} />
+                            <HorizontalBusinessList businesses={item.businesses} isLoading={item.isLoading} locationDenied={item.locationDenied} />
                         </View>
                     )
 

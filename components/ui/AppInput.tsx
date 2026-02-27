@@ -124,6 +124,7 @@ export const AppInput: React.FC<AppInputProps> = ({
                         multiline={multiline}
                         numberOfLines={numberOfLines}
                         textAlignVertical={multiline ? 'top' : 'auto'}
+                        scrollEnabled={!multiline}
                         {...textInputProps}
                     />
                 )}
