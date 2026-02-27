@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { FlatList, Image, ImageSourcePropType, ListRenderItem, RefreshControl, View } from 'react-native'
+import { FlatList, Image, ListRenderItem, RefreshControl, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather'
@@ -18,49 +18,39 @@ import { AnalyticsSource } from '@/hooks/useTrackAnalytics'
 import { selectSelectedCity } from '@/store/features/location/location.selectors'
 import { useAppSelector } from '@/store/hooks'
 import type { BusinessCardDto } from '@/store/features/search/search.types'
-
-// Category card images
-import FoodImage from '@/assets/images/home-page/food.png'
-import BeautyImage from '@/assets/images/home-page/beauty.png'
-import RepairsImage from '@/assets/images/home-page/repairs.png'
-import PetsImage from '@/assets/images/home-page/pets.png'
 import NoDataImage from '@/assets/images/system/NoData.svg'
 import MapMarkerIcon from '@/assets/images/map-marker.svg'
 
+// Default background color when category has no bgColor
+const DEFAULT_BG_COLOR = '#B8C5D6'
+
+// Slugs for "What service do you need?" section
+const MAIN_CATEGORY_SLUGS = ['mortgage-brokers', 'event-planners', 'tiffin-services', 'cleaning']
+
+// Slugs for "Top Picks Today" section
+const TOP_PICKS_SLUGS = ['cleaning', 'pet-care', 'home-repairs', 'beauty-wellness']
+
 type CategoryCardProps = {
     title: string
-    emoji: string
-    image: ImageSourcePropType
+    imageUrl: string | null
     bgColor: string
     onPress?: () => void
 }
 
-const CategoryCard = memo(function CategoryCard({ title, emoji, image, bgColor, onPress }: CategoryCardProps) {
+const CategoryCard = memo(function CategoryCard({ title, imageUrl, bgColor, onPress }: CategoryCardProps) {
     return (
         <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
             <View className="flex-1 flex-row items-end p-3 gap-2">
-                <AppText className="text-lg">{emoji}</AppText>
                 <AppText className="text-[16px] font-poppins-semibold text-white">{title}</AppText>
             </View>
-            <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
-                <Image source={image} style={{ width: 100, height: 100 }} />
-            </View>
+            {imageUrl && (
+                <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
+                    <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
+                </View>
+            )}
         </AppPressable>
     )
 })
-
-// Visual config for category cards - matched by slug from API
-const CATEGORY_DISPLAY_CONFIG: Record<string, { title: string; emoji: string; image: ImageSourcePropType; bgColor: string }> = {
-    'beauty-wellness': { title: 'Beauty', emoji: '💄', image: BeautyImage, bgColor: '#dfbaf4' },
-    'pet-care': { title: 'Pets', emoji: '🐶', image: PetsImage, bgColor: '#D8CFC8' },
-    'home-repairs': { title: 'Repairs', emoji: '🔧', image: RepairsImage, bgColor: '#F4B778' },
-    cleaning: { title: 'Cleaning', emoji: '🧹', image: RepairsImage, bgColor: '#A3C9A8' },
-    'delivery-assistance': { title: 'Delivery', emoji: '🚚', image: FoodImage, bgColor: '#F5A3A8' },
-    other: { title: 'Other', emoji: '📦', image: FoodImage, bgColor: '#B8C5D6' },
-}
-
-// Default display for categories without specific config
-const DEFAULT_CATEGORY_DISPLAY = { title: 'Other', emoji: '📋', image: FoodImage, bgColor: '#B8C5D6' }
 
 // Horizontal business card for sections
 const HorizontalBusinessCard = memo(function HorizontalBusinessCard({ business }: { business: BusinessCardDto }) {
@@ -135,13 +125,7 @@ export default function HomeScreen() {
 
     const { data: categories = [] } = useGetCategoriesQuery()
 
-    // Map API categories to display cards (first 4 for grid)
-    const displayCategories = useMemo(() => {
-        return categories.slice(0, 4).map((cat) => ({
-            ...cat,
-            display: CATEGORY_DISPLAY_CONFIG[cat.slug] ?? DEFAULT_CATEGORY_DISPLAY,
-        }))
-    }, [categories])
+    const getCategoryBySlug = useCallback((slug: string) => categories.find((cat) => cat.slug === slug), [categories])
 
     const handleCategoryPress = useCallback(
         (slug: string) => {
@@ -311,44 +295,34 @@ export default function HomeScreen() {
 
                             <View className="gap-3">
                                 <View className="flex-row gap-3">
-                                    {displayCategories[0] && (
-                                        <CategoryCard
-                                            title={displayCategories[0].display.title}
-                                            emoji={displayCategories[0].display.emoji}
-                                            image={displayCategories[0].display.image}
-                                            bgColor={displayCategories[0].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[0].slug)}
-                                        />
-                                    )}
-                                    {displayCategories[1] && (
-                                        <CategoryCard
-                                            title={displayCategories[1].display.title}
-                                            emoji={displayCategories[1].display.emoji}
-                                            image={displayCategories[1].display.image}
-                                            bgColor={displayCategories[1].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[1].slug)}
-                                        />
-                                    )}
+                                    {MAIN_CATEGORY_SLUGS.slice(0, 2).map((slug) => {
+                                        const cat = getCategoryBySlug(slug)
+                                        if (!cat) return null
+                                        return (
+                                            <CategoryCard
+                                                key={cat.id}
+                                                title={cat.title}
+                                                imageUrl={cat.imageUrl}
+                                                bgColor={cat.bgColor ?? DEFAULT_BG_COLOR}
+                                                onPress={() => handleCategoryPress(cat.slug)}
+                                            />
+                                        )
+                                    })}
                                 </View>
                                 <View className="flex-row gap-3">
-                                    {displayCategories[2] && (
-                                        <CategoryCard
-                                            title={displayCategories[2].display.title}
-                                            emoji={displayCategories[2].display.emoji}
-                                            image={displayCategories[2].display.image}
-                                            bgColor={displayCategories[2].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[2].slug)}
-                                        />
-                                    )}
-                                    {displayCategories[3] && (
-                                        <CategoryCard
-                                            title={displayCategories[3].display.title}
-                                            emoji={displayCategories[3].display.emoji}
-                                            image={displayCategories[3].display.image}
-                                            bgColor={displayCategories[3].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[3].slug)}
-                                        />
-                                    )}
+                                    {MAIN_CATEGORY_SLUGS.slice(2, 4).map((slug) => {
+                                        const cat = getCategoryBySlug(slug)
+                                        if (!cat) return null
+                                        return (
+                                            <CategoryCard
+                                                key={cat.id}
+                                                title={cat.title}
+                                                imageUrl={cat.imageUrl}
+                                                bgColor={cat.bgColor ?? DEFAULT_BG_COLOR}
+                                                onPress={() => handleCategoryPress(cat.slug)}
+                                            />
+                                        )
+                                    })}
                                 </View>
                             </View>
                         </View>
@@ -366,44 +340,34 @@ export default function HomeScreen() {
                             </View>
                             <View className="gap-3">
                                 <View className="flex-row gap-3">
-                                    {displayCategories[3] && (
-                                        <CategoryCard
-                                            title={displayCategories[3].display.title}
-                                            emoji={displayCategories[3].display.emoji}
-                                            image={displayCategories[3].display.image}
-                                            bgColor={displayCategories[3].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[3].slug)}
-                                        />
-                                    )}
-                                    {displayCategories[1] && (
-                                        <CategoryCard
-                                            title={displayCategories[1].display.title}
-                                            emoji={displayCategories[1].display.emoji}
-                                            image={displayCategories[1].display.image}
-                                            bgColor={displayCategories[1].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[1].slug)}
-                                        />
-                                    )}
+                                    {TOP_PICKS_SLUGS.slice(0, 2).map((slug) => {
+                                        const cat = getCategoryBySlug(slug)
+                                        if (!cat) return null
+                                        return (
+                                            <CategoryCard
+                                                key={cat.id}
+                                                title={cat.title}
+                                                imageUrl={cat.imageUrl}
+                                                bgColor={cat.bgColor ?? DEFAULT_BG_COLOR}
+                                                onPress={() => handleCategoryPress(cat.slug)}
+                                            />
+                                        )
+                                    })}
                                 </View>
                                 <View className="flex-row gap-3">
-                                    {displayCategories[2] && (
-                                        <CategoryCard
-                                            title={displayCategories[2].display.title}
-                                            emoji={displayCategories[2].display.emoji}
-                                            image={displayCategories[2].display.image}
-                                            bgColor={displayCategories[2].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[2].slug)}
-                                        />
-                                    )}
-                                    {displayCategories[0] && (
-                                        <CategoryCard
-                                            title={displayCategories[0].display.title}
-                                            emoji={displayCategories[0].display.emoji}
-                                            image={displayCategories[0].display.image}
-                                            bgColor={displayCategories[0].display.bgColor}
-                                            onPress={() => handleCategoryPress(displayCategories[0].slug)}
-                                        />
-                                    )}
+                                    {TOP_PICKS_SLUGS.slice(2, 4).map((slug) => {
+                                        const cat = getCategoryBySlug(slug)
+                                        if (!cat) return null
+                                        return (
+                                            <CategoryCard
+                                                key={cat.id}
+                                                title={cat.title}
+                                                imageUrl={cat.imageUrl}
+                                                bgColor={cat.bgColor ?? DEFAULT_BG_COLOR}
+                                                onPress={() => handleCategoryPress(cat.slug)}
+                                            />
+                                        )
+                                    })}
                                 </View>
                             </View>
                         </View>
@@ -430,7 +394,7 @@ export default function HomeScreen() {
                     return null
             }
         },
-        [handleCategoryPress, handleSeeAllPress, handleNearYouSeeAllPress, handleSearchSubmit, displayCategories, searchText, selectedCity]
+        [handleCategoryPress, handleSeeAllPress, handleNearYouSeeAllPress, handleSearchSubmit, getCategoryBySlug, searchText, selectedCity]
     )
 
     return (

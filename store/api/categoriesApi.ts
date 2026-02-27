@@ -13,6 +13,8 @@ export type CategoryType = {
     description: string | null
     requiresVerification: boolean
     gracePeriodHours: number | null
+    imageUrl: string | null
+    bgColor: string | null
 }
 
 export const categoriesApi = baseApi.injectEndpoints({

@@ -3,10 +3,9 @@ import { Alert, Pressable, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import Feather from '@expo/vector-icons/Feather'
 import { useRouter } from 'expo-router'
-import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Dropdown } from 'react-native-element-dropdown'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { BusinessHoursForm } from '@/components/forms/BusinessHoursForm'
@@ -63,8 +62,26 @@ const mockAddressDefaults: AddressFormValues = {
 }
 
 const categoryOptions: CategoryType[] = [
-    { id: 'pets', title: 'Pets', slug: 'pets', description: null, requiresVerification: false, gracePeriodHours: null },
-    { id: 'beauty', title: 'Beauty', slug: 'beauty', description: null, requiresVerification: false, gracePeriodHours: null },
+    {
+        id: 'pets',
+        title: 'Pets',
+        slug: 'pets',
+        description: null,
+        requiresVerification: false,
+        gracePeriodHours: null,
+        imageUrl: null,
+        bgColor: null,
+    },
+    {
+        id: 'beauty',
+        title: 'Beauty',
+        slug: 'beauty',
+        description: null,
+        requiresVerification: false,
+        gracePeriodHours: null,
+        imageUrl: null,
+        bgColor: null,
+    },
 ]
 
 const servicePillBase = 'flex-row items-center gap-2 rounded-checkbox border px-3 py-2'
@@ -332,73 +349,73 @@ const EditBusinessProfileScreen = () => {
 
                         <FormPhoneInput<BusinessInfoFormValues> control={businessForm.control} name="phone" label="Mobile Number" required />
 
-                        <Controller
-                            control={businessForm.control}
-                            name="categoryId"
-                            render={({ field: { value, onChange }, fieldState: { error } }) => (
-                                <View>
-                                    <AppText className="mb-2 leading-[21px]">
-                                        Category<AppText className="text-danger">*</AppText>
-                                    </AppText>
-                                    {/*
-                                     * Use fetched categories when available; fall back to mock options so the existing default value remains selectable.
-                                     */}
-                                    {(() => {
-                                        const categoryData = categories ?? categoryOptions
-                                        const hasOptions = categoryData.length > 0
-                                        const placeholder = isCategoriesLoading
-                                            ? 'Loading categories...'
-                                            : hasOptions
-                                              ? 'Select category'
-                                              : 'No categories available'
+                        {/*<Controller*/}
+                        {/*    control={businessForm.control}*/}
+                        {/*    name="categoryId"*/}
+                        {/*    render={({ field: { value, onChange }, fieldState: { error } }) => (*/}
+                        {/*        <View>*/}
+                        {/*            <AppText className="mb-2 leading-[21px]">*/}
+                        {/*                Category<AppText className="text-danger">*</AppText>*/}
+                        {/*            </AppText>*/}
+                        {/*            /!**/}
+                        {/*             * Use fetched categories when available; fall back to mock options so the existing default value remains selectable.*/}
+                        {/*             *!/*/}
+                        {/*            {(() => {*/}
+                        {/*                const categoryData = categories ?? categoryOptions*/}
+                        {/*                const hasOptions = categoryData.length > 0*/}
+                        {/*                const placeholder = isCategoriesLoading*/}
+                        {/*                    ? 'Loading categories...'*/}
+                        {/*                    : hasOptions*/}
+                        {/*                      ? 'Select category'*/}
+                        {/*                      : 'No categories available'*/}
 
-                                        return (
-                                            <Dropdown
-                                                data={categoryData}
-                                                labelField="title"
-                                                valueField="id"
-                                                value={value}
-                                                placeholder={placeholder}
-                                                disable={isCategoriesLoading || !hasOptions}
-                                                onChange={(item: CategoryType) => onChange(item.id)}
-                                                style={{
-                                                    height: 48,
-                                                    borderRadius: 12,
-                                                    borderWidth: 1,
-                                                    borderColor: error ? '#EF4444' : '#CBCBCB',
-                                                    paddingHorizontal: 12,
-                                                    backgroundColor: '#ffffff',
-                                                }}
-                                                placeholderStyle={{
-                                                    fontSize: 14,
-                                                    color: '#9CA3AF',
-                                                }}
-                                                selectedTextStyle={{
-                                                    fontSize: 14,
-                                                    color: '#171717',
-                                                }}
-                                                itemTextStyle={{
-                                                    fontSize: 14,
-                                                    color: '#171717',
-                                                }}
-                                                containerStyle={{
-                                                    borderRadius: 12,
-                                                    backgroundColor: '#ffffff',
-                                                }}
-                                            />
-                                        )
-                                    })()}
-                                    {!!error && <AppText className="mt-1 text-xs font-poppins-semibold text-danger">{error.message}</AppText>}
-                                    {!!categoriesError && isCategoriesError ? (
-                                        <AppText className="mt-1 text-xs font-poppins-semibold text-danger">
-                                            {(categoriesError as { data?: { message?: string } })?.data?.message ??
-                                                (categoriesError as { message?: string })?.message ??
-                                                'Failed to load categories'}
-                                        </AppText>
-                                    ) : null}
-                                </View>
-                            )}
-                        />
+                        {/*                return (*/}
+                        {/*                    <Dropdown*/}
+                        {/*                        data={categoryData}*/}
+                        {/*                        labelField="title"*/}
+                        {/*                        valueField="id"*/}
+                        {/*                        value={value}*/}
+                        {/*                        placeholder={placeholder}*/}
+                        {/*                        disable={isCategoriesLoading || !hasOptions}*/}
+                        {/*                        onChange={(item: CategoryType) => onChange(item.id)}*/}
+                        {/*                        style={{*/}
+                        {/*                            height: 48,*/}
+                        {/*                            borderRadius: 12,*/}
+                        {/*                            borderWidth: 1,*/}
+                        {/*                            borderColor: error ? '#EF4444' : '#CBCBCB',*/}
+                        {/*                            paddingHorizontal: 12,*/}
+                        {/*                            backgroundColor: '#ffffff',*/}
+                        {/*                        }}*/}
+                        {/*                        placeholderStyle={{*/}
+                        {/*                            fontSize: 14,*/}
+                        {/*                            color: '#9CA3AF',*/}
+                        {/*                        }}*/}
+                        {/*                        selectedTextStyle={{*/}
+                        {/*                            fontSize: 14,*/}
+                        {/*                            color: '#171717',*/}
+                        {/*                        }}*/}
+                        {/*                        itemTextStyle={{*/}
+                        {/*                            fontSize: 14,*/}
+                        {/*                            color: '#171717',*/}
+                        {/*                        }}*/}
+                        {/*                        containerStyle={{*/}
+                        {/*                            borderRadius: 12,*/}
+                        {/*                            backgroundColor: '#ffffff',*/}
+                        {/*                        }}*/}
+                        {/*                    />*/}
+                        {/*                )*/}
+                        {/*            })()}*/}
+                        {/*            {!!error && <AppText className="mt-1 text-xs font-poppins-semibold text-danger">{error.message}</AppText>}*/}
+                        {/*            {!!categoriesError && isCategoriesError ? (*/}
+                        {/*                <AppText className="mt-1 text-xs font-poppins-semibold text-danger">*/}
+                        {/*                    {(categoriesError as { data?: { message?: string } })?.data?.message ??*/}
+                        {/*                        (categoriesError as { message?: string })?.message ??*/}
+                        {/*                        'Failed to load categories'}*/}
+                        {/*                </AppText>*/}
+                        {/*            ) : null}*/}
+                        {/*        </View>*/}
+                        {/*    )}*/}
+                        {/*/>*/}
 
                         <FormInput<BusinessInfoFormValues>
                             control={businessForm.control}
