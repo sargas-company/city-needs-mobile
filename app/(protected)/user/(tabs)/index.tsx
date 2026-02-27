@@ -40,8 +40,10 @@ type CategoryCardProps = {
 const CategoryCard = memo(function CategoryCard({ title, imageUrl, bgColor, onPress }: CategoryCardProps) {
     return (
         <AppPressable onPress={onPress} className="flex-1 overflow-hidden rounded-xl" style={{ backgroundColor: bgColor, height: 100 }}>
-            <View className="flex-1 flex-row items-end p-3 gap-2">
-                <AppText className="text-[16px] font-poppins-semibold text-white">{title}</AppText>
+            <View className="flex-1 justify-end p-3 pr-24">
+                <AppText className="text-[15px] font-poppins-semibold text-white" numberOfLines={2}>
+                    {title}
+                </AppText>
             </View>
             {imageUrl && (
                 <View style={{ position: 'absolute', right: 0, bottom: 0 }}>
