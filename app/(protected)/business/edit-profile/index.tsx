@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Pressable, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import Feather from '@expo/vector-icons/Feather'
@@ -164,6 +164,7 @@ const EditBusinessProfileScreen = () => {
     const [serviceOnSite, setServiceOnSite] = useState<boolean>(business?.serviceOnSite ?? true)
     const [serviceInStudio, setServiceInStudio] = useState<boolean>(business?.serviceInStudio ?? true)
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const hasInitializedServiceFlags = useRef(false)
 
     const derivedBusinessDefaults = useMemo<BusinessInfoFormValues>(() => {
         const hoursSource = businessHoursApi?.length ? businessHoursDayDtoToFlat(businessHoursApi) : (business?.businessHours ?? null)
@@ -200,9 +201,13 @@ const EditBusinessProfileScreen = () => {
 
     useEffect(() => {
         businessForm.reset(derivedBusinessDefaults)
-        setServiceOnSite(business?.serviceOnSite ?? true)
-        setServiceInStudio(business?.serviceInStudio ?? true)
-    }, [business?.serviceInStudio, business?.serviceOnSite, businessForm, derivedBusinessDefaults])
+        // Only set service flags on initial load, not after saves
+        if (!hasInitializedServiceFlags.current && business) {
+            setServiceOnSite(business.serviceOnSite ?? true)
+            setServiceInStudio(business.serviceInStudio ?? true)
+            hasInitializedServiceFlags.current = true
+        }
+    }, [business, businessForm, derivedBusinessDefaults])
 
     const businessInitial = useMemo(() => {
         const name = derivedBusinessDefaults.businessName || profileUser?.username || ''
@@ -271,7 +276,12 @@ const EditBusinessProfileScreen = () => {
         try {
             await updateMyBusinessProfile(dto).unwrap()
             if (business?.id) {
-                dispatch(publicBusinessApi.util.invalidateTags([{ type: 'PublicBusiness', id: `${business.id}-hours` }]))
+                dispatch(
+                    publicBusinessApi.util.invalidateTags([
+                        { type: 'PublicBusiness', id: business.id },
+                        { type: 'PublicBusiness', id: `${business.id}-hours` },
+                    ])
+                )
             }
             const meResult = await dispatch(authApi.endpoints.me.initiate(undefined, { forceRefetch: true })).unwrap()
             const resolvedMe = resolveApiData<AppUser>(meResult)
