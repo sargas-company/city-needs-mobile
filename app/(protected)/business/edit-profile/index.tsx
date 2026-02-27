@@ -322,10 +322,11 @@ const EditBusinessProfileScreen = () => {
                 </View>
 
                 <View className="items-center">
-                    <View className="relative">
+                    <Pressable onPress={handlePickLogo} disabled={isSaving} className="relative">
                         <Avatar
-                            size={120}
                             uri={currentLogoUri}
+                            size={120}
+                            borderWidth={4}
                             borderColor="#F6F7FB"
                             fallback={
                                 <View className="flex-1 items-center justify-center bg-[#E5E7EB]">
@@ -333,18 +334,9 @@ const EditBusinessProfileScreen = () => {
                                 </View>
                             }
                         />
-
-                        <Pressable
-                            onPress={handlePickLogo}
-                            disabled={isSaving}
-                            className="absolute left-1/2 top-1/2 -ml-5 -mt-5 h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg"
-                        >
+                        <View className="absolute bottom-1 right-1 h-9 w-9 items-center justify-center rounded-full bg-white shadow">
                             <Feather name="camera" size={18} color="#0C2A63" />
-                        </Pressable>
-                    </View>
-
-                    <Pressable className="mt-3" hitSlop={6} onPress={handlePickLogo} disabled={isSaving}>
-                        <AppText className="font-poppins-medium text-[13px] text-[#e89f48]">Change profile picture</AppText>
+                        </View>
                     </Pressable>
                 </View>
 

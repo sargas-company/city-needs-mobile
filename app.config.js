@@ -14,9 +14,10 @@ module.exports = {
         jsEngine: 'hermes',
         newArchEnabled: true,
         ios: {
-            supportsTablet: true,
+            supportsTablet: false,
             infoPlist: {
                 NSLocationWhenInUseUsageDescription: 'We use your location to show nearby providers and personalize results.',
+                NSPhotoLibraryUsageDescription: 'We need access to your photo library to upload profile photos and business images.',
                 ITSAppUsesNonExemptEncryption: false,
             },
             bundleIdentifier: 'com.cityneeds.app',
@@ -62,6 +63,18 @@ module.exports = {
             ],
             'expo-secure-store',
             'expo-video',
+            [
+                'expo-image-picker',
+                {
+                    photosPermission: 'Allow $(PRODUCT_NAME) to access your photos to upload profile images.',
+                },
+            ],
+            [
+                'expo-location',
+                {
+                    locationWhenInUsePermission: 'Allow $(PRODUCT_NAME) to use your location to show nearby providers.',
+                },
+            ],
         ],
         experiments: {
             typedRoutes: true,

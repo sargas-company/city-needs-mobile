@@ -1,7 +1,9 @@
 import React from 'react'
-import { Modal, Pressable, ScrollView, View } from 'react-native'
+import { Linking, Modal, Pressable, ScrollView, View } from 'react-native'
 
 import { AppText } from '@/components/ui/AppText'
+
+const PRIVACY_POLICY_URL = process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || 'http://admin-cn.sargas.io/privacy'
 
 interface IPropsTermsModal {
     visible: boolean
@@ -57,6 +59,10 @@ const TermsModal: React.FC<IPropsTermsModal> = ({ visible, onClose }) => {
                         <AppText className="mb-4 font-poppins text-sm leading-5 text-text-muted">
                             If you have any questions about these terms or how we handle your data, please contact our support team.
                         </AppText>
+
+                        <Pressable onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
+                            <AppText className="font-poppins-medium text-sm text-brand underline">Read full Privacy Policy on our website</AppText>
+                        </Pressable>
                     </ScrollView>
 
                     <Pressable onPress={onClose} className="mt-2 w-full items-center rounded-pill bg-brand px-4 py-3">
